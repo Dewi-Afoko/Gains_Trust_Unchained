@@ -44,6 +44,9 @@ INSTALLED_APPS = [
 
     # My Apps
     'core',
+
+
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -85,7 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DATABASE_NAME', 'gains_trust'),
-        'USER': os.getenv('DATABASE_USER', 'super_user'),
+        'USER': os.getenv('DATABASE_USER', 'dewi'),
         'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),  # Load from .env
         'HOST': os.getenv('DATABASE_HOST', 'localhost'),
         'PORT': os.getenv('DATABASE_PORT', '5432'),
@@ -133,3 +136,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'core.User'
+

@@ -11,3 +11,6 @@ class SetDict(models.Model):
     rest = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
     complete = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.workout.workout_name} - {self.exercise_name} (Set {self.set_order})"
