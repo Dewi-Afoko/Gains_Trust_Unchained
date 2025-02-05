@@ -1,0 +1,15 @@
+
+**/__pycache__/
+
+
+# Ignore database files
+*.sqlite3
+
+# Ignore virtual environments
+venv/
+env/
+*venv*
+
+# Ignore IDE settings (VS Code, PyCharm, etc.)
+.vscode/
+.idea/
