@@ -9,6 +9,9 @@
 venv/
 env/
 *venv*
+.env
+**/.env/
+*env*
 
 # Ignore IDE settings (VS Code, PyCharm, etc.)
 .vscode/
