@@ -3,3 +3,4 @@ from .weight import Weight
 from .setdict import SetDict
 from .workout import Workout
 from .exercise import Exercise
+from .userrecord import UserRecord
