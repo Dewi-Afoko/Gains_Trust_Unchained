@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -56,6 +56,26 @@ class WeightView(APIView):
             return Response({'message' : f'{weight.weight} logged on {weight.date_recorded} by {user.username}'}, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request):
+        user = request.user
+        weight_id = request.data.get('id')
+
+        if not weight_id:
+            return Response({'error': 'Weight ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        weight = get_object_or_404(Weight, id=weight_id, user=user)
+        weight.delete()
+
+        return Response(
+            {'message': f'Weight record with ID {weight_id} has been deleted for {user.username}'},
+            status=status.HTTP_200_OK
+        )
+
+
+        
+        
+
 
 
 
