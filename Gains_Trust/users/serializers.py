@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from .models import Weight
 
 User = get_user_model()
 
@@ -17,3 +18,18 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data["password"]
         )
         return user
+
+class WeightSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Weight
+        fields = ["user", "weight", "date_recorded"]
+        read_only_fields = ["user", "date_recorded"]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        weight = Weight.objects.create(
+            user=request.user,
+            weight=validated_data["weight"]
+        )
+        return weight
