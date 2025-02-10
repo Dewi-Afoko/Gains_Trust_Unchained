@@ -9,6 +9,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', logout, name='logout'),
     path('update_user/', update_user, name='update'),
-        path('weights/', WeightView.as_view(), name='weights'),
+    path('weights/', WeightView.as_view(), name='weights'),
     path('weights/delete/', WeightView.as_view(), name='delete-weight'),
 ]
