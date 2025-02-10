@@ -152,6 +152,31 @@ def test_update_user_without_authentication(api_client, create_user):
     assert response.data['detail'] == "Authentication credentials were not provided."
 
 
+@pytest.mark.django_db
+def test_delete_weight_missing_id(api_client, create_user):
+    """Test that a 400 Bad Request is returned when no weight ID is provided"""
+    api_client.force_authenticate(user=create_user)
+    
+    # Send a DELETE request without 'id' field
+    response = api_client.delete('/users/weights/delete/', {}, format='json')
+    
+    # Assert the response is a 400 status with the correct error message
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'Weight ID is required' in response.data['error']
+
+
+@pytest.mark.django_db
+def test_create_weight_invalid_data(api_client, create_user):
+    """Test that a 400 Bad Request is returned when invalid weight data is provided"""
+    api_client.force_authenticate(user=create_user)
+    
+    # Send invalid data (missing weight value)
+    invalid_data = {}
+    response = api_client.post('/users/weights/', invalid_data, format='json')
+    
+    # Assert the response is a 400 status with the correct error message
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'weight' in response.data
 
 
 
