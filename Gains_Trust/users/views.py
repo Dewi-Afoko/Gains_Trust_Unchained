@@ -32,8 +32,22 @@ def logout(request):
         token = RefreshToken(refresh_token)
         token.blacklist()
         return Response({"message": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
+    except KeyError:
+        return Response({"error": "Refresh token missing."}, status=status.HTTP_400_BAD_REQUEST)
     except Exception:
         return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    user = request.user
+    serializer = UserSerializer(instance=user, data=request.data, context={'request': request}, partial=True)
+
+    if serializer.is_valid():
+        updated_user = serializer.save()
+        return Response({'message': f'User details updated successfully for {updated_user.username}.', 'data': serializer.data}, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         
 class WeightView(APIView):

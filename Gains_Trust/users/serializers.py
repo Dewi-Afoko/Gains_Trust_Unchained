@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "password"]
+        fields = ["id", "username", "password", "height", "dob"]
         read_only_fields = ['id']
 
     def create(self, validated_data):
@@ -18,6 +18,21 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data["password"]
         )
         return user
+
+    def update(self, instance, validated_data):
+        height = validated_data.get('height')
+        dob = validated_data.get('dob')
+        password = validated_data.get('password')
+        if height:
+            instance.height = height
+        if dob:
+            instance.dob = dob
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
+        
+
 
 class WeightSerializer(serializers.ModelSerializer):
 
