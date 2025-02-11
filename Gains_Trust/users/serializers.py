@@ -20,13 +20,10 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        height = validated_data.get('height')
-        dob = validated_data.get('dob')
+        for attr, value in validated_data.items():
+            if value is not None and attr != 'password': 
+                setattr(instance, attr, value)
         password = validated_data.get('password')
-        if height:
-            instance.height = height
-        if dob:
-            instance.dob = dob
         if password:
             instance.set_password(password)
         instance.save()

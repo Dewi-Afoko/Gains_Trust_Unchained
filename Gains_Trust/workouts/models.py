@@ -4,7 +4,7 @@ from users.models import User
 
 # Create your models here.
 class Workout(models.Model):
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="workouts")
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="workoutss")
     workout_name = models.CharField(max_length=255)
     date = models.DateField(default=now)
     complete = models.BooleanField(default=False)
@@ -18,7 +18,7 @@ class Workout(models.Model):
     
 
 class SetDict(models.Model):
-    workout = models.ForeignKey('workout.Workout', on_delete=models.CASCADE, related_name="set_dicts")
+    workout = models.ForeignKey('workouts.Workout', on_delete=models.CASCADE, related_name="set_dicts")
     exercise_name = models.CharField(max_length=255)
     set_order = models.IntegerField(null=True, blank=True)
     set_number = models.IntegerField(null=True, blank=True)
