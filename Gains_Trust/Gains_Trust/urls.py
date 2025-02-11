@@ -20,8 +20,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
-    path('users/', include('users.urls')),
+    path('api/', include('core.urls')),
+    path('api/users/', include('users.urls')),
+    path('api/workouts/', include('workouts.urls')),
 
     #DRF JWTs
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

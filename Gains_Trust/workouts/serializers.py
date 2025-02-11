@@ -33,13 +33,11 @@ class SetDictSerializer(serializers.ModelSerializer):
         read_only_fields = ["workout", "set_number"]
 
     def create(self, validated_data):
-        request = self.context.get("request")
-        workout_id = request.data.get("workout")
-        if not workout_id:
-            raise serializers.ValidationError({"workout": "A valid workout ID must be provided."})
+        workout = self.context.get("workout")
+        if not workout:
+            raise serializers.ValidationError({"workout": "A valid workout instance must be provided."})
         
-        workout = get_object_or_404(Workout, id=workout_id)
-        
+
         if "set_order" not in validated_data:
             validated_data["set_order"] = SetDict.objects.filter(workout=workout).count() + 1
         
