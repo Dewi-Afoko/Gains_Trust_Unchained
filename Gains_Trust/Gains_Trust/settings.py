@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     # My Apps
     'core',
     'users',
-    'workout',
+    'workouts',
 
 
     'rest_framework',

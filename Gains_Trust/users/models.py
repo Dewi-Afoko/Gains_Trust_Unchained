@@ -34,7 +34,7 @@ class Weight(models.Model):
 class UserRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_records')  
     exercise = models.ForeignKey('core.Exercise', on_delete=models.CASCADE, related_name='user_records') 
-    set_dict = models.ForeignKey('workout.SetDict', on_delete=models.CASCADE, related_name='user_records', null=True, blank=True)  
+    set_dict = models.ForeignKey('workouts.SetDict', on_delete=models.CASCADE, related_name='user_records', null=True, blank=True)  
     weight = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     reps = models.IntegerField(blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True) 
