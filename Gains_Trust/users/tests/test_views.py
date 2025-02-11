@@ -152,18 +152,6 @@ def test_update_user_without_authentication(api_client, create_user):
     assert response.data['detail'] == "Authentication credentials were not provided."
 
 
-@pytest.mark.django_db
-def test_delete_weight_missing_id(api_client, create_user):
-    """Test that a 400 Bad Request is returned when no weight ID is provided"""
-    api_client.force_authenticate(user=create_user)
-    
-    # Send a DELETE request without 'id' field
-    response = api_client.delete('/users/weights/delete/', {}, format='json')
-    
-    # Assert the response is a 400 status with the correct error message
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert 'Weight ID is required' in response.data['error']
-
 
 @pytest.mark.django_db
 def test_create_weight_invalid_data(api_client, create_user):
@@ -224,8 +212,8 @@ def test_get_weights_unauthenticated(api_client):
 def test_delete_weight_authenticated(api_client, create_user, create_weight):
     """Test deleting a weight record with an authenticated user"""
     api_client.force_authenticate(user=create_user)
-    weight = create_weight  # Assume weight is created by the fixture
-    response = api_client.delete('/users/weights/delete/', data={'id': weight.id}, format='json')  # Correct the URL
+    weight = create_weight  
+    response = api_client.delete(f'/users/weights/{weight.id}/')
     assert response.status_code == status.HTTP_200_OK
     assert 'message' in response.data
     assert f'Weight record with ID {weight.id} has been deleted' in response.data['message']
@@ -234,8 +222,8 @@ def test_delete_weight_authenticated(api_client, create_user, create_weight):
 @pytest.mark.django_db
 def test_delete_weight_unauthenticated(api_client, create_weight):
     """Test deleting a weight record without authentication"""
-    weight = create_weight  # Assume weight is created by the fixture
-    response = api_client.delete('/users/weights/delete/', data={'id': weight.id}, format='json')  # Correct the URL
+    weight = create_weight  
+    response = api_client.delete(f'/users/weights/{weight.id}/')
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
@@ -247,8 +235,17 @@ def test_delete_weight_other_user(api_client, create_user, create_weight):
     weight = Weight.objects.create(user=other_user, weight=80.5)  # Create a weight for another user
     
     # Ensure that the correct URL is used
-    response = api_client.delete('/users/weights/delete/', data={'id': weight.id}, format='json')  
+    response = api_client.delete(f'/users/weights/{weight.id}/')  
     
     # Since the weight belongs to another user, we expect a 404 Not Found
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+@pytest.mark.django_db
+def test_delete_weight_invalid_id(api_client, create_user):
+    """Test deleting a weight with an invalid ID returns 404"""
+    api_client.force_authenticate(user=create_user)
+    
+    invalid_weight_id = 9999  # Assuming this ID does not exist
+    response = api_client.delete(f'/users/weights/{invalid_weight_id}/')
+    
+    assert response.status_code == status.HTTP_404_NOT_FOUND

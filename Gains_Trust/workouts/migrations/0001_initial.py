@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('rest', models.IntegerField(blank=True, null=True)),
                 ('notes', models.TextField(blank=True)),
                 ('complete', models.BooleanField(default=False)),
-                ('workout', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='set_dicts', to='workout.workout')),
+                ('workout', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='set_dicts', to='workouts.workout')),
             ],
         ),
     ]

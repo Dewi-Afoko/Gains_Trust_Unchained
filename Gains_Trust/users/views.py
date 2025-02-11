@@ -71,18 +71,13 @@ class WeightView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self, request):
-        user = request.user
-        weight_id = request.data.get('id')
-
-        if not weight_id:
-            return Response({'error': 'Weight ID is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        weight = get_object_or_404(Weight, id=weight_id, user=user)
+    def delete(self, request, weight_id):
+        """Delete a specific weight record"""
+        weight = get_object_or_404(Weight, id=weight_id, user=request.user)
         weight.delete()
 
         return Response(
-            {'message': f'Weight record with ID {weight_id} has been deleted for {user.username}'},
+            {'message': f'Weight record with ID {weight_id} has been deleted for {request.user.username}'},
             status=status.HTTP_200_OK
         )
 
