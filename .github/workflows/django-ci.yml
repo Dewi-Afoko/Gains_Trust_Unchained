@@ -14,24 +14,21 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:13
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_USER: dewi
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: gains_trust
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres -d test_db"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-    env:
-      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/test_db"
+          --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }} -d ${{ secrets.POSTGRES_DB }}"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Check out repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -39,7 +36,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Create .env File
+        run: |
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "DATABASE_URL=postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}" >> .env
+
+      - name: Install Dependencies
         run: |
           python -m venv venv
           source venv/bin/activate
@@ -56,4 +60,4 @@ jobs:
         run: |
           source venv/bin/activate
           cd Gains_Trust
-          pytest --cov=.
+          pytest --disable-warnings --cov=. --cov-report=term-missing
