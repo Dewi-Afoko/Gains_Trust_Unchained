@@ -7,7 +7,7 @@ from users.models import User
 class Workout(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="workoutss")
     workout_name = models.CharField(max_length=255)
-    date = models.DateField(default=now)
+    date = models.DateField(auto_now_add=True)
     complete = models.BooleanField(default=False)
     user_weight = models.FloatField(null=True, blank=True)
     sleep_score = models.IntegerField(null=True, blank=True)
