@@ -1,7 +1,13 @@
 import pytest
 from django.contrib.auth import get_user_model
 from users.models import Weight
-from tests.conftest import create_user, user_data, test_request, api_client, factory
+from tests.conftest import (
+    create_user,
+    user_data,
+    test_request,
+    api_client,
+    factory,
+)
 
 User = get_user_model()
 
@@ -10,9 +16,8 @@ User = get_user_model()
 @pytest.fixture
 def weight_data():
     """Fixture for weight data"""
-    return {
-        'weight': 80.5
-    }
+    return {"weight": 80.5}
+
 
 # Fixture to create a Weight object
 @pytest.fixture

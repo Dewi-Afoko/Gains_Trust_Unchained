@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('workouts', '0003_setdict_loading'),
+        ("workouts", "0003_setdict_loading"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='workout',
-            name='date',
+            model_name="workout",
+            name="date",
             field=models.DateField(auto_now_add=True),
         ),
     ]

@@ -6,15 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0003_remove_setdict_workout_remove_workout_user'),
-        ('users', '0002_alter_userrecord_set_dict'),
+        ("core", "0003_remove_setdict_workout_remove_workout_user"),
+        ("users", "0002_alter_userrecord_set_dict"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='SetDict',
+            name="SetDict",
         ),
         migrations.DeleteModel(
-            name='Workout',
+            name="Workout",
         ),
     ]

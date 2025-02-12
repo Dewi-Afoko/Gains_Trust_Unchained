@@ -1,11 +1,11 @@
 from django.db import models
-from django.utils.timezone import now
-from users.models import User
 
 
 # Create your models here.
 class Workout(models.Model):
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="workoutss")
+    user = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="workoutss"
+    )
     workout_name = models.CharField(max_length=255)
     date = models.DateField(auto_now_add=True)
     complete = models.BooleanField(default=False)
@@ -16,11 +16,12 @@ class Workout(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.workout_name} ({self.date})"
-    
 
 
 class SetDict(models.Model):
-    workout = models.ForeignKey('workouts.Workout', on_delete=models.CASCADE, related_name="set_dicts")
+    workout = models.ForeignKey(
+        "workouts.Workout", on_delete=models.CASCADE, related_name="set_dicts"
+    )
     exercise_name = models.CharField(max_length=255)
     set_order = models.IntegerField(null=True, blank=True)
     set_number = models.IntegerField(null=True, blank=True)
@@ -33,8 +34,10 @@ class SetDict(models.Model):
     complete = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.workout.workout_name} - {self.exercise_name} (Set {self.set_order})"
-    
+        return (
+            f"{self.workout.workout_name} - {self.exercise_name} (Set {self.set_order})"
+        )
+
     def save(self, *args, **kwargs):
         # Assign set_order before saving
         if not self.pk:  # pk = primary key
@@ -43,11 +46,12 @@ class SetDict(models.Model):
         super().save(*args, **kwargs)  # Save the instance first
 
         # Fetch all instances of this exercise in this workout, ordered correctly
-        sets = SetDict.objects.filter(workout=self.workout, exercise_name=self.exercise_name).order_by("set_order")
+        sets = SetDict.objects.filter(
+            workout=self.workout, exercise_name=self.exercise_name
+        ).order_by("set_order")
 
         # Use bulk update instead of calling save() in a loop to prevent recursion error
         for index, instance in enumerate(sets, start=1):
             instance.set_number = index
 
         SetDict.objects.bulk_update(sets, ["set_number"])  # Updates in one DB query
-
