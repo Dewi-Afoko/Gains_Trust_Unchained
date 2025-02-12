@@ -11,54 +11,45 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     services:
       postgres:
-        image: postgres:13
+        image: postgres:15
         env:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }} -d ${{ secrets.POSTGRES_DB }}"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }}" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m venv venv
           source venv/bin/activate
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Apply migrations
+      - name: Run Migrations
         env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
         run: |
           source venv/bin/activate
           cd Gains_Trust
           python manage.py migrate
 
-      - name: Run tests
+      - name: Run Tests
         env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
         run: |
           source venv/bin/activate
           cd Gains_Trust
-          pytest --disable-warnings --cov
+          pytest --maxfail=5 --disable-warnings --cov=. --cov-report=term-missing
