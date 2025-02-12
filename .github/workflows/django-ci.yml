@@ -45,15 +45,21 @@ jobs:
             - name: Run Migrations
               env:
                   DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+                  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+                  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+                  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
               run: |
                   source venv/bin/activate
-                  cd Gains_Trust 
+                  cd Gains_Trust
                   python manage.py migrate
 
             - name: Run Tests
               env:
                   DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+                  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+                  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+                  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
               run: |
                   source venv/bin/activate
-                  cd Gains_Trust 
+                  cd Gains_Trust
                   pytest --cov=workouts --cov=users --cov-report=term-missing
