@@ -1,7 +1,7 @@
 
 **/__pycache__/
 
-
+todo.MD
 # Ignore database files
 *.sqlite3
 
@@ -16,3 +16,5 @@ env/
 # Ignore IDE settings (VS Code, PyCharm, etc.)
 .vscode/
 .idea/
+
+**/.pytest_cache/
