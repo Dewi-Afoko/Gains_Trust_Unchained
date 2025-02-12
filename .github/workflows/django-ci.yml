@@ -16,16 +16,19 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U ${{ secrets.POSTGRES_USER }} -d ${{ secrets.POSTGRES_DB }}"
+          --health-cmd="pg_isready -U postgres -d test_db"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/test_db"
 
     steps:
       - name: Check out repository
@@ -44,16 +47,12 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Migrations
-        env:
-          DATABASE_URL: "postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}"
         run: |
           source venv/bin/activate
           cd Gains_Trust
           python manage.py migrate
 
       - name: Run Tests
-        env:
-          DATABASE_URL: "postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}"
         run: |
           source venv/bin/activate
           cd Gains_Trust
