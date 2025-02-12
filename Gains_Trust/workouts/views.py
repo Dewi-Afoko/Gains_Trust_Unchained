@@ -14,13 +14,13 @@ class WorkoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """Return all workouts for the authenticated user."""
+        """Return all workouts for the authenticated user"""
         workouts = Workout.objects.filter(user=request.user).order_by("-date")
         serializer = WorkoutSerializer(workouts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
-        """Create a new workout for the authenticated user."""
+        """Create a new workout for the authenticated user"""
         serializer = WorkoutSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             workout = serializer.save()
@@ -58,7 +58,8 @@ class SetDictView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, workout_id):
-        workout = get_object_or_404(Workout, id=workout_id, user=request.user)  # ✅ Ensures workout exists
+        """Create a SetDict for a specific workout"""
+        workout = get_object_or_404(Workout, id=workout_id, user=request.user)
         serializer = SetDictSerializer(data=request.data, context={'request': request, 'workout': workout}) 
 
         if serializer.is_valid():

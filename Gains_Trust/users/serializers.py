@@ -36,7 +36,7 @@ class WeightSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Weight
-        fields = ["user", "weight", "date_recorded"]
+        fields = "__all__"
         read_only_fields = ["user", "date_recorded"]
 
     def create(self, validated_data):
