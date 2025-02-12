@@ -5,13 +5,16 @@ todo.MD
 # Ignore database files
 *.sqlite3
 
-# Ignore virtual environments
+# Ignore virtual environments and envs
+
+
 venv/
 env/
 *venv*
 .env
 **/.env/
 *env*
+!.env.example
 
 # Ignore IDE settings (VS Code, PyCharm, etc.)
 .vscode/
