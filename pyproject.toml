@@ -1,0 +1,22 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']  # Adjust to your Python version
+include = '\.pyi?$'
+exclude = '''
+(
+    /(
+        \.git
+        | \.mypy_cache
+        | \.pytest_cache
+        | venv
+        | env
+    )/
+)
+'''
+
+[tool.flake8]
+max-line-length = 79
+ignore = [
+    "E203",  # Whitespace before ':'
+    "W503",  # Line break before binary operator
+]

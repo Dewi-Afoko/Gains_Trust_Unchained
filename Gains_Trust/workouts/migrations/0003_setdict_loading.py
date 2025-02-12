@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('workouts', '0002_alter_workout_user'),
+        ("workouts", "0002_alter_workout_user"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='setdict',
-            name='loading',
+            model_name="setdict",
+            name="loading",
             field=models.FloatField(blank=True, null=True),
         ),
     ]

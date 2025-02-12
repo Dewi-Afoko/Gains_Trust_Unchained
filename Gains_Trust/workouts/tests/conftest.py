@@ -1,13 +1,23 @@
 import pytest
 from workouts.models import Workout, SetDict
-from tests.conftest import create_user, user_data, test_request, api_client, factory
+from tests.conftest import (
+    create_user,
+    user_data,
+    test_request,
+    api_client,
+    factory,
+)
 from django.utils.timezone import now
+
 
 # ✅ Use the `create_user` fixture from `tests/conftest.py`
 @pytest.fixture
 def create_workout(create_user):
     """Fixture to create a workout for a user"""
-    return Workout.objects.create(user=create_user, workout_name="Push Day", date=now().date())
+    return Workout.objects.create(
+        user=create_user, workout_name="Push Day", date=now().date()
+    )
+
 
 @pytest.fixture
 def workout_data(create_user):
@@ -16,6 +26,7 @@ def workout_data(create_user):
         "user": create_user,
         "name": "Leg Day",
     }
+
 
 @pytest.fixture
 def create_setdict(create_workout):
@@ -26,6 +37,7 @@ def create_setdict(create_workout):
         loading=100,
         reps=5,
     )
+
 
 @pytest.fixture
 def setdict_data(create_workout):

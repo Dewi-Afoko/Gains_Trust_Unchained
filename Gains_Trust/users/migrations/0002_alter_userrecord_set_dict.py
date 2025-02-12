@@ -7,14 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0001_initial'),
-        ('workouts', '0001_initial'),
+        ("users", "0001_initial"),
+        ("workouts", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='userrecord',
-            name='set_dict',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='user_records', to='workouts.setdict'),
+            model_name="userrecord",
+            name="set_dict",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="user_records",
+                to="workouts.setdict",
+            ),
         ),
     ]
