@@ -6,8 +6,8 @@ class WorkoutSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workout
-        fields = ['user', 'workout_name', 'date', 'complete', 'user_weight', 'sleep_score', 'sleep_quality', 'notes']
-        read_only_fields = ['user']
+        fields = "__all__"
+        read_only_fields = ['user', 'id']
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -29,8 +29,8 @@ class SetDictSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SetDict
-        fields = ["workout", "exercise_name", "set_order", "set_number", "set_type", "reps", "focus", "rest", "notes", "complete"]
-        read_only_fields = ["workout", "set_number"]
+        fields = "__all__"
+        read_only_fields = ["workout", "set_number", "id", "set_order"]
 
     def create(self, validated_data):
         workout = self.context.get("workout")
@@ -38,10 +38,9 @@ class SetDictSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"workout": "A valid workout instance must be provided."})
         
 
-        if "set_order" not in validated_data:
-            validated_data["set_order"] = SetDict.objects.filter(workout=workout).count() + 1
-        
-        return SetDict.objects.create(workout=workout, **validated_data)
+        set_dict = SetDict.objects.create(workout=workout, **validated_data)
+        set_dict.refresh_from_db()
+        return set_dict
     
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():

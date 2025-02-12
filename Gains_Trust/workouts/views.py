@@ -14,17 +14,17 @@ class WorkoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        """Return all workouts for the authenticated user."""
-        workouts = Workout.objects.filter(user=request.user).order_by("-date")
+        """Return all workouts for the authenticated user"""
+        workouts = Workout.objects.filter(user=request.user).order_by("-date", "-id")
         serializer = WorkoutSerializer(workouts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'message' : f'Latest workout: {serializer.data[0]}', 'workouts' : serializer.data}, status=status.HTTP_200_OK)
     
     def post(self, request):
-        """Create a new workout for the authenticated user."""
+        """Create a new workout for the authenticated user"""
         serializer = WorkoutSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             workout = serializer.save()
-            return Response({'message': f'{workout.workout_name} created for {request.user.username}'}, status=status.HTTP_201_CREATED)
+            return Response({'message': f'{workout.workout_name} created for {request.user.username}', 'workout' : serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def patch(self, request, workout_id):
@@ -35,8 +35,8 @@ class WorkoutView(APIView):
             updated_workout = serializer.save()
             return Response({
                 'message': f'{updated_workout.workout_name} updated successfully',
-                'data': serializer.data
-            }, status=status.HTTP_200_OK)
+                'workout': serializer.data
+            }, status=status.HTTP_200_OK) # Changed data to workout
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, workout_id):
@@ -55,17 +55,18 @@ class SetDictView(APIView):
         workout = get_object_or_404(Workout, id=workout_id, user=request.user)
         set_dicts = SetDict.objects.filter(workout=workout).order_by('-set_order')
         serializer = SetDictSerializer(set_dicts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'message' : f'Here are all the sets for {workout.workout_name}', 'sets' :serializer.data}, status=status.HTTP_200_OK) # Returns message and list of sets for workout
     
     def post(self, request, workout_id):
-        workout = get_object_or_404(Workout, id=workout_id, user=request.user)  # ✅ Ensures workout exists
+        """Create a SetDict for a specific workout"""
+        workout = get_object_or_404(Workout, id=workout_id, user=request.user)
         serializer = SetDictSerializer(data=request.data, context={'request': request, 'workout': workout}) 
 
         if serializer.is_valid():
             set_dict = serializer.save()
             return Response({
-                'message': f'{set_dict.exercise_name} #{set_dict.set_number} created for {workout.workout_name}'
-            }, status=status.HTTP_201_CREATED)
+                'message': f'{set_dict.exercise_name} #{set_dict.set_number} created for {workout.workout_name}', 'set' : serializer.data
+            }, status=status.HTTP_201_CREATED) # Returns message and set details
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -77,8 +78,8 @@ class SetDictView(APIView):
         if serializer.is_valid():
             updated_set_dict = serializer.save()
             return Response({
-                'message': f'{updated_set_dict.exercise_name} #{updated_set_dict.set_number} updated for {updated_set_dict.workout.workout_name}'
-            }, status=status.HTTP_200_OK)
+                'message': f'{updated_set_dict.exercise_name} #{updated_set_dict.set_number} updated for {updated_set_dict.workout.workout_name}', 'set' : serializer.data
+            }, status=status.HTTP_200_OK) # Returns the set that was updated
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, workout_id, set_dict_id):

@@ -3,6 +3,8 @@ from rest_framework.exceptions import ValidationError
 from users.serializers import UserSerializer, WeightSerializer
 from django.contrib.auth import get_user_model
 from users.models import Weight
+from django.urls import reverse
+
 
 User = get_user_model()
 
@@ -87,11 +89,12 @@ def test_weight_serializer_create_invalid_data(test_request):
 def test_weight_serializer_create_without_user(api_client, weight_data):
     """Test creating a weight record without an authenticated user"""
 
-    response = api_client.post('/users/weights/', weight_data)
-    assert response.status_code == 401
+    response = api_client.post(reverse("weights"), weight_data)
 
+    assert response.status_code == 401
     assert 'detail' in response.data
     assert response.data['detail'] == 'Authentication credentials were not provided.'
+
 
 
 
