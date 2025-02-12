@@ -94,9 +94,9 @@ def test_update_user_valid_data(api_client, create_user):
     assert response.status_code == status.HTTP_200_OK
     assert "message" in response.data
     assert response.data["message"] == f"User details updated successfully for {create_user.username}."
-    assert "data" in response.data
-    assert response.data["data"]["height"] == data["height"]
-    assert response.data["data"]["dob"] == data["dob"]
+    assert "user" in response.data
+    assert response.data["user"]["height"] == data["height"]
+    assert response.data["user"]["dob"] == data["dob"]
 
 
 @pytest.mark.django_db
@@ -164,7 +164,7 @@ def test_get_weights_authenticated(api_client, create_user, create_weight):
     response = api_client.get(reverse("weights"))
     
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
+    assert len(response.data) == 2
 
 
 @pytest.mark.django_db

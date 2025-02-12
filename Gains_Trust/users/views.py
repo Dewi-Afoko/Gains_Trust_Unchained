@@ -18,9 +18,9 @@ def register(request):
     if serializer.is_valid():
         user = serializer.save()
         return Response(
-            {"message": f'{user.username} successfully registered!'},
+            {"message": f'{user.username} successfully registered!', 'user' : serializer.data},
             status=status.HTTP_201_CREATED
-        )
+        ) # Added user object to return
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -45,7 +45,7 @@ def update_user(request):
 
     if serializer.is_valid():
         updated_user = serializer.save()
-        return Response({'message': f'User details updated successfully for {updated_user.username}.', 'data': serializer.data}, status=status.HTTP_200_OK)
+        return Response({'message': f'User details updated successfully for {updated_user.username}.', 'user': serializer.data}, status=status.HTTP_200_OK) # Changed data to user, for consistency and clarity
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -59,7 +59,7 @@ class WeightView(APIView):
         serializer = WeightSerializer(weights, many=True)
         serialized_data = serializer.data
 
-        return Response(serialized_data, status=status.HTTP_200_OK)
+        return Response({'message' : f'Latest weight object: {serialized_data[0]}', 'weights' : serialized_data}, status=status.HTTP_200_OK) # Return latest object in message and list of all objects in weights
     
     def post(self, request):
         user = request.user
@@ -67,7 +67,7 @@ class WeightView(APIView):
 
         if serializer.is_valid():
             weight = serializer.save()
-            return Response({'message' : f'{weight.weight} logged on {weight.date_recorded} by {user.username}'}, status=status.HTTP_201_CREATED)
+            return Response({'message' : f'{weight.weight} logged on {weight.date_recorded} by {user.username}', 'weight' : serializer.data}, status=status.HTTP_201_CREATED) # Added weight to return created object
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
