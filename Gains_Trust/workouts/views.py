@@ -121,8 +121,7 @@ class SetDictView(APIView):
             updated_set_dict = serializer.save()
             return Response(
                 {
-                    "message":
-                    f"{updated_set_dict} updated",
+                    "message": f"{updated_set_dict} updated",
                     "set": serializer.data,
                 },
                 status=status.HTTP_200_OK,
@@ -139,8 +138,6 @@ class SetDictView(APIView):
         )
         set_dict.delete()
         return Response(
-            {
-                "message": f"{set_dict} deleted"
-            },
+            {"message": f"{set_dict} deleted"},
             status=status.HTTP_200_OK,
         )
