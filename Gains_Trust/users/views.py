@@ -7,9 +7,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, WeightSerializer
 from .models import Weight
+from django.contrib.auth import get_user_model
 
 # Create your views here.
 
+User = get_user_model()
 
 @api_view(["POST"])
 def register(request):
@@ -71,6 +73,19 @@ def update_user(request):
         )  # Changed data to user, for consistency and clarity
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def check_availability(request):
+    username = request.query_params.get('username')
+    email = request.query_params.get('email')
+
+    if username and User.objects.filter(username=username).exists():
+            return Response({"username": "taken"}, status=400)
+
+    if email and User.objects.filter(email=email).exists():
+        return Response({"email": "taken"}, status=400)
+
+    return Response({"message": "available"}, status=200)
 
 
 class WeightView(APIView):
