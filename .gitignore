@@ -29,3 +29,11 @@ env/
 # Ignore Logs
 
 *.log
+
+# Ignore frontend package manager lockfiles (depending on what you're using)
+frontend/package-lock.json
+frontend/yarn.lock
+
+
+# Ignore macOS system files (if working on macOS)
+.DS_Store
