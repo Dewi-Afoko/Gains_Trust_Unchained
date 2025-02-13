@@ -14,5 +14,5 @@ urlpatterns = [
     path("update_user/", update_user, name="update"),
     path("weights/", WeightView.as_view(), name="weights"),
     path("weights/<int:weight_id>/", WeightView.as_view(), name="weight-detail"),
-    path('check_availability/', check_availability, name='check_availability'),
+    path("check_availability/", check_availability, name="check_availability"),
 ]

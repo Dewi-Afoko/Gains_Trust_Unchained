@@ -13,6 +13,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 @api_view(["POST"])
 def register(request):
 
@@ -74,13 +75,14 @@ def update_user(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 def check_availability(request):
-    username = request.query_params.get('username')
-    email = request.query_params.get('email')
+    username = request.query_params.get("username")
+    email = request.query_params.get("email")
 
     if username and User.objects.filter(username=username).exists():
-            return Response({"username": "taken"}, status=400)
+        return Response({"username": "taken"}, status=400)
 
     if email and User.objects.filter(email=email).exists():
         return Response({"email": "taken"}, status=400)
