@@ -10,15 +10,24 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "password", "height", "dob", 'email', 'first_name', 'last_name']
+        fields = [
+            "id",
+            "username",
+            "password",
+            "height",
+            "dob",
+            "email",
+            "first_name",
+            "last_name",
+        ]
         read_only_fields = ["id"]
 
     def create(self, validated_data):
-        email = validated_data.get('email')
+        email = validated_data.get("email")
         user = User.objects.create_user(
             username=validated_data["username"],
             password=validated_data["password"],
-            email=email if email else None
+            email=email if email else None,
         )
         return user
 
