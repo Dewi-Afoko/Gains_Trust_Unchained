@@ -13,7 +13,7 @@ function Home() {
                     The ultimate training log. Built for strength, power, and
                     precision.
                 </p>
-                <Link to="/signup">
+                <Link to="/register">
                     <button className="mt-6 bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 text-lg font-bold uppercase rounded-none border-2 border-yellow-300">
                         Get Started
                     </button>
