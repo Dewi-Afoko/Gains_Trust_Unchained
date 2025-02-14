@@ -1,12 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useContext } from 'react'
+import AuthContext from '../context/AuthContext' // Import AuthContext
 
-const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
+const Navbar = () => {
     const navigate = useNavigate()
+    const { user, logout } = useContext(AuthContext) // Get auth state from Context
 
     const handleLogout = () => {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        setIsLoggedIn(false)
+        logout() // Call logout from Context
         navigate('/')
     }
 
@@ -32,7 +33,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                 </Link>
 
                 {/* Show Login/Register if NOT logged in */}
-                {!isLoggedIn ? (
+                {!user ? (
                     <>
                         <Link
                             to="/login"
