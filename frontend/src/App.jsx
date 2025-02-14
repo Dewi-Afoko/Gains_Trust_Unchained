@@ -4,26 +4,25 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Register from './pages/Register'
 import Login from './pages/Login'
-import { useEffect, useState } from 'react'
+import Dashboard from './pages/Dashboard'
+import PrivateRoute from './components/PrivateRoute'
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-    // Check if user is already logged in
-    useEffect(() => {
-        const token = localStorage.getItem('accessToken')
-        setIsLoggedIn(!!token) // Convert token existence to boolean
-    }, [])
     return (
         <>
-            <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+            <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<Login />} />
                 <Route
-                    path="/login"
-                    element={<Login setIsLoggedIn={setIsLoggedIn} />}
-                />{' '}
+                    path="/dashboard"
+                    element={
+                        <PrivateRoute>
+                            <Dashboard />
+                        </PrivateRoute>
+                    }
+                />
             </Routes>
             <Footer />
         </>

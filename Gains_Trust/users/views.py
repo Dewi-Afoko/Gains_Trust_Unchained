@@ -77,6 +77,22 @@ def update_user(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def my_details(request):
+    user = request.user
+    weights = Weight.objects.filter(user=user).order_by("-date_recorded")
+
+    serialize_user = UserSerializer(user)
+    serialize_weights = WeightSerializer(weights, many=True)
+    payload = {
+        'user' : serialize_user.data,
+        'weights' : serialize_weights.data
+    }
+
+    return Response(payload, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
 def check_availability(request):
     username = request.query_params.get("username")
     email = request.query_params.get("email")
