@@ -1,15 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
-import AuthContext from '../context/AuthContext'; // Import AuthContext
+import { Link, useNavigate } from 'react-router-dom'
+import { useContext } from 'react'
+import AuthContext from '../context/AuthContext' // Import AuthContext
 
 const Navbar = () => {
-    const navigate = useNavigate();
-    const { user, logout } = useContext(AuthContext); // Get auth state from Context
+    const navigate = useNavigate()
+    const { user, logout } = useContext(AuthContext) // Get auth state from Context
 
     const handleLogout = () => {
-        logout(); // Call logout from Context
-        navigate('/');
-    };
+        logout() // Call logout from Context
+        navigate('/')
+    }
 
     return (
         <nav className="bg-[#8B0000] text-white p-4 flex justify-between items-center fixed top-0 left-0 w-full z-50 shadow-md">
@@ -68,7 +68,7 @@ const Navbar = () => {
                 )}
             </div>
         </nav>
-    );
-};
+    )
+}
 
-export default Navbar;
+export default Navbar
