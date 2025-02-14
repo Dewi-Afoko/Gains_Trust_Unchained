@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useContext } from 'react'
-import AuthContext from '../context/AuthContext'
+import AuthContext from '../../context/AuthContext'
 
 const WorkoutCreationForm = ({ onClose, setIsCreating, setIsSubmitted }) => {
     const { accessToken } = useContext(AuthContext)
