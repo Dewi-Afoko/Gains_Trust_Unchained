@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext } from "react";
-import AuthContext from "../context/AuthContext";
+import { useState, useEffect, useContext } from 'react'
+import AuthContext from '../context/AuthContext'
 
 const WorkoutFeed = () => {
-    const { accessToken } = useContext(AuthContext);
-    const [workouts, setWorkouts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const { accessToken } = useContext(AuthContext)
+    const [workouts, setWorkouts] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
     useEffect(() => {
         const fetchWorkouts = async () => {
@@ -17,26 +17,26 @@ const WorkoutFeed = () => {
                             Authorization: `Bearer ${accessToken}`,
                         },
                     }
-                );
+                )
 
                 if (!response.ok) {
-                    throw new Error("Failed to fetch workouts");
+                    throw new Error('Failed to fetch workouts')
                 }
 
-                const data = await response.json();
-                setWorkouts(data.workouts);
+                const data = await response.json()
+                setWorkouts(data.workouts)
             } catch (error) {
-                setError(error.message);
+                setError(error.message)
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
+        }
 
-        fetchWorkouts();
-    }, [accessToken]);
+        fetchWorkouts()
+    }, [accessToken])
 
-    if (loading) return <p className="text-white">Loading workouts...</p>;
-    if (error) return <p className="text-red-500">Error: {error}</p>;
+    if (loading) return <p className="text-white">Loading workouts...</p>
+    if (error) return <p className="text-red-500">Error: {error}</p>
 
     return (
         <div className="w-full max-w-2xl bg-[#600000] border border-yellow-400 shadow-lg p-6 text-white rounded-lg">
@@ -44,8 +44,11 @@ const WorkoutFeed = () => {
             {workouts.length > 0 ? (
                 <ul className="mt-4 space-y-3">
                     {workouts.map((workout) => (
-                        <li key={workout.id} className="bg-[#400000] p-3 rounded-lg">
-                            <strong>{workout.workout_name}</strong> -{" "}
+                        <li
+                            key={workout.id}
+                            className="bg-[#400000] p-3 rounded-lg"
+                        >
+                            <strong>{workout.workout_name}</strong> -{' '}
                             {new Date(workout.date).toLocaleDateString()}
                         </li>
                     ))}
@@ -54,7 +57,7 @@ const WorkoutFeed = () => {
                 <p>No workouts found.</p>
             )}
         </div>
-    );
-};
+    )
+}
 
-export default WorkoutFeed;
+export default WorkoutFeed
