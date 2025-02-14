@@ -3,7 +3,7 @@ import AuthContext from '../context/AuthContext'
 import UserDetailsCard from '../components/UserDetailsCard'
 import UserWeightCard from '../components/UserWeightsCard'
 import WorkoutFeed from '../components/WorkoutFeed'
-import WorkoutCreationForm from '../components/WorkoutCreationForm'
+import WorkoutCreationForm from '../components/forms/WorkoutCreationForm'
 import WorkoutDetails from '../components/WorkoutDetails' // Import WorkoutDetails
 
 const Dashboard = () => {
