@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
 import AuthContext from '../context/AuthContext'
 
-const WorkoutFeed = () => {
+const WorkoutFeed = ({ setWorkoutId }) => {
     const { accessToken } = useContext(AuthContext)
     const [workouts, setWorkouts] = useState([])
     const [loading, setLoading] = useState(true)
@@ -46,7 +46,8 @@ const WorkoutFeed = () => {
                     {workouts.map((workout) => (
                         <li
                             key={workout.id}
-                            className="bg-[#400000] p-3 rounded-lg"
+                            className="bg-[#400000] p-3 rounded-lg cursor-pointer hover:bg-[#500000] transition"
+                            onClick={() => setWorkoutId(workout.id)} // Clicking sets the workoutId
                         >
                             <strong>{workout.workout_name}</strong> -{' '}
                             {new Date(workout.date).toLocaleDateString()}
