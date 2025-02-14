@@ -31,10 +31,10 @@ const LoginForm = () => {
 
             setAlert({
                 type: 'success',
-                message: `Authenticated: Welcome, comrade ${data.username}!`,
+                message: `Authenticated: Welcome, Comrade ${data.username}!`,
             })
 
-            setTimeout(() => navigate('/'), 3000) // Redirect after 3 seconds
+            setTimeout(() => navigate('/dashboard'), 3000) // Redirect after 3 seconds
         } catch (error) {
             setAlert({
                 type: 'error',

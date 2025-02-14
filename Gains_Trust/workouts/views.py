@@ -12,13 +12,22 @@ from .serializers import SetDictSerializer, WorkoutSerializer
 class WorkoutView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        """Return all workouts for the authenticated user"""
+    def get(self, request, workout_id=None):
+        """Return a specific workout if workout_id is provided, otherwise return all workouts for the authenticated user"""
+        if workout_id:
+            try:
+                workout = Workout.objects.get(id=workout_id, user=request.user)
+                serializer = WorkoutSerializer(workout)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except Workout.DoesNotExist:
+                return Response({"error": "Workout not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # If no workout_id is provided, return all workouts for the user
         workouts = Workout.objects.filter(user=request.user).order_by("-date", "-id")
         serializer = WorkoutSerializer(workouts, many=True)
         return Response(
             {
-                "message": f"Latest workout: {serializer.data[0]}",
+                "message": f"Latest workout: {serializer.data[0]}" if serializer.data else "No workouts found",
                 "workouts": serializer.data,
             },
             status=status.HTTP_200_OK,
@@ -74,7 +83,7 @@ class SetDictView(APIView):
     def get(self, request, workout_id):
         """Retrieve all SetDicts for a specific workout"""
         workout = get_object_or_404(Workout, id=workout_id, user=request.user)
-        set_dicts = SetDict.objects.filter(workout=workout).order_by("-set_order")
+        set_dicts = SetDict.objects.filter(workout=workout).order_by("set_order")
         serializer = SetDictSerializer(set_dicts, many=True)
         return Response(
             {

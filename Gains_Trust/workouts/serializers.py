@@ -8,6 +8,12 @@ class WorkoutSerializer(serializers.ModelSerializer):
         model = Workout
         fields = "__all__"
         read_only_fields = ["user", "id"]
+        extra_kwargs = {
+            "user_weight": {"required": False, "allow_null": True},
+            "sleep_score": {"required": False, "allow_null": True},
+            "sleep_quality": {"required": False, "allow_null": True},
+            "notes": {"required": False, "allow_null": True},
+        }
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -20,7 +26,6 @@ class WorkoutSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
-            if value is not None:
                 setattr(instance, attr, value)
 
         instance.save()
