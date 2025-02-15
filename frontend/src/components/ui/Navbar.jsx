@@ -32,14 +32,22 @@ const Navbar = () => {
                     Home
                 </Link>
 
-                {/* If logged in, link to dashboard */}
+                {/* If logged in, show Dashboard & My Workouts */}
                 {user ? (
-                    <Link
-                        to="/dashboard"
-                        className="text-yellow-400 font-semibold hover:text-yellow-300 hover:underline transition duration-200"
-                    >
-                        Dashboard
-                    </Link>
+                    <>
+                        <Link
+                            to="/dashboard"
+                            className="text-yellow-400 font-semibold hover:text-yellow-300 hover:underline transition duration-200"
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
+                            to="/workouts"
+                            className="text-yellow-400 font-semibold hover:text-yellow-300 hover:underline transition duration-200"
+                        >
+                            My Workouts
+                        </Link>
+                    </>
                 ) : (
                     <>
                         <Link
