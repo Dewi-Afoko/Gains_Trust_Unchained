@@ -3,17 +3,24 @@ import AuthContext from '../context/AuthContext'
 import useWorkoutDetails from '../hooks/useWorkoutDetails'
 import WorkoutEditForm from './forms/WorkoutEditForm'
 import SetsTablePreview from '../components/SetsTablePreview'
+import SetCreationForm from './forms/SetCreationForm'
 
 const WorkoutDetailsPreview = ({ workoutId }) => {
     const { accessToken } = useContext(AuthContext)
     const { workout, sets, loading, error, setWorkout, setIsUpdating } =
         useWorkoutDetails(workoutId, accessToken)
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [isSetModalOpen, setIsSetModalOpen] = useState(false)
 
     const handleWorkoutUpdate = (updatedWorkout) => {
         setWorkout(updatedWorkout)
         setIsUpdating((prev) => !prev) // Trigger re-fetch
-        setIsModalOpen(false)
+        setIsEditModalOpen(false)
+    }
+
+    const handleSetAdded = (newSet) => {
+        setIsUpdating((prev) => !prev) // Re-fetch sets after adding a new one
+        setIsSetModalOpen(false)
     }
 
     if (loading) return <p className="text-white">Loading workout...</p>
@@ -32,21 +39,40 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
                 <strong>Notes:</strong> {workout?.notes || 'N/A'}
             </p>
 
-            <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition mt-4"
-            >
-                Edit Workout
-            </button>
+            {/* Buttons for Editing Workout & Adding Set */}
+            <div className="flex space-x-4 mt-4">
+                <button
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition"
+                >
+                    Edit Workout
+                </button>
+                <button
+                    onClick={() => setIsSetModalOpen(true)}
+                    className="bg-green-500 text-black px-4 py-2 rounded hover:bg-green-400 transition"
+                >
+                    Add Set
+                </button>
+            </div>
 
-            {/* Edit Modal */}
-            {isModalOpen && (
+            {/* Edit Workout Modal */}
+            {isEditModalOpen && (
                 <WorkoutEditForm
                     workout={workout}
                     workoutId={workoutId}
                     accessToken={accessToken}
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => setIsEditModalOpen(false)}
                     onUpdate={handleWorkoutUpdate}
+                />
+            )}
+
+            {/* Add Set Modal */}
+            {isSetModalOpen && (
+                <SetCreationForm
+                    workoutId={workoutId}
+                    accessToken={accessToken}
+                    onClose={() => setIsSetModalOpen(false)}
+                    onSetCreated={handleSetAdded}
                 />
             )}
 
