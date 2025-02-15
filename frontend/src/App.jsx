@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import PrivateRoute from './components/PrivateRoute'
 import WorkoutById from './pages/WorkoutById'
+import WorkoutsList from './pages/WorkoutsList'
 
 function App() {
     return (
@@ -25,6 +26,14 @@ function App() {
                     }
                 />
                 <Route
+                    path="/workouts"
+                    element={
+                        <PrivateRoute>
+                            <WorkoutsList />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
                     path="/workouts/:workout_id/full"
                     element={
                         <PrivateRoute>
@@ -33,6 +42,7 @@ function App() {
                     }
                 />
             </Routes>
+
             <Footer />
         </>
     )
