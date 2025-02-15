@@ -80,9 +80,21 @@ class WorkoutView(APIView):
 class SetDictView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, workout_id):
-        """Retrieve all SetDicts for a specific workout"""
+    def get(self, request, workout_id, set_dict_id=None):
+        """Retrieve all SetDicts for a specific workout or a single SetDict if ID is provided"""
         workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+
+        if set_dict_id:
+            set_dict = get_object_or_404(SetDict, id=set_dict_id, workout=workout)
+            serializer = SetDictSerializer(set_dict)
+            return Response(
+                {
+                    "message": f"Details for set {set_dict_id}",
+                    "set": serializer.data,
+                },
+                status=status.HTTP_200_OK,
+            )  # Returns details of the specific set
+
         set_dicts = SetDict.objects.filter(workout=workout).order_by("set_order")
         serializer = SetDictSerializer(set_dicts, many=True)
         return Response(
@@ -92,6 +104,7 @@ class SetDictView(APIView):
             },
             status=status.HTTP_200_OK,
         )  # Returns message and list of sets for workout
+
 
     def post(self, request, workout_id):
         """Create a SetDict for a specific workout"""
