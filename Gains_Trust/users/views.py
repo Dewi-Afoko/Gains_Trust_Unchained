@@ -7,7 +7,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, WeightSerializer
 from .models import Weight
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth.signals import user_logged_in
+
 
 # Create your views here.
 
@@ -31,6 +33,30 @@ def register(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(["POST"])
+def custom_login_view(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        # ✅ Manually trigger the user_logged_in signal
+        user_logged_in.send(sender=user.__class__, request=request, user=user)
+
+        # ✅ Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response(
+            {
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+
+            },
+            status=status.HTTP_200_OK,
+        )
+    
+    return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])

@@ -120,6 +120,13 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
                 >
                     {isSubmitting ? 'Saving...' : 'Add Set'}
                 </button>
+                <button
+                    type="button"
+                    className="w-full bg-gray-500 text-white font-bold p-2 rounded hover:bg-gray-400"
+                    onClick={onClose} // ✅ Close modal without saving
+                >
+                    Cancel
+                </button>
             </form>
         </div>
     )

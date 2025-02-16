@@ -150,6 +150,13 @@ const SetEditForm = ({ workoutId, setId, accessToken, onClose, onUpdate }) => {
                 >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>
+                <button
+                    type="button"
+                    className="w-full bg-gray-500 text-white font-bold p-2 rounded hover:bg-gray-400"
+                    onClick={onClose} // ✅ Close modal without saving
+                >
+                    Cancel
+                </button>
             </form>
         </div>
     )
