@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import axios from "axios";
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import axios from 'axios'
 
 const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
-    const { register, handleSubmit, reset } = useForm();
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [alert, setAlert] = useState(null);
-    const [creatingSet, setCreatingSet] = useState(false); // ✅ Track "Creating Set" status
+    const { register, handleSubmit, reset } = useForm()
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [alert, setAlert] = useState(null)
+    const [creatingSet, setCreatingSet] = useState(false) // ✅ Track "Creating Set" status
 
     const onSubmit = async (data) => {
         setIsSubmitting(true)
-        console.log("🛠 Preparing to submit Set:", data); // ✅ Check if onSubmit fires
-    
+        console.log('🛠 Preparing to submit Set:', data) // ✅ Check if onSubmit fires
+
         try {
             // ✅ Ensure empty numeric fields are sent as `null`
             const formattedData = {
@@ -23,29 +23,32 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
                 focus: data.focus || '',
                 notes: data.notes || '',
             }
-    
-            console.log("📡 Sending API Request to:", `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`);
-            console.log("📦 Payload being sent:", formattedData); // ✅ Check what we're sending
-    
+
+            console.log(
+                '📡 Sending API Request to:',
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`
+            )
+            console.log('📦 Payload being sent:', formattedData) // ✅ Check what we're sending
+
             const response = await axios.post(
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`,
                 formattedData,
                 { headers: { Authorization: `Bearer ${accessToken}` } }
             )
-    
-            console.log("✅ API Response:", response.data); // ✅ Confirm API success
-    
+
+            console.log('✅ API Response:', response.data) // ✅ Confirm API success
+
             const newSet = response.data.set
             onSetCreated(newSet)
             reset()
-    
+
             setAlert({ type: 'success', message: 'Set added successfully!' })
             setTimeout(() => {
                 onClose()
                 setAlert(null)
             }, 2000)
         } catch (error) {
-            console.error("❌ API Error:", error.response?.data || error); // ✅ Log API error
+            console.error('❌ API Error:', error.response?.data || error) // ✅ Log API error
             setAlert({
                 type: 'error',
                 message: 'Error adding set. Please try again.',
@@ -54,11 +57,6 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
             setIsSubmitting(false)
         }
     }
-    
-    
-    
-    
-    
 
     return (
         <div className="bg-[#600000] text-white p-6 rounded-lg shadow-lg max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000]">
@@ -75,7 +73,9 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
             {alert && (
                 <div
                     className={`text-center p-3 mb-4 rounded ${
-                        alert.type === "success" ? "bg-green-500 text-black" : "bg-red-600 text-white"
+                        alert.type === 'success'
+                            ? 'bg-green-500 text-black'
+                            : 'bg-red-600 text-white'
                     }`}
                 >
                     {alert.message}
@@ -86,14 +86,14 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
                 <label className="block">
                     Exercise Name:
                     <input
-                        {...register("exercise_name", { required: true })}
+                        {...register('exercise_name', { required: true })}
                         className="w-full p-2 mt-1 rounded text-black"
                     />
                 </label>
                 <label className="block">
                     Set Type:
                     <input
-                        {...register("set_type")}
+                        {...register('set_type')}
                         className="w-full p-2 mt-1 rounded text-black"
                     />
                 </label>
@@ -102,7 +102,7 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
                     <input
                         type="number"
                         step="0.1"
-                        {...register("loading")}
+                        {...register('loading')}
                         className="w-full p-2 mt-1 rounded text-black"
                     />
                 </label>
@@ -110,7 +110,7 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
                     Reps:
                     <input
                         type="number"
-                        {...register("reps")}
+                        {...register('reps')}
                         className="w-full p-2 mt-1 rounded text-black"
                     />
                 </label>
@@ -118,21 +118,21 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
                     Rest (seconds):
                     <input
                         type="number"
-                        {...register("rest")}
+                        {...register('rest')}
                         className="w-full p-2 mt-1 rounded text-black"
                     />
                 </label>
                 <label className="block">
                     Focus:
                     <input
-                        {...register("focus")}
+                        {...register('focus')}
                         className="w-full p-2 mt-1 rounded text-black"
                     />
                 </label>
                 <label className="block">
                     Notes:
                     <textarea
-                        {...register("notes")}
+                        {...register('notes')}
                         className="w-full p-2 mt-1 rounded text-black"
                     />
                 </label>
@@ -142,7 +142,7 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
                     className="w-full bg-yellow-400 text-black font-bold p-2 rounded hover:bg-yellow-300"
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? "Saving..." : "Add Set"}
+                    {isSubmitting ? 'Saving...' : 'Add Set'}
                 </button>
                 <button
                     type="button"
@@ -153,7 +153,7 @@ const SetCreationForm = ({ workoutId, accessToken, onClose, onSetCreated }) => {
                 </button>
             </form>
         </div>
-    );
-};
+    )
+}
 
-export default SetCreationForm;
+export default SetCreationForm

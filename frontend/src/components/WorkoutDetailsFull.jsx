@@ -1,25 +1,25 @@
-import { useState, useContext } from "react";
-import AuthContext from "../context/AuthContext";
-import useWorkoutDetails from "../hooks/useWorkoutDetails";
-import WorkoutEditForm from "./forms/WorkoutEditForm";
-import SetsTableFull from "../components/SetsTableFull";
-import SetCreationForm from "./forms/SetCreationForm"; // ✅ Import the form
+import { useState, useContext } from 'react'
+import AuthContext from '../context/AuthContext'
+import useWorkoutDetails from '../hooks/useWorkoutDetails'
+import WorkoutEditForm from './forms/WorkoutEditForm'
+import SetsTableFull from '../components/SetsTableFull'
+import SetCreationForm from './forms/SetCreationForm' // ✅ Import the form
 
 const WorkoutDetailsFull = ({ workoutId }) => {
-    const { accessToken } = useContext(AuthContext);
+    const { accessToken } = useContext(AuthContext)
     const { workout, sets, loading, error, setWorkout, setIsUpdating } =
-        useWorkoutDetails(workoutId, accessToken);
-    const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
-    const [isSetModalOpen, setIsSetModalOpen] = useState(false); // ✅ Track "Add Set" modal state
+        useWorkoutDetails(workoutId, accessToken)
+    const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
+    const [isSetModalOpen, setIsSetModalOpen] = useState(false) // ✅ Track "Add Set" modal state
 
     const handleWorkoutUpdate = (updatedWorkout) => {
-        setWorkout(updatedWorkout);
-        setIsUpdating((prev) => !prev);
-        setIsWorkoutModalOpen(false);
-    };
+        setWorkout(updatedWorkout)
+        setIsUpdating((prev) => !prev)
+        setIsWorkoutModalOpen(false)
+    }
 
-    if (loading) return <p className="text-white">Loading workout...</p>;
-    if (error) return <p className="text-red-500">Error: {error}</p>;
+    if (loading) return <p className="text-white">Loading workout...</p>
+    if (error) return <p className="text-red-500">Error: {error}</p>
 
     return (
         <div className="w-full max-w-6xl mx-auto text-white">
@@ -29,12 +29,13 @@ const WorkoutDetailsFull = ({ workoutId }) => {
                     {workout?.workout_name}
                 </h2>
                 <p>
-                    <strong>Date:</strong> {new Date(workout?.date).toLocaleDateString()}
+                    <strong>Date:</strong>{' '}
+                    {new Date(workout?.date).toLocaleDateString()}
                 </p>
                 <p>
-                    <strong>Notes:</strong> {workout?.notes || "N/A"}
+                    <strong>Notes:</strong> {workout?.notes || 'N/A'}
                 </p>
-                
+
                 <button
                     onClick={() => setIsWorkoutModalOpen(true)}
                     className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition mt-4"
@@ -71,14 +72,13 @@ const WorkoutDetailsFull = ({ workoutId }) => {
                     workoutId={workoutId}
                     accessToken={accessToken}
                     onSetCreated={(newSet) => {
-                        setIsUpdating((prev) => !prev); // ✅ Refresh the table
+                        setIsUpdating((prev) => !prev) // ✅ Refresh the table
                     }}
                     onClose={() => setIsSetModalOpen(false)}
                 />
-
             )}
         </div>
-    );
-};
+    )
+}
 
-export default WorkoutDetailsFull;
+export default WorkoutDetailsFull
