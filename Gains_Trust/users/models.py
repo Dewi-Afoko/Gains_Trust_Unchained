@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     height = models.IntegerField(blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
+    previous_last_login = models.DateTimeField(null=True, blank=True)
 
     groups = models.ManyToManyField(
         "auth.Group",
