@@ -3,6 +3,9 @@
 
 todo.MD
 
+*.mdt
+
+
 # Ignore database files
 *.sqlite3
 
