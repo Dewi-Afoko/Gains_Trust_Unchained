@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { Dialog, DialogTrigger, DialogContent } from '@radix-ui/react-dialog'
 import AuthContext from '../context/AuthContext'
 import UserDetailsEditForm from '../components/forms/UserDetailsEditForm'
+import { formatDateTime } from '../lib/utils'
 
 const UserDetailsCard = ({ user }) => {
     const { accessToken } = useContext(AuthContext)
@@ -28,7 +29,7 @@ const UserDetailsCard = ({ user }) => {
                     </p>
                     <p>
                         <strong>Date Joined:</strong>{' '}
-                        {updatedUser?.date_joined || 'N/A'}
+                        {formatDateTime(updatedUser?.date_joined)}
                     </p>
                     <p>
                         <strong>First Name:</strong>{' '}
@@ -48,7 +49,7 @@ const UserDetailsCard = ({ user }) => {
                     </p>
                     <p>
                         <strong>Last Login:</strong>{' '}
-                        {updatedUser?.last_login || 'N/A'}
+                        {formatDateTime(updatedUser?.last_login)}
                     </p>
 
                     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
