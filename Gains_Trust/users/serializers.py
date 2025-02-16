@@ -20,9 +20,10 @@ class UserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "date_joined", 
-            "last_login"
+            "last_login",
+            "previous_last_login"
         ]
-        read_only_fields = ["id", "date_joined", "last_login"]
+        read_only_fields = ["id", "date_joined"]
 
     def create(self, validated_data):
         email = validated_data.get("email")

@@ -6,8 +6,9 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 @receiver(user_logged_in)
-def update_last_login(sender, request, user, **kwargs):
-    """Automatically update last_login when a user logs in."""
-    print(f"🔄 Updating last_login for {user.username}")  # ✅ Debugging
-    user.last_login = now()
-    user.save(update_fields=['last_login'])
+def store_previous_last_login(sender, request, user, **kwargs):
+    """Store the previous last_login before it gets updated"""
+    if user.last_login:
+        user.previous_last_login = user.last_login  # Store the previous login
+    user.last_login = now()  # Update last_login as usual
+    user.save(update_fields=["previous_last_login", "last_login"])
