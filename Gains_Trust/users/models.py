@@ -1,25 +1,40 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField 
+from django.utils.timezone import now
 
 
 class User(AbstractUser):
     height = models.IntegerField(blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
-    previous_last_login = models.DateTimeField(null=True, blank=True)
+    
+    login_history = ArrayField(
+        models.DateTimeField(), default=list)
 
     groups = models.ManyToManyField(
         "auth.Group",
-        related_name="core_users",
+        related_name="users_users",
         blank=True,
     )
     user_permissions = models.ManyToManyField(
         "auth.Permission",
-        related_name="core_users_permissions",
+        related_name="users_users_permissions",
         blank=True,
     )
 
+    def track_login(self):
+        self.login_history.append(self.last_login)
+        if len(self.login_history) > 2:
+            self.login_history = self.login_history[-2: :1]
+        self.last_login = self.login_history[0]
+        self.save()
+
     def __str__(self):
         return self.username
+
+
+
+
 
 
 class Weight(models.Model):
