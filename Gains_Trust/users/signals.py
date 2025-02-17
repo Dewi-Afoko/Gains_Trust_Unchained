@@ -7,5 +7,5 @@ User = get_user_model()
 
 @receiver(user_logged_in)
 def update_login_history(sender, request, user, **kwargs):
-    """✅ Runs every time a user logs in and updates login history."""
-    user.track_login()  # Calls custom method using list to return the previous login, not this one.
+    """Runs every time a user logs in and updates login history."""
+    user.track_login()  # Custom method

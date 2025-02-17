@@ -96,7 +96,7 @@ def update_user(request):
         updated_user = serializer.save()
         return Response(
             {
-                "message": f"User details updated successfully for {updated_user.username}.",
+                "message": f"Details for {updated_user.username}",
                 "user": serializer.data,
             },
             status=status.HTTP_200_OK,
@@ -157,7 +157,7 @@ class WeightView(APIView):
             weight = serializer.save()
             return Response(
                 {
-                    "message": f"{weight.weight} logged on {weight.date_recorded} by {user.username}",
+                    "message": f"{weight.weight}kg for {user.username}",
                     "weight": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -171,8 +171,6 @@ class WeightView(APIView):
         weight.delete()
 
         return Response(
-            {
-                "message": f"Weight record with ID {weight_id} has been deleted for {request.user.username}"
-            },
+            {"message": f"Weight ID: {weight_id} has been deleted"},
             status=status.HTTP_200_OK,
         )
