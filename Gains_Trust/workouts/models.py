@@ -37,21 +37,3 @@ class SetDict(models.Model):
         return (
             f"{self.workout.workout_name} - {self.exercise_name} (Set {self.set_order})"
         )
-
-    def save(self, *args, **kwargs):
-        # Assign set_order before saving
-        if not self.pk:  # pk = primary key
-            self.set_order = SetDict.objects.filter(workout=self.workout).count() + 1
-
-        super().save(*args, **kwargs)  # Save the instance first
-
-        # Fetch all instances of this exercise in this workout, ordered correctly
-        sets = SetDict.objects.filter(
-            workout=self.workout, exercise_name=self.exercise_name
-        ).order_by("set_order")
-
-        # Use bulk update instead of calling save() in a loop to prevent recursion error
-        for index, instance in enumerate(sets, start=1):
-            instance.set_number = index
-
-        SetDict.objects.bulk_update(sets, ["set_number"])  # Updates in one DB query

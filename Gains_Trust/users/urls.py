@@ -1,5 +1,13 @@
 from django.urls import path
-from .views import register, logout, update_user, WeightView, check_availability, my_details, custom_login_view
+from .views import (
+    register,
+    logout,
+    update_user,
+    WeightView,
+    check_availability,
+    my_details,
+    custom_login_view,
+)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,

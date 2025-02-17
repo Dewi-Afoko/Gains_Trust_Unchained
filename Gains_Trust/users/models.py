@@ -1,15 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.postgres.fields import ArrayField 
+from django.contrib.postgres.fields import ArrayField
 from django.utils.timezone import now
 
 
 class User(AbstractUser):
     height = models.IntegerField(blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
-    
-    login_history = ArrayField(
-        models.DateTimeField(), default=list)
+
+    login_history = ArrayField(models.DateTimeField(), default=list)
 
     groups = models.ManyToManyField(
         "auth.Group",
@@ -25,16 +24,12 @@ class User(AbstractUser):
     def track_login(self):
         self.login_history.append(self.last_login)
         if len(self.login_history) > 2:
-            self.login_history = self.login_history[-2: :1]
+            self.login_history = self.login_history[-2::1]
         self.last_login = self.login_history[0]
         self.save()
 
     def __str__(self):
         return self.username
-
-
-
-
 
 
 class Weight(models.Model):

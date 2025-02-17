@@ -33,6 +33,7 @@ def register(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(["POST"])
 def custom_login_view(request):
     username = request.data.get("username")
@@ -46,17 +47,19 @@ def custom_login_view(request):
 
         # ✅ Generate JWT tokens
         refresh = RefreshToken.for_user(user)
-        
+
         return Response(
             {
                 "access": str(refresh.access_token),
                 "refresh": str(refresh),
-
             },
             status=status.HTTP_200_OK,
         )
-    
-    return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    return Response(
+        {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+    )
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -110,10 +113,7 @@ def my_details(request):
 
     serialize_user = UserSerializer(user)
     serialize_weights = WeightSerializer(weights, many=True)
-    payload = {
-        'user' : serialize_user.data,
-        'weights' : serialize_weights.data
-    }
+    payload = {"user": serialize_user.data, "weights": serialize_weights.data}
 
     return Response(payload, status=status.HTTP_200_OK)
 
