@@ -18,6 +18,10 @@ const WorkoutDetailsFull = ({ workoutId }) => {
         setIsWorkoutModalOpen(false)
     }
 
+    const handleSetUpdated = (updatedSet) => {
+        setIsUpdating((prev) => !prev) // ✅ Trigger re-fetch of sets
+    }
+
     if (loading) return <p className="text-white">Loading workout...</p>
     if (error) return <p className="text-red-500">Error: {error}</p>
 
@@ -53,7 +57,12 @@ const WorkoutDetailsFull = ({ workoutId }) => {
             </div>
 
             {/* ✅ Render Sets Table */}
-            <SetsTableFull sets={sets} />
+            <SetsTableFull
+                sets={sets}
+                workoutId={workoutId}
+                accessToken={accessToken}
+                onSetUpdated={handleSetUpdated}
+            />
 
             {/* Edit Workout Modal */}
             {isWorkoutModalOpen && (

@@ -20,14 +20,20 @@ class WorkoutView(APIView):
                 serializer = WorkoutSerializer(workout)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             except Workout.DoesNotExist:
-                return Response({"error": "Workout not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+                return Response(
+                    {"error": "Workout not found"}, status=status.HTTP_404_NOT_FOUND
+                )
+
         # If no workout_id is provided, return all workouts for the user
         workouts = Workout.objects.filter(user=request.user).order_by("-date", "-id")
         serializer = WorkoutSerializer(workouts, many=True)
         return Response(
             {
-                "message": f"Latest workout: {serializer.data[0]}" if serializer.data else "No workouts found",
+                "message": (
+                    f"Latest workout: {serializer.data[0]}"
+                    if serializer.data
+                    else "No workouts found"
+                ),
                 "workouts": serializer.data,
             },
             status=status.HTTP_200_OK,
@@ -104,7 +110,6 @@ class SetDictView(APIView):
             },
             status=status.HTTP_200_OK,
         )  # Returns message and list of sets for workout
-
 
     def post(self, request, workout_id):
         """Create a SetDict for a specific workout"""

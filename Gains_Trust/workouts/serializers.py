@@ -26,7 +26,7 @@ class WorkoutSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
-                setattr(instance, attr, value)
+            setattr(instance, attr, value)
 
         instance.save()
         return instance
@@ -43,7 +43,6 @@ class SetDictSerializer(serializers.ModelSerializer):
             "reps": {"allow_null": True, "required": False},
             "rest": {"allow_null": True, "required": False},
         }
-
 
     def create(self, validated_data):
         workout = self.context.get("workout")
