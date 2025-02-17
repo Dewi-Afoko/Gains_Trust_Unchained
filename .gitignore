@@ -3,6 +3,9 @@
 
 todo.MD
 
+*.mdt
+
+
 # Ignore database files
 *.sqlite3
 
@@ -29,3 +32,25 @@ env/
 # Ignore Logs
 
 *.log
+
+# Ignore frontend package manager lockfiles (depending on what you're using)
+frontend/package-lock.json
+frontend/yarn.lock
+
+
+# Ignore macOS system files (if working on macOS)
+.DS_Store
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+coverage.xml
+.coverage
