@@ -1,2 +1,2 @@
 Backend and API built to MVP standard
-CI/CD established for views and serializers, 100% coverage
+Automated testing for views and serializers, ~100%~ pretty good coverage... I think? I'll be honest, haven't run coverage since work on the MVP frontend started and I began making hacky backend API endpoints! 😅
