@@ -17,4 +17,4 @@ class Exercise(models.Model):
     compound_movement = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name}\nMuscle group: {self.muscle_group}\n Description: {self.description}"
+        return f"{self.name}\nDescription: {self.description}"

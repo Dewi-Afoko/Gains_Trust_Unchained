@@ -9,7 +9,6 @@ from .views import (
     custom_login_view,
 )
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
     TokenRefreshView,
 )
 

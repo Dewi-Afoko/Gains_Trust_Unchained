@@ -13,7 +13,7 @@ class WorkoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, workout_id=None):
-        """Return a specific workout if workout_id is provided, otherwise return all workouts for the authenticated user"""
+        """Return specific workout by ID –– or return all user's workouts"""
         if workout_id:
             try:
                 workout = Workout.objects.get(id=workout_id, user=request.user)
@@ -87,7 +87,7 @@ class SetDictView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, workout_id, set_dict_id=None):
-        """Retrieve all SetDicts for a specific workout or a single SetDict if ID is provided"""
+        """Return all SetDicts for Workout –- or single by ID"""
         workout = get_object_or_404(Workout, id=workout_id, user=request.user)
 
         if set_dict_id:

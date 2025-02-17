@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
-from django.utils.timezone import now
 
 
 class User(AbstractUser):
@@ -40,7 +39,7 @@ class Weight(models.Model):
     date_recorded = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.weight}kg on {self.date_recorded.strftime('%Y-%m-%d')}"
+        return f"{self.weight}kg on {self.date_recorded.strftime('%Y-%m-%d')}"
 
 
 class UserRecord(models.Model):
@@ -62,4 +61,4 @@ class UserRecord(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.exercise.name} - {self.weight}kg x {self.reps} reps"
+        return f"{self.exercise.name} - {self.weight}kg x {self.reps} reps"

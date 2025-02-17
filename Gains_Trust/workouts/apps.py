@@ -6,4 +6,4 @@ class WorkoutConfig(AppConfig):
     name = "workouts"
 
     def ready(self):
-        import workouts.signals
+        import workouts.signals  # noqa
