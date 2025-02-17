@@ -7,8 +7,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, WeightSerializer
 from .models import Weight
+from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth.signals import user_logged_in
+
 
 # Create your views here.
+
+User = get_user_model()
 
 
 @api_view(["POST"])
@@ -27,6 +32,33 @@ def register(request):
         )  # Added user object to return
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+def custom_login_view(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        # ✅ Manually trigger the user_logged_in signal
+        user_logged_in.send(sender=user.__class__, request=request, user=user)
+
+        # ✅ Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    return Response(
+        {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+    )
 
 
 @api_view(["POST"])
@@ -64,13 +96,40 @@ def update_user(request):
         updated_user = serializer.save()
         return Response(
             {
-                "message": f"User details updated successfully for {updated_user.username}.",
+                "message": f"Details for {updated_user.username}",
                 "user": serializer.data,
             },
             status=status.HTTP_200_OK,
         )  # Changed data to user, for consistency and clarity
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def my_details(request):
+    user = request.user
+    weights = Weight.objects.filter(user=user).order_by("-date_recorded")
+
+    serialize_user = UserSerializer(user)
+    serialize_weights = WeightSerializer(weights, many=True)
+    payload = {"user": serialize_user.data, "weights": serialize_weights.data}
+
+    return Response(payload, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def check_availability(request):
+    username = request.query_params.get("username")
+    email = request.query_params.get("email")
+
+    if username and User.objects.filter(username=username).exists():
+        return Response({"username": "taken"}, status=400)
+
+    if email and User.objects.filter(email=email).exists():
+        return Response({"email": "taken"}, status=400)
+
+    return Response({"message": "available"}, status=200)
 
 
 class WeightView(APIView):
@@ -98,7 +157,7 @@ class WeightView(APIView):
             weight = serializer.save()
             return Response(
                 {
-                    "message": f"{weight.weight} logged on {weight.date_recorded} by {user.username}",
+                    "message": f"{weight.weight}kg for {user.username}",
                     "weight": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
@@ -112,8 +171,6 @@ class WeightView(APIView):
         weight.delete()
 
         return Response(
-            {
-                "message": f"Weight record with ID {weight_id} has been deleted for {request.user.username}"
-            },
+            {"message": f"Weight ID: {weight_id} has been deleted"},
             status=status.HTTP_200_OK,
         )

@@ -1,21 +1,31 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 
 
 class User(AbstractUser):
     height = models.IntegerField(blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
 
+    login_history = ArrayField(models.DateTimeField(), default=list)
+
     groups = models.ManyToManyField(
         "auth.Group",
-        related_name="core_users",
+        related_name="users_users",
         blank=True,
     )
     user_permissions = models.ManyToManyField(
         "auth.Permission",
-        related_name="core_users_permissions",
+        related_name="users_users_permissions",
         blank=True,
     )
+
+    def track_login(self):
+        self.login_history.append(self.last_login)
+        if len(self.login_history) > 2:
+            self.login_history = self.login_history[-2::1]
+        self.last_login = self.login_history[0]
+        self.save()
 
     def __str__(self):
         return self.username
@@ -29,7 +39,7 @@ class Weight(models.Model):
     date_recorded = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.weight}kg on {self.date_recorded.strftime('%Y-%m-%d')}"
+        return f"{self.weight}kg on {self.date_recorded.strftime('%Y-%m-%d')}"
 
 
 class UserRecord(models.Model):
@@ -51,4 +61,4 @@ class UserRecord(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.exercise.name} - {self.weight}kg x {self.reps} reps"
+        return f"{self.exercise.name} - {self.weight}kg x {self.reps} reps"

@@ -91,7 +91,7 @@ def test_update_user_valid_data(api_client, create_user):
     assert "message" in response.data
     assert (
         response.data["message"]
-        == f"User details updated successfully for {create_user.username}."
+        == f"Details for {create_user.username}"
     )
     assert "user" in response.data
     assert response.data["user"]["height"] == data["height"]
@@ -143,8 +143,8 @@ def test_create_weight_authenticated(api_client, create_user, weight_data):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert "message" in response.data
-    assert f"{weight_data['weight']:.2f} logged" in response.data["message"]
-    assert f"by {create_user.username}" in response.data["message"]
+    assert f"{weight_data['weight']:.2f}" in response.data["message"]
+    assert f"{create_user.username}" in response.data["message"]
 
 
 @pytest.mark.django_db
@@ -185,7 +185,7 @@ def test_delete_weight_authenticated(api_client, create_user, create_weight):
     assert response.status_code == status.HTTP_200_OK
     assert "message" in response.data
     assert (
-        f"Weight record with ID {create_weight.id} has been deleted"
+        f"Weight ID: {create_weight.id} has been deleted"
         in response.data["message"]
     )
 
