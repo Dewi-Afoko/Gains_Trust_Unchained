@@ -2,20 +2,17 @@ import { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import AuthContext from '../context/AuthContext'
-import WorkoutEditForm from './forms/WorkoutEditForm'
 
 const WorkoutFeedFull = () => {
     const { accessToken } = useContext(AuthContext)
     const [workouts, setWorkouts] = useState([])
     const [workoutSets, setWorkoutSets] = useState({})
-    const [editingWorkoutId, setEditingWorkoutId] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
         fetchWorkouts()
     }, [accessToken])
 
-    // Fetch workouts
     const fetchWorkouts = async () => {
         try {
             console.log('📡 Fetching workouts...')
@@ -26,7 +23,6 @@ const WorkoutFeedFull = () => {
             const fetchedWorkouts = response.data.workouts || []
             setWorkouts(fetchedWorkouts)
 
-            // Fetch sets for each workout
             fetchedWorkouts.forEach((workout) => fetchWorkoutSets(workout.id))
         } catch (error) {
             console.error('❌ Error fetching workouts:', error)
@@ -34,7 +30,6 @@ const WorkoutFeedFull = () => {
         }
     }
 
-    // Fetch sets for a specific workout
     const fetchWorkoutSets = async (workoutId) => {
         try {
             console.log(`📡 Fetching sets for workout ${workoutId}...`)
@@ -54,22 +49,19 @@ const WorkoutFeedFull = () => {
         }
     }
 
-    // ✅ Toggle Workout Completion
     const toggleComplete = async (workoutId, currentState) => {
         try {
             console.log(
                 `📡 Toggling complete status for workout ${workoutId}...`
             )
-
             const response = await axios.patch(
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`,
-                { complete: !currentState }, // Toggle complete state
+                { complete: !currentState },
                 { headers: { Authorization: `Bearer ${accessToken}` } }
             )
 
             console.log('✅ Workout completion updated:', response.data)
 
-            // ✅ Update state immediately after toggling complete
             setWorkouts((prev) =>
                 prev.map((w) =>
                     w.id === workoutId ? { ...w, complete: !currentState } : w
@@ -80,80 +72,19 @@ const WorkoutFeedFull = () => {
         }
     }
 
-    // ✅ Duplicate Workout - Ensure Sets Are Created After Workout
-    const duplicateWorkout = async (workout) => {
+    // ✅ Delete Workout
+    const deleteWorkout = async (workoutId) => {
         try {
-            console.log(`📡 Duplicating workout ${workout.id}...`)
-
-            // Step 1: Create new workout first
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/`,
-                {
-                    workout_name: workout.workout_name,
-                    user_weight: workout.user_weight,
-                    sleep_score: workout.sleep_score,
-                    sleep_quality: workout.sleep_quality,
-                    notes: workout.notes,
-                },
+            console.log(`🗑 Deleting workout ${workoutId}...`)
+            await axios.delete(
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`,
                 { headers: { Authorization: `Bearer ${accessToken}` } }
             )
-
-            const newWorkout = response.data.workout // Ensure correct property
-            console.log('✅ New workout created:', newWorkout)
-
-            // Step 2: Ensure new workout ID exists before proceeding
-            if (!newWorkout || !newWorkout.id) {
-                console.error('❌ Error: New workout ID is missing.')
-                return
-            }
-
-            // Step 3: Fetch existing sets for the original workout
-            const setsResponse = await axios.get(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/`,
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            )
-
-            const sets = setsResponse.data.sets || []
-
-            // Step 4: Create sets for the new workout (only if sets exist)
-            if (sets.length > 0) {
-                await Promise.all(
-                    sets.map((set) =>
-                        axios.post(
-                            `${process.env.REACT_APP_API_BASE_URL}/workouts/${newWorkout.id}/sets/`,
-                            {
-                                exercise_name: set.exercise_name,
-                                set_type: set.set_type,
-                                loading: set.loading,
-                                reps: set.reps,
-                                rest: set.rest,
-                                focus: set.focus,
-                                notes: set.notes,
-                            },
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${accessToken}`,
-                                },
-                            }
-                        )
-                    )
-                )
-
-                console.log('✅ All sets duplicated successfully.')
-            } else {
-                console.log('ℹ No sets to duplicate.')
-            }
-
-            fetchWorkouts() // ✅ Ensure table updates
+            console.log('✅ Workout deleted successfully')
+            setWorkouts((prev) => prev.filter((w) => w.id !== workoutId))
         } catch (error) {
-            console.error('❌ Error duplicating workout:', error)
+            console.error('❌ Error deleting workout:', error)
         }
-    }
-
-    // ✅ Ensure Frontend Updates After Editing
-    const handleEditClick = (workoutId) => {
-        console.log(`📝 Editing workout ${workoutId}...`)
-        setEditingWorkoutId(workoutId)
     }
 
     return (
@@ -230,19 +161,21 @@ const WorkoutFeedFull = () => {
                                     <td className="border border-yellow-400 p-2 space-x-2">
                                         <button
                                             onClick={() =>
-                                                duplicateWorkout(workout)
+                                                navigate(
+                                                    `/livetracking/${workout.id}`
+                                                )
                                             }
-                                            className="bg-blue-500 text-black px-3 py-1 rounded hover:bg-blue-400 transition"
+                                            className="bg-green-500 text-black px-3 py-1 rounded hover:bg-green-400 transition"
                                         >
-                                            Duplicate
+                                            🚀 Start Live Tracking
                                         </button>
                                         <button
                                             onClick={() =>
-                                                handleEditClick(workout.id)
+                                                deleteWorkout(workout.id)
                                             }
-                                            className="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-300 transition"
+                                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-500 transition"
                                         >
-                                            Edit
+                                            Delete
                                         </button>
                                     </td>
                                 </tr>
@@ -260,27 +193,8 @@ const WorkoutFeedFull = () => {
                     )}
                 </tbody>
             </table>
-
-            {/* ✅ Ensure Edit Modal is Rendered */}
-            {editingWorkoutId && (
-                <WorkoutEditForm
-                    workout={workouts.find((w) => w.id === editingWorkoutId)}
-                    workoutId={editingWorkoutId}
-                    accessToken={accessToken}
-                    onClose={() => {
-                        setEditingWorkoutId(null)
-                        fetchWorkouts() // ✅ Ensure table updates after editing
-                    }}
-                    onUpdate={(updatedWorkout) => {
-                        setWorkouts((prev) =>
-                            prev.map((w) =>
-                                w.id === updatedWorkout.id ? updatedWorkout : w
-                            )
-                        )
-                    }}
-                />
-            )}
         </div>
     )
 }
+
 export default WorkoutFeedFull

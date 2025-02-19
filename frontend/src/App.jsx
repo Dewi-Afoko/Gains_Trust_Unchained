@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import PrivateRoute from './components/PrivateRoute'
 import WorkoutById from './pages/WorkoutById'
 import WorkoutsList from './pages/WorkoutsList'
+import WorkoutLiveTracking from './pages/WorkoutLiveTracking'
 
 function App() {
     return (
@@ -38,6 +39,14 @@ function App() {
                     element={
                         <PrivateRoute>
                             <WorkoutById />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/livetracking/:workoutId"
+                    element={
+                        <PrivateRoute>
+                            <WorkoutLiveTracking />
                         </PrivateRoute>
                     }
                 />

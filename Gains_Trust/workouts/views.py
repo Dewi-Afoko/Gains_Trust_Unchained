@@ -67,11 +67,34 @@ class SetDictView(APIView):
         if set_dict_id:
             set_dict = get_object_or_404(SetDict, id=set_dict_id, workout=workout)
             serializer = SetDictSerializer(set_dict)
-            return Response({"message": f"Details for set {set_dict_id}", "set": serializer.data}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": f"Details for set {set_dict_id}", "set": serializer.data},
+                status=status.HTTP_200_OK
+            )
 
+        # Filtering with query_params for complete status
+        completed_param = request.query_params.get("completed")
+        if completed_param is not None:
+            try:
+                completed = completed_param.lower() == "true"
+                set_dicts = SetDict.objects.filter(workout=workout, complete=completed).order_by("set_order")
+                serializer = SetDictSerializer(set_dicts, many=True)
+                return Response(
+                    {"message": f"Filtered sets retrieved ({'Completed' if completed else 'Incomplete'})",
+                    "sets": serializer.data},
+                    status=status.HTTP_200_OK
+                )
+            except ValueError:
+                return Response({"error": "Invalid value for 'completed' parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Default: Return all sets for the workout
         set_dicts = SetDict.objects.filter(workout=workout).order_by("set_order")
         serializer = SetDictSerializer(set_dicts, many=True)
-        return Response({"message": f"All sets for '{workout.workout_name}'", "sets": serializer.data}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": f"All sets for '{workout.workout_name}'", "sets": serializer.data},
+            status=status.HTTP_200_OK
+        )
+
 
     def post(self, request, workout_id):
         """Create a new SetDict for a workout"""

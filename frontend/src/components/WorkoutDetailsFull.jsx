@@ -2,7 +2,7 @@ import { useState, useContext } from 'react'
 import AuthContext from '../context/AuthContext'
 import useWorkoutDetails from '../hooks/useWorkoutDetails'
 import WorkoutEditForm from './forms/WorkoutEditForm'
-import SetsTableFull from '../components/SetsTableFull'
+import SetsTableFull from './sets/SetsTableFull'
 import SetCreationForm from './forms/SetCreationForm' // ✅ Import the form
 
 const WorkoutDetailsFull = ({ workoutId }) => {
