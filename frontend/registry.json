@@ -1,0 +1,9 @@
+{
+    "$schema": "https://ui.shadcn.com/schema.json",
+    "version": "1.0.0",
+    "name": "shadcn",
+    "description": "A registry of components for shadcn/ui.",
+    "imports": {
+        "components": "./components.json"
+    }
+}
