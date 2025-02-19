@@ -37,7 +37,7 @@ class SetDictSerializer(serializers.ModelSerializer):
     class Meta:
         model = SetDict
         fields = "__all__"
-        read_only_fields = ["workout", "set_number", "id", "set_order"]
+        read_only_fields = ["workout", "set_number", "id"]
         extra_kwargs = {
             "loading": {"allow_null": True, "required": False},
             "reps": {"allow_null": True, "required": False},
