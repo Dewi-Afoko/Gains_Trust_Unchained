@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
 
 const AuthContext = createContext()
@@ -57,4 +57,14 @@ export const AuthProvider = ({ children }) => {
     )
 }
 
+// ✅ Keep Default Export for Backward Compatibility
 export default AuthContext
+
+// ✅ Also Export Hook for Cleaner Imports
+export const useAuthContext = () => {
+    const context = useContext(AuthContext)
+    if (!context) {
+        throw new Error('useAuthContext must be used within an AuthProvider')
+    }
+    return context
+}
