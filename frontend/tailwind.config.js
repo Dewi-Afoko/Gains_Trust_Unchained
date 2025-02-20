@@ -5,7 +5,8 @@ module.exports = {
         extend: {},
     },
     plugins: [
-        require('tailwindcss-animate'), // ✅ Required for ShadCN animations
+        require('tailwindcss-animate'),
+        require('@tailwindcss/typography'), // ✅ Required for ShadCN animations
     ],
     darkMode: 'class', // ✅ Enables dark mode support for ShadCN components
 }

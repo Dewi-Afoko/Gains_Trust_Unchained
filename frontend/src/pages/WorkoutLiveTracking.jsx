@@ -12,12 +12,13 @@ const WorkoutLiveTracking = () => {
     const { workoutId } = useParams()
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 
-    // 🏋️‍♂️ State for workout and sets
+    // 🏋🏾‍♂️ State for workout and sets
     const [workout, setWorkout] = useState(null)
     const [sets, setSets] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [restTime, setRestTime] = useState(0) // ⏳ Rest time for TimerLive
+    const [timerKey, setTimerKey] = useState(0) // ✅ Forces Timer to reset
 
     // ✅ Fetch Workout & Sets on Load
     useEffect(() => {
@@ -64,35 +65,57 @@ const WorkoutLiveTracking = () => {
         }
     }
 
-    // ⏳ Start the Rest Timer when a set is completed (Ensures reliable updates)
+    // ⏳ Start the Rest Timer when a set is completed
     const startRestTimer = (time) => {
         console.log(`⏳ Starting rest timer: ${time} seconds`)
-        setRestTime((prev) => (prev === 0 ? time : 0)) // ✅ Force a state change to trigger re-render
-        setTimeout(() => setRestTime(time), 50) // ⏳ Prevents React from batching updates
+        setRestTime(time)
+        setTimerKey((prev) => prev + 1) // ✅ Forces Timer component to re-render
     }
 
-    if (loading) return <p className="text-white">Loading workout...</p>
-    if (error) return <p className="text-red-500">{error}</p>
-
     return (
-        <div className="min-h-screen bg-[#600000] text-white pt-20 px-6">
-            {/* 🏋️‍♂️ Workout Header (Title, Date, Exit Button) */}
+        <div className="min-h-screen bg-[#600000] text-white pt-24 px-6">
+            {/* 🏋🏾‍♂️ Workout Header (Title, Date, Exit Button) */}
             <WorkoutHeaderLive workout={workout} />
 
-            {/* ⏳ Timer Display */}
-            <TimerLive
-                nextSet={sets.find((set) => !set.complete) || null}
-                restTime={restTime}
-            />
+            {/* ⏳ Live Tracking Layout */}
+            <div className="flex justify-between items-start gap-6 mt-8">
+                {/* ⏭ Next Five Sets (Only as wide as the heading, content centered) */}
+                <div className="flex-shrink-0 min-w-[250px] text-center">
+                    <SetTrackerLive
+                        sets={sets}
+                        workoutId={workoutId}
+                        accessToken={accessToken}
+                        onSetUpdated={handleSetUpdated}
+                        startRestTimer={startRestTimer}
+                        showNextOnly={true} // ✅ Pass a prop to filter Next Sets only
+                    />
+                </div>
 
-            {/* ⏩ Next Five Sets & ✅ Last Five Completed */}
-            <SetTrackerLive
-                sets={sets}
-                workoutId={workoutId}
-                accessToken={accessToken}
-                onSetUpdated={handleSetUpdated}
-                startRestTimer={startRestTimer} // ✅ Pass Rest Timer Function
-            />
+                {/* 🔥 Timer (Now twice as wide, centered) */}
+                <div className="flex-grow flex justify-center w-2/3">
+                    <TimerLive
+                        key={timerKey} // ✅ Forces re-render when a new set is completed
+                        nextSet={sets.find((set) => !set.complete) || null}
+                        restTime={restTime}
+                        workoutId={workoutId}
+                        accessToken={accessToken}
+                        startRestTimer={startRestTimer}
+                        onSetUpdated={handleSetUpdated}
+                    />
+                </div>
+
+                {/* ✅ Last Five Completed Sets (Only as wide as the heading, content centered) */}
+                <div className="flex-shrink-0 min-w-[250px] text-center">
+                    <SetTrackerLive
+                        sets={sets}
+                        workoutId={workoutId}
+                        accessToken={accessToken}
+                        onSetUpdated={handleSetUpdated}
+                        startRestTimer={startRestTimer}
+                        showCompletedOnly={true} // ✅ Pass a prop to filter Completed Sets only
+                    />
+                </div>
+            </div>
 
             {/* 🔄 Full Set Overview (Editable) */}
             <WorkoutControlsLive

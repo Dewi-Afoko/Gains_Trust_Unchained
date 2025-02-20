@@ -2,14 +2,13 @@ import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import debounce from 'lodash.debounce' // Debounce to prevent excessive API calls
+import debounce from 'lodash.debounce'
+import toast from 'react-hot-toast' // ✅ Import toast notifications
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 
 const RegisterForm = () => {
-    const [alert, setAlert] = useState(null) // Success or error messages
     const navigate = useNavigate()
-
     const {
         register,
         handleSubmit,
@@ -18,10 +17,8 @@ const RegisterForm = () => {
         trigger,
     } = useForm()
 
-    // Function to check if username or email is available
     const checkAvailability = debounce(async (value, type) => {
         if (!value) return
-
         try {
             const response = await axios.get(
                 `${API_BASE_URL}/users/check_availability/`,
@@ -29,10 +26,7 @@ const RegisterForm = () => {
                     params: { [type]: value },
                 }
             )
-
-            if (response.status === 200) {
-                trigger(type) // Revalidate the field if available
-            }
+            if (response.status === 200) trigger(type)
         } catch (error) {
             if (error.response?.status === 400) {
                 setError(type, {
@@ -40,53 +34,30 @@ const RegisterForm = () => {
                     message:
                         type === 'username'
                             ? 'Username unavailable'
-                            : 'Email address already registered',
-                })
-            } else {
-                setError(type, {
-                    type: 'manual',
-                    message:
-                        type === 'username'
-                            ? 'Username validation failed'
-                            : 'Email validation failed',
+                            : 'Email already registered',
                 })
             }
         }
-    }, 500) // Debounce API calls to prevent excessive requests
+    }, 500)
 
     const onSubmit = async (data) => {
         try {
-            const response = await axios.post(
-                `${API_BASE_URL}/users/register/`,
-                data
-            )
-            setAlert({ type: 'success', message: 'Registration successful!' })
-            setTimeout(() => navigate('/login'), 3000)
+            await axios.post(`${API_BASE_URL}/users/register/`, data)
+            toast.success('Registration successful! Redirecting...')
+            setTimeout(() => navigate('/login'), 1500) // ✅ Faster transition
         } catch (error) {
-            setAlert({
-                type: 'error',
-                message: error.response?.data?.detail || 'Registration failed',
-            })
+            toast.error(error.response?.data?.detail || 'Registration failed')
         }
     }
 
     return (
-        <div>
-            {alert && (
-                <div
-                    className={`mt-4 p-4 text-2xl font-bold uppercase rounded-lg shadow-md 
-                    ${alert.type === 'success' ? 'bg-yellow-400 text-black' : 'bg-red-700 text-white'}`}
-                >
-                    {alert.message}
-                </div>
-            )}
+        <div className="max-w-md mx-auto">
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col space-y-4 bg-[#8B0000] text-white p-6 rounded-lg shadow-md"
             >
                 <h2 className="text-xl font-bold">Register</h2>
 
-                {/* Username Input */}
                 <label className="flex flex-col">
                     Username
                     <input
@@ -96,9 +67,6 @@ const RegisterForm = () => {
                                 checkAvailability(e.target.value, 'username'),
                         })}
                         className="p-2 rounded text-black"
-                        onChange={(e) =>
-                            checkAvailability(e.target.value, 'username')
-                        }
                     />
                     {errors.username && (
                         <p className="text-yellow-400">
@@ -107,7 +75,6 @@ const RegisterForm = () => {
                     )}
                 </label>
 
-                {/* Email Input */}
                 <label className="flex flex-col">
                     Email
                     <input
@@ -121,9 +88,6 @@ const RegisterForm = () => {
                                 checkAvailability(e.target.value, 'email'),
                         })}
                         className="p-2 rounded text-black"
-                        onChange={(e) =>
-                            checkAvailability(e.target.value, 'email')
-                        }
                     />
                     {errors.email && (
                         <p className="text-yellow-400">
@@ -132,7 +96,6 @@ const RegisterForm = () => {
                     )}
                 </label>
 
-                {/* Password Input */}
                 <label className="flex flex-col">
                     Password
                     <input
