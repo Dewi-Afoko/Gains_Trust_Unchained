@@ -1,14 +1,14 @@
 {
-  "framework": "react",
-  "rsc": false,
-  "tailwind": {
-    "config": "tailwind.config.js",
-    "css": "src/index.css",
-    "baseColor": "zinc",
-    "cssVariables": false
-  },
-  "aliases": {
-    "components": "@/components",
-    "utils": "@/utils"
-  }
+    "framework": "react",
+    "rsc": false,
+    "tailwind": {
+        "config": "tailwind.config.js",
+        "css": "src/index.css",
+        "baseColor": "zinc",
+        "cssVariables": false
+    },
+    "aliases": {
+        "components": "@/components",
+        "utils": "@/utils"
+    }
 }
