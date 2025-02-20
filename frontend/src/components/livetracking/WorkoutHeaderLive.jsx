@@ -1,21 +1,21 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
 const WorkoutHeaderLive = ({ workout }) => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     return (
-        <div className="flex justify-between items-center bg-[#600000] text-white p-4 rounded-t-lg shadow-md">
-            <h2 className="text-xl font-bold text-yellow-400">
-                {workout?.workout_name || 'Live Workout'}
+        <div className="flex justify-between items-center bg-[#400000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg">
+            <h2 className="text-yellow-400 text-3xl font-extrabold text-stroke">
+                🏋🏾‍♂️ {workout?.workout_name || "Live Workout"}
             </h2>
             <button
-                onClick={() => navigate('/dashboard')}
-                className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded"
+                onClick={() => navigate("/dashboard")}
+                className="bg-[#8B0000] hover:bg-[#600000] text-white font-bold px-4 py-2 rounded-xl transition text-stroke"
             >
-                Exit Workout
+                ❌ Exit Workout
             </button>
         </div>
-    )
-}
+    );
+};
 
-export default WorkoutHeaderLive
+export default WorkoutHeaderLive;
