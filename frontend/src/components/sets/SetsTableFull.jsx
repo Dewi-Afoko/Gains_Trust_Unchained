@@ -100,8 +100,8 @@ const SetsTableFull = ({
                                 >
                                     {cell.column.columnDef.cell
                                         ? cell.column.columnDef.cell(
-                                              cell.getContext()
-                                          )
+                                            cell.getContext()
+                                        )
                                         : cell.getValue()}
                                 </td>
                             ))}
