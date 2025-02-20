@@ -1,75 +1,75 @@
 import axios from 'axios'
+import { useState } from 'react'
 
 const SetActionsLive = ({
-    workoutId,
     setId,
+    workoutId,
+    accessToken,
     isNextSet,
     restTime,
-    onSetUpdated,
     startRestTimer,
-    accessToken,
+    onSetUpdated,
 }) => {
-    console.log(`🔍 Set ${setId} | isNextSet: ${isNextSet}`)
+    const [loading, setLoading] = useState(false)
 
-    // ✅ Mark Set as Complete
     const handleComplete = async () => {
-        if (!isNextSet) return
+        if (!isNextSet) return // ✅ Ensure only the next set is actionable
+        setLoading(true)
         try {
             await axios.post(
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/${setId}/complete/`,
                 {},
                 { headers: { Authorization: `Bearer ${accessToken}` } }
             )
-            onSetUpdated() // 🔄 Refresh sets
-            startRestTimer(restTime) // ⏳ Start rest countdown
+            startRestTimer(restTime)
+            onSetUpdated()
         } catch (error) {
             console.error('❌ Error marking set complete:', error)
+        } finally {
+            setLoading(false)
         }
     }
 
-    // ✅ Skip Set (Moves to End)
     const handleSkip = async () => {
         if (!isNextSet) return
+        setLoading(true)
         try {
             await axios.post(
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/${setId}/skip/`,
                 {},
                 { headers: { Authorization: `Bearer ${accessToken}` } }
             )
-
-            onSetUpdated() // 🔄 Refresh sets
+            onSetUpdated()
         } catch (error) {
             console.error('❌ Error skipping set:', error)
+        } finally {
+            setLoading(false)
         }
     }
 
     return (
-        <div className="flex space-x-2">
+        <div className="flex justify-between mt-4">
             <button
-                onClick={() => {
-                    handleComplete()
-                    startRestTimer(restTime) // ✅ Now updates TimerLive
-                }}
-                disabled={!isNextSet}
-                className={`px-3 py-1 rounded transition text-black ${
+                onClick={handleComplete}
+                disabled={!isNextSet || loading}
+                className={`px-4 py-2 rounded-xl font-bold text-white transition text-stroke ${
                     isNextSet
-                        ? 'bg-green-500 hover:bg-green-400'
-                        : 'bg-gray-500 cursor-not-allowed'
+                        ? 'bg-[#222222] hover:bg-[#333333]'
+                        : 'bg-gray-700 cursor-not-allowed'
                 }`}
             >
-                💯 Complete
+                {loading ? '⏳ Processing...' : '🔥 Complete'}
             </button>
-
             <button
                 onClick={handleSkip}
-                disabled={!isNextSet}
-                className={`px-3 py-1 rounded transition text-black ${
+                disabled={!isNextSet || loading}
+                className={`px-4 py-2 rounded-xl font-bold text-white transition text-stroke ${
                     isNextSet
-                        ? 'bg-yellow-500 hover:bg-yellow-400'
-                        : 'bg-gray-500 cursor-not-allowed'
+                        ? 'bg-[#B22222] hover:bg-[#8B0000]'
+                        : 'bg-gray-700 cursor-not-allowed'
                 }`}
             >
-                ⏭ Skip
+                {loading ? '⏳ Processing...' : '⏭ Skip'}
             </button>
         </div>
     )

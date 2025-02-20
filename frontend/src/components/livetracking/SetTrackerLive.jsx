@@ -1,71 +1,105 @@
-import SetActionsLive from './SetActionsLive'
+import { useState } from 'react'
+import SetEditForm from '../forms/SetEditForm'
 
 const SetTrackerLive = ({
     sets,
     workoutId,
     accessToken,
-    onSetUpdated,
     startRestTimer,
+    onSetUpdated,
+    showNextOnly,
+    showCompletedOnly,
 }) => {
-    const nextSets = sets.filter((set) => !set.complete).slice(0, 5)
-    const lastSets = sets.filter((set) => set.complete).slice(-5)
+    const [editingSetId, setEditingSetId] = useState(null)
+    const [isExpanded, setIsExpanded] = useState(true) // ✅ Open by default
+
+    let filteredSets = sets
+
+    // ✅ Only show Next Three Sets if `showNextOnly` is true
+    if (showNextOnly) {
+        filteredSets = sets.filter((set) => !set.complete).slice(0, 3)
+    }
+
+    // ✅ Only show Last Three Completed Sets if `showCompletedOnly` is true
+    if (showCompletedOnly) {
+        filteredSets = sets
+            .filter((set) => set.complete)
+            .slice(-3)
+            .reverse()
+    }
 
     return (
-        <div className="grid grid-cols-2 gap-4">
-            {/* ✅ Next 5 Incomplete Sets */}
-            <div className="bg-[#600000] p-4 rounded shadow-md border border-yellow-400">
-                <h2 className="text-yellow-400 text-lg font-bold mb-3">
-                    Next 5 Sets
-                </h2>
-                <ul>
-                    {nextSets.length > 0 ? (
-                        nextSets.map((set, index) => (
+        <div className="bg-[#500000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg w-auto max-w-md">
+            <h3
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-yellow-400 text-2xl font-extrabold text-stroke mb-3 cursor-pointer hover:text-yellow-300 transition"
+            >
+                {showNextOnly ? 'Next 3 Sets' : 'Last 3 Sets'}{' '}
+                {isExpanded ? '🔽' : '▶️'}
+            </h3>
+
+            {/* ✅ Collapsible Content */}
+            <div
+                className={`overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-[1000px]' : 'max-h-0'}`}
+            >
+                {filteredSets.length > 0 ? (
+                    <ul className="space-y-3 text-center">
+                        {filteredSets.map((set) => (
                             <li
                                 key={set.id}
-                                className="flex justify-between items-center text-white p-2 border-b border-yellow-400"
+                                className="p-3 bg-[#600000] border border-yellow-400 rounded-lg shadow-md min-w-[250px] max-w-full group hover:scale-105 transition-transform duration-200"
                             >
-                                <span>
-                                    {set.exercise_name} - {set.reps || '?'} reps
-                                </span>
-                                {index === 0 && ( // ✅ Only show buttons for the first set
-                                    <SetActionsLive
-                                        setId={set.id}
-                                        workoutId={workoutId}
-                                        accessToken={accessToken}
-                                        isNextSet={true} // ✅ Only first set is marked as next
-                                        restTime={set.rest}
-                                        startRestTimer={startRestTimer}
-                                        onSetUpdated={onSetUpdated}
-                                    />
+                                <p className="text-lg text-yellow-300 font-bold">
+                                    {set.exercise_name}{' '}
+                                    {set.set_type ? `- ${set.set_type}` : ''}
+                                </p>
+                                {set.focus && (
+                                    <p className="text-sm text-gray-300">
+                                        🧠 Focus: {set.focus}
+                                    </p>
                                 )}
+                                {set.loading && (
+                                    <p className="text-sm text-gray-300">
+                                        🔥 Loading: {set.loading}kg
+                                    </p>
+                                )}
+                                {set.reps && (
+                                    <p className="text-sm text-gray-300">
+                                        💪🏾 Reps: {set.reps}
+                                    </p>
+                                )}
+                                {set.rest && (
+                                    <p className="text-sm text-gray-300">
+                                        ⏳ Rest: {set.rest}s
+                                    </p>
+                                )}
+                                <button
+                                    onClick={() => setEditingSetId(set.id)}
+                                    className="mt-2 bg-yellow-500 text-black font-bold px-3 py-1 rounded hover:bg-yellow-400 transition w-full"
+                                >
+                                    ✏️ Edit
+                                </button>
                             </li>
-                        ))
-                    ) : (
-                        <p className="text-yellow-400">No upcoming sets</p>
-                    )}
-                </ul>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-gray-400 text-center">
+                        {showNextOnly
+                            ? 'No upcoming sets.'
+                            : 'No completed sets.'}
+                    </p>
+                )}
             </div>
 
-            {/* ✅ Last 5 Completed Sets */}
-            <div className="bg-[#600000] p-4 rounded shadow-md border border-yellow-400">
-                <h2 className="text-yellow-400 text-lg font-bold mb-3">
-                    Last 5 Completed
-                </h2>
-                <ul>
-                    {lastSets.length > 0 ? (
-                        lastSets.map((set) => (
-                            <li
-                                key={set.id}
-                                className="text-white p-2 border-b border-yellow-400"
-                            >
-                                {set.exercise_name} - {set.reps || '?'} reps
-                            </li>
-                        ))
-                    ) : (
-                        <p className="text-yellow-400">No completed sets</p>
-                    )}
-                </ul>
-            </div>
+            {editingSetId && (
+                <SetEditForm
+                    workoutId={workoutId}
+                    setId={editingSetId}
+                    accessToken={accessToken}
+                    onClose={() => setEditingSetId(null)}
+                    onUpdate={onSetUpdated}
+                />
+            )}
         </div>
     )
 }

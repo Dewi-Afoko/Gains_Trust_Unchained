@@ -1,8 +1,9 @@
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { useState, useContext } from 'react'
-import AuthContext from '../../context/AuthContext' // Import AuthContext
+import { useContext } from 'react'
+import AuthContext from '../../context/AuthContext'
+import toast from 'react-hot-toast' // ✅ Import toast notifications
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 
@@ -13,8 +14,7 @@ const LoginForm = () => {
         formState: { errors },
     } = useForm()
     const navigate = useNavigate()
-    const [alert, setAlert] = useState(null)
-    const { login } = useContext(AuthContext) // Use login function from context
+    const { login } = useContext(AuthContext)
 
     const onSubmit = async (data) => {
         try {
@@ -27,36 +27,18 @@ const LoginForm = () => {
                 { username: data.username },
                 response.data.access,
                 response.data.refresh
-            ) // Call login() from context
+            )
 
-            setAlert({
-                type: 'success',
-                message: `Authenticated: Welcome, Comrade ${data.username}!`,
-            })
-
-            setTimeout(() => navigate('/dashboard'), 3000) // Redirect after 3 seconds
+            toast.success(`Welcome, Comrade ${data.username}! Redirecting...`)
+            setTimeout(() => navigate('/dashboard'), 1500) // ✅ Faster transition
         } catch (error) {
-            setAlert({
-                type: 'error',
-                message: 'Invalid credentials. Try again, comrade!',
-            })
+            toast.error('Invalid credentials. Try again, comrade!')
         }
     }
 
     return (
         <div className="min-h-screen flex justify-center items-center bg-[#8B0000]">
             <div className="w-full max-w-md">
-                {alert && (
-                    <div
-                        className={`text-center p-3 mb-4 rounded ${
-                            alert.type === 'success'
-                                ? 'bg-yellow-400 text-black'
-                                : 'bg-red-600 text-white'
-                        }`}
-                    >
-                        {alert.message}
-                    </div>
-                )}
                 <form
                     onSubmit={handleSubmit(onSubmit)}
                     className="flex flex-col space-y-4 bg-[#8B0000] text-white p-6 rounded-lg shadow-md"
