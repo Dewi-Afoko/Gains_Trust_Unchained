@@ -24,14 +24,14 @@ function App() {
                 toastOptions={{
                     duration: 1000, // ✅ Keeps toasts visible longer
                     style: {
-                        background: '#600000',  // 🔥 Dark red background
-                        color: '#FFD700',  // 🟡 Gold/yellow text
+                        background: '#600000', // 🔥 Dark red background
+                        color: '#FFD700', // 🟡 Gold/yellow text
                         border: '2px solid #B8860B', // Dark gold border
                         padding: '12px',
                         fontWeight: 'bold',
                         fontSize: '18px',
                         textAlign: 'center',
-                        animation: "ease-in-out", // ✅ Wobble + Pulse Animation
+                        animation: 'ease-in-out', // ✅ Wobble + Pulse Animation
                     },
                     success: {
                         icon: '🔥',
@@ -46,7 +46,7 @@ function App() {
                             background: '#8B0000', // ❌ Darkest red for errors
                             color: '#FFD700',
                         },
-                    }
+                    },
                 }}
             />
             <Navbar />

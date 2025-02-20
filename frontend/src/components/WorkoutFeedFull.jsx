@@ -42,13 +42,18 @@ const WorkoutFeedFull = () => {
                 [workoutId]: response.data.sets || [],
             }))
         } catch (error) {
-            console.error(`❌ Error fetching sets for workout ${workoutId}:`, error)
+            console.error(
+                `❌ Error fetching sets for workout ${workoutId}:`,
+                error
+            )
         }
     }
 
     const toggleComplete = async (workoutId, currentState) => {
         try {
-            console.log(`📡 Toggling complete status for workout ${workoutId}...`)
+            console.log(
+                `📡 Toggling complete status for workout ${workoutId}...`
+            )
             const response = await axios.patch(
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`,
                 { complete: !currentState },
@@ -88,40 +93,70 @@ const WorkoutFeedFull = () => {
                     const sets = workoutSets[workout.id] || []
                     const totalSets = sets.length
                     const exerciseCounts = sets.reduce((acc, set) => {
-                        acc[set.exercise_name] = (acc[set.exercise_name] || 0) + 1
+                        acc[set.exercise_name] =
+                            (acc[set.exercise_name] || 0) + 1
                         return acc
                     }, {})
 
                     return (
-                        <div key={workout.id} className="bg-[#400000] text-white p-6 rounded-xl shadow-xl border border-yellow-400">
+                        <div
+                            key={workout.id}
+                            className="bg-[#400000] text-white p-6 rounded-xl shadow-xl border border-yellow-400"
+                        >
                             <h3
                                 className="text-yellow-400 text-2xl font-extrabold cursor-pointer hover:text-yellow-200 text-stroke"
-                                onClick={() => navigate(`/workouts/${workout.id}/full`)}
+                                onClick={() =>
+                                    navigate(`/workouts/${workout.id}/full`)
+                                }
                             >
                                 🏋🏾‍♂️ {workout.workout_name}
                             </h3>
-                            <p className="text-md text-gray-300">📅 {new Date(workout.date).toLocaleDateString()}</p>
-                            <p className="text-md text-gray-400">📝 {workout.notes || 'No notes'}</p>
-                            <p className="text-md text-yellow-300">💪🏾 Exercises:</p>
+                            <p className="text-md text-gray-300">
+                                📅 {new Date(workout.date).toLocaleDateString()}
+                            </p>
+                            <p className="text-md text-gray-400">
+                                📝 {workout.notes || 'No notes'}
+                            </p>
+                            <p className="text-md text-yellow-300">
+                                💪🏾 Exercises:
+                            </p>
                             <ul className="text-yellow-300">
-                                {Object.entries(exerciseCounts).map(([exercise, count]) => (
-                                    <li key={exercise} className="ml-4 text-stroke">
-                                        ({count}x) {exercise}
-                                    </li>
-                                ))}
+                                {Object.entries(exerciseCounts).map(
+                                    ([exercise, count]) => (
+                                        <li
+                                            key={exercise}
+                                            className="ml-4 text-stroke"
+                                        >
+                                            ({count}x) {exercise}
+                                        </li>
+                                    )
+                                )}
                             </ul>
-                            <p className="text-md text-yellow-400 text-stroke">🔥 Total Sets: {totalSets}</p>
+                            <p className="text-md text-yellow-400 text-stroke">
+                                🔥 Total Sets: {totalSets}
+                            </p>
                             <div className="flex justify-between mt-4">
                                 <button
-                                    onClick={() => toggleComplete(workout.id, workout.complete)}
+                                    onClick={() =>
+                                        toggleComplete(
+                                            workout.id,
+                                            workout.complete
+                                        )
+                                    }
                                     className={`px-4 py-2 rounded-xl text-white font-bold transition text-stroke ${
-                                        workout.complete ? 'bg-[#222222] hover:bg-[#333333]' : 'bg-[#B22222] hover:bg-[#8B0000]'
+                                        workout.complete
+                                            ? 'bg-[#222222] hover:bg-[#333333]'
+                                            : 'bg-[#B22222] hover:bg-[#8B0000]'
                                     }`}
                                 >
-                                    {workout.complete ? '⚡ Completed' : '⏳ In Progress'}
+                                    {workout.complete
+                                        ? '⚡ Completed'
+                                        : '⏳ In Progress'}
                                 </button>
                                 <button
-                                    onClick={() => navigate(`/livetracking/${workout.id}`)}
+                                    onClick={() =>
+                                        navigate(`/livetracking/${workout.id}`)
+                                    }
                                     className="bg-gradient-to-r from-[#8B0000] via-[#D35400] to-[#FFD700] text-white font-bold px-4 py-2 rounded-xl hover:from-[#B22222] hover:to-[#FFC107] transition text-stroke"
                                 >
                                     🚀 Start Live Tracking
@@ -137,7 +172,9 @@ const WorkoutFeedFull = () => {
                     )
                 })
             ) : (
-                <p className="text-yellow-400 text-center col-span-full text-lg text-stroke">No workouts found.</p>
+                <p className="text-yellow-400 text-center col-span-full text-lg text-stroke">
+                    No workouts found.
+                </p>
             )}
         </div>
     )
