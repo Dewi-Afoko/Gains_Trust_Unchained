@@ -2,7 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import SetEditForm from '../forms/SetEditForm'
 
-const SetActions = ({ set, workoutId, accessToken, onSetUpdated }) => {
+const SetActions = ({ set, workoutId, accessToken, updateSingleSet }) => {
     const [editingSetId, setEditingSetId] = useState(null)
 
     const openEditModal = () => setEditingSetId(set.id)
@@ -18,7 +18,7 @@ const SetActions = ({ set, workoutId, accessToken, onSetUpdated }) => {
             )
 
             console.log('✅ Set completion updated:', response.data)
-            onSetUpdated(response.data.set)
+            updateSingleSet(response.data.set) // ✅ Update only the modified set
         } catch (error) {
             console.error('❌ Error updating set:', error)
         }
@@ -44,7 +44,7 @@ const SetActions = ({ set, workoutId, accessToken, onSetUpdated }) => {
             )
 
             console.log('✅ Set duplicated successfully:', response.data.set)
-            onSetUpdated(response.data.set)
+            updateSingleSet(response.data.set) // ✅ Update only the modified set
         } catch (error) {
             console.error('❌ Error duplicating set:', error)
         }
@@ -59,7 +59,7 @@ const SetActions = ({ set, workoutId, accessToken, onSetUpdated }) => {
             )
 
             console.log('✅ Set deleted successfully.')
-            onSetUpdated()
+            updateSingleSet({ id: set.id, deleted: true }) // ✅ Remove set locally
         } catch (error) {
             console.error('❌ Error deleting set:', error)
         }
@@ -92,7 +92,7 @@ const SetActions = ({ set, workoutId, accessToken, onSetUpdated }) => {
                     setId={editingSetId}
                     accessToken={accessToken}
                     onClose={closeEditModal}
-                    onUpdate={onSetUpdated}
+                    onUpdate={updateSingleSet} // ✅ Pass update function directly
                 />
             )}
         </div>

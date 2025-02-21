@@ -10,8 +10,9 @@ const WorkoutFeedFull = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        fetchWorkouts()
-    }, [accessToken])
+        if (accessToken) fetchWorkouts();
+    }, []);  // Remove accessToken dependency unless token refresh is frequent
+    
 
     const fetchWorkouts = async () => {
         try {

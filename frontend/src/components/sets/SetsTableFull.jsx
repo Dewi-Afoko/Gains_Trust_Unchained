@@ -2,13 +2,7 @@ import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import SetActions from './SetActions'
 import axios from 'axios'
 
-const SetsTableFull = ({
-    sets,
-    workoutId,
-    accessToken,
-    onSetUpdated,
-    hideCompleteColumn = false,
-}) => {
+const SetsTableFull = ({ sets, workoutId, accessToken, updateSingleSet }) => {
     const toggleComplete = async (setId, currentState) => {
         try {
             console.log(`📡 Toggling complete status for set ${setId}...`)
@@ -19,7 +13,7 @@ const SetsTableFull = ({
             )
 
             console.log('✅ Set completion updated:', response.data)
-            onSetUpdated(response.data.set)
+            updateSingleSet(response.data.set) // ✅ Update only the modified set
         } catch (error) {
             console.error('❌ Error updating set:', error)
         }
@@ -35,14 +29,12 @@ const SetsTableFull = ({
         { accessorKey: 'rest', header: 'Rest (s)' },
         { accessorKey: 'focus', header: 'Focus' },
         { accessorKey: 'notes', header: 'Notes' },
-        !hideCompleteColumn && {
+        {
             accessorKey: 'complete',
             header: 'Complete',
             cell: ({ row }) => (
                 <button
-                    onClick={() =>
-                        toggleComplete(row.original.id, row.original.complete)
-                    }
+                    onClick={() => toggleComplete(row.original.id, row.original.complete)}
                     className={`px-3 py-1 rounded ${
                         row.original.complete
                             ? 'bg-green-500 hover:bg-green-400'
@@ -62,12 +54,12 @@ const SetsTableFull = ({
                         set={row.original}
                         workoutId={workoutId}
                         accessToken={accessToken}
-                        onSetUpdated={onSetUpdated}
+                        updateSingleSet={updateSingleSet} // ✅ Fix: Pass function correctly
                     />
                 </div>
             ),
         },
-    ].filter(Boolean) // ✅ Remove `undefined` if hideCompleteColumn is true
+    ]
 
     const table = useReactTable({
         data: sets,
@@ -99,9 +91,7 @@ const SetsTableFull = ({
                                     className="border border-yellow-400 p-2"
                                 >
                                     {cell.column.columnDef.cell
-                                        ? cell.column.columnDef.cell(
-                                            cell.getContext()
-                                        )
+                                        ? cell.column.columnDef.cell(cell.getContext())
                                         : cell.getValue()}
                                 </td>
                             ))}

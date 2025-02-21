@@ -6,12 +6,13 @@ import UserDetailsEditForm from '../components/forms/UserDetailsEditForm'
 import { formatDateTime } from '../lib/utils'
 
 const UserDetailsCard = ({ user }) => {
-    const { accessToken } = useContext(AuthContext)
+    const { accessToken, setUser } = useContext(AuthContext) // ✅ Added setUser from AuthContext
     const [updatedUser, setUpdatedUser] = useState(user) // ✅ Track updates
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const handleUserUpdate = (newUserData) => {
-        setUpdatedUser(newUserData) // ✅ Update state to re-render UI
+        setUpdatedUser(newUserData) // ✅ Update local state to re-render UI
+        setUser(newUserData) // ✅ Update global auth state
         setIsModalOpen(false)
     }
 
@@ -61,7 +62,7 @@ const UserDetailsCard = ({ user }) => {
                                 user={updatedUser}
                                 accessToken={accessToken}
                                 onClose={() => setIsModalOpen(false)}
-                                onUpdate={handleUserUpdate}
+                                onUpdate={handleUserUpdate} // ✅ Ensures UI & AuthContext update
                             />
                         </DialogContent>
                     </Dialog>

@@ -57,10 +57,8 @@ export const AuthProvider = ({ children }) => {
     )
 }
 
-// ✅ Keep Default Export for Backward Compatibility
 export default AuthContext
 
-// ✅ Also Export Hook for Cleaner Imports
 export const useAuthContext = () => {
     const context = useContext(AuthContext)
     if (!context) {
