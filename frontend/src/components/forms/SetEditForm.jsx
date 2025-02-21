@@ -61,7 +61,7 @@ const SetEditForm = ({ workoutId, setId, accessToken, onClose, onUpdate }) => {
             setTimeout(() => {
                 onClose()
                 setAlert(null)
-            }, 2000)
+            }, 1000)
         } catch (error) {
             console.error(
                 '❌ Error updating set:',

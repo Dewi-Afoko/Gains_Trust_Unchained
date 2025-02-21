@@ -6,7 +6,6 @@ const useWorkoutDetails = (workoutId, accessToken) => {
     const [sets, setSets] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const [isUpdating, setIsUpdating] = useState(false) // Tracks updates
 
     useEffect(() => {
         const fetchWorkoutDetails = async () => {
@@ -33,9 +32,25 @@ const useWorkoutDetails = (workoutId, accessToken) => {
         }
 
         fetchWorkoutDetails()
-    }, [workoutId, accessToken, isUpdating])
+    }, [workoutId, accessToken])
 
-    return { workout, sets, loading, error, setWorkout, setIsUpdating }
+    // ✅ Update a single set in state and handle new additions
+    const updateSingleSet = (updatedSet) => {
+        setSets((prevSets) => {
+            if (updatedSet.deleted) {
+                return prevSets.filter((set) => set.id !== updatedSet.id); // ✅ Remove deleted sets
+            }
+            const existingSet = prevSets.find((set) => set.id === updatedSet.id);
+            if (existingSet) {
+                return prevSets.map((set) =>
+                    set.id === updatedSet.id ? updatedSet : set
+                );
+            }
+            return [...prevSets, updatedSet]; // ✅ Add new sets to the array
+        });
+    }
+
+    return { workout, sets, loading, error, setWorkout, updateSingleSet }
 }
 
 export default useWorkoutDetails
