@@ -1,56 +1,187 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuthContext } from './AuthContext';
+import toast from 'react-hot-toast';
 
 const WorkoutContext = createContext();
 
-export const WorkoutProvider = ({ workoutId, accessToken, children }) => {
+export const WorkoutProvider = ({ workoutId, children }) => {
+    const { accessToken } = useAuthContext();
+    const [workouts, setWorkouts] = useState([]);
+    const [workoutSets, setWorkoutSets] = useState({});
     const [workout, setWorkout] = useState(null);
     const [sets, setSets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // ✅ Centralized API request helper function
+    const apiRequest = async (method, url, data = {}) => {
+        if (!accessToken) return;
+        try {
+            const response = await axios({
+                method,
+                url,
+                data,
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            return response.data;
+        } catch (err) {
+            console.error(`❌ API Error (${method.toUpperCase()} ${url}):`, err);
+            toast.error('Something went wrong. Please try again.');
+            throw err;
+        }
+    };
+
+    // ✅ Automatically fetch workouts or details based on `workoutId`
     useEffect(() => {
-        const fetchWorkoutDetails = async () => {
-            setLoading(true);
-            try {
-                const workoutResponse = await axios.get(
-                    `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`,
-                    { headers: { Authorization: `Bearer ${accessToken}` } }
-                );
-                setWorkout(workoutResponse.data);
+        workoutId ? fetchWorkoutDetails(workoutId) : fetchAllWorkouts();
+    }, [workoutId]);
 
-                const setsResponse = await axios.get(
-                    `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`,
-                    { headers: { Authorization: `Bearer ${accessToken}` } }
-                );
-                setSets(setsResponse.data.sets);
-            } catch (err) {
-                setError(err.response?.data?.message || 'Error fetching workout data');
-            } finally {
-                setLoading(false);
-            }
-        };
+    useEffect(() => {
+        if (workout?.id) fetchWorkoutSets(workout.id);
+    }, [workout]);
 
-        fetchWorkoutDetails();
-    }, [workoutId, accessToken]);
+    // 📌 WORKOUT FUNCTIONS
 
-    const updateSingleSet = (updatedSet) => {
-        setSets((prevSets) => {
-            if (updatedSet.deleted) {
-                return prevSets.filter((set) => set.id !== updatedSet.id);
+    const fetchAllWorkouts = async () => {
+        setLoading(true);
+        try {
+            const data = await apiRequest('get', `${process.env.REACT_APP_API_BASE_URL}/workouts/`);
+            setWorkouts(data.workouts || []);
+            await Promise.all(data.workouts.map((w) => fetchWorkoutSets(w.id))); // ✅ Fetch sets in parallel
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchWorkoutDetails = async (workoutId) => {
+        setLoading(true);
+        try {
+            const data = await apiRequest('get', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`);
+            setWorkout(data);
+            await fetchWorkoutSets(workoutId);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updateWorkout = async (workoutId, updatedFields) => {
+        await apiRequest('patch', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`, updatedFields);
+        await fetchWorkoutDetails(workoutId); // ✅ Ensures the latest data is fetched
+        toast.success('Workout updated successfully!');
+    };
+
+    const toggleComplete = async (workoutId, currentState) => {
+        if (!accessToken) return;
+        try {
+            const response = await apiRequest('patch', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`, {
+                complete: !currentState,
+            });
+    
+            setWorkouts((prev) =>
+                prev.map((w) => (w.id === workoutId ? { ...w, complete: !currentState } : w))
+            );
+    
+            if (workout?.id === workoutId) {
+                setWorkout((prev) => ({ ...prev, complete: !currentState }));
             }
-            const existingSet = prevSets.find((set) => set.id === updatedSet.id);
-            if (existingSet) {
-                return prevSets.map((set) =>
-                    set.id === updatedSet.id ? updatedSet : set
-                );
-            }
-            return [...prevSets, updatedSet];
-        });
+    
+            toast.success('Workout completion status updated!');
+        } catch (err) {
+            console.error('❌ Error updating workout completion:', err);
+            toast.error('Failed to update workout.');
+        }
+    };
+
+    const deleteWorkout = async (workoutId) => {
+        await apiRequest('delete', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`);
+        setWorkouts((prev) => prev.filter((w) => w.id !== workoutId));
+        setWorkout(null);
+        setSets([]);
+        toast.success('Workout deleted successfully!');
+    };
+
+    // 📌 SET FUNCTIONS
+
+    const fetchWorkoutSets = async (workoutId) => {
+        const data = await apiRequest('get', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`);
+        setWorkoutSets((prev) => ({ ...prev, [workoutId]: data.sets || [] }));
+        setSets(data.sets || []);
+    };
+
+    const fetchSetDetails = async (setId) => {
+        return await apiRequest('get', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout?.id}/sets/${setId}/`);
+    };
+
+    const updateSet = async (setId, updatedData) => {
+        if (!accessToken || !workout?.id) return;
+        try {
+            await apiRequest('patch', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/${setId}/`, updatedData);
+            await fetchWorkoutSets(workout.id); // ✅ Ensure `set_number` and `set_order` refresh
+            toast.success('Set updated successfully!');
+        } catch (err) {
+            console.error('❌ Error updating set:', err);
+            toast.error('Failed to update set.');
+            throw err;
+        }
+    };
+    
+
+    const toggleSetComplete = async (setId, currentState) => {
+        const data = await apiRequest('post', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout?.id}/sets/${setId}/complete/`);
+        setSets((prev) => prev.map((set) => (set.id === setId ? data.set : set)));
+        toast.success('Set completion updated!');
+    };
+
+    const createSets = async (workoutId, setData, numberOfSets = 1) => {
+        await Promise.all(Array.from({ length: numberOfSets }, () =>
+            apiRequest('post', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`, { ...setData, complete: false })
+        ));
+        await fetchWorkoutSets(workoutId);
+        toast.success(`Added ${numberOfSets} set(s) successfully!`);
+    };
+
+    const duplicateSet = async (workoutId, setData) => {
+        await apiRequest('post', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`, { ...setData, complete: false });
+        await fetchWorkoutSets(workoutId);
+        toast.success('Set duplicated successfully!');
+    };
+
+    const deleteSet = async (workoutId, setId) => {
+        if (!accessToken) return;
+        try {
+            await apiRequest('delete', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/${setId}/`);
+            await fetchWorkoutSets(workoutId); // ✅ Ensure `set_number` and `set_order` refresh
+            toast.success('Set deleted successfully!');
+        } catch (err) {
+            console.error('❌ Error deleting set:', err);
+            toast.error('Failed to delete set.');
+        }
     };
 
     return (
-        <WorkoutContext.Provider value={{ workout, sets, loading, error, setWorkout, updateSingleSet }}>
+        <WorkoutContext.Provider
+            value={{
+                workouts,
+                workoutSets,
+                workout,
+                sets,
+                loading,
+                error,
+                fetchAllWorkouts,
+                fetchWorkoutDetails,
+                fetchWorkoutSets,
+                updateWorkout,
+                toggleComplete,
+                deleteWorkout,
+                fetchSetDetails,
+                updateSet,
+                toggleSetComplete,
+                createSets,
+                duplicateSet,
+                deleteSet,
+            }}
+        >
             {children}
         </WorkoutContext.Provider>
     );

@@ -1,26 +1,26 @@
-import { useState, useContext } from 'react'
-import AuthContext from '../context/AuthContext'
-import useWorkoutDetails from '../hooks/useWorkoutDetails'
+import { useState } from 'react'
+import { useWorkoutContext } from '../context/WorkoutContext' // ✅ Use WorkoutContext
 import WorkoutEditForm from './forms/WorkoutEditForm'
 import SetsTableFull from './sets/SetsTableFull'
 import SetCreationForm from './forms/SetCreationForm'
 import LoadingSpinner from './ui/LoadingSpinner'
 
-const WorkoutDetailsFull = ({ workoutId }) => {
-    const { accessToken } = useContext(AuthContext)
-    const { workout, sets, loading, error, setWorkout, updateSingleSet } =
-        useWorkoutDetails(workoutId, accessToken)
+const WorkoutDetailsFull = () => {
+    const { workout, sets, loading, error, setWorkout, updateSingleSet } = useWorkoutContext()
     const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
     const [isSetModalOpen, setIsSetModalOpen] = useState(false)
 
     const handleWorkoutUpdate = (updatedWorkout) => {
-        setWorkout(updatedWorkout)
+        setWorkout(updatedWorkout) // ✅ Update workout in context
         setIsWorkoutModalOpen(false)
     }
 
     const handleSetUpdated = (updatedSet) => {
-        updateSingleSet(updatedSet) // ✅ Update only the modified set, no re-fetch
+        updateSingleSet(updatedSet) // ✅ Update only the modified set
     }
+
+    console.log("🔄 Re-render triggered. Current workout:", workout); // ✅ Debug
+
 
     if (loading) return <LoadingSpinner />
     if (error) return <p className="text-red-500">Error: {error}</p>
@@ -54,19 +54,12 @@ const WorkoutDetailsFull = ({ workoutId }) => {
                 </button>
             </div>
 
-            {/* ✅ Pass updateSingleSet down the tree */}
-            <SetsTableFull
-                sets={sets}
-                workoutId={workoutId}
-                accessToken={accessToken}
-                updateSingleSet={updateSingleSet} // ✅ Fix: Ensure function is passed down
-            />
+            {/* ✅ No more props, uses context instead */}
+            <SetsTableFull hideCompleteButton={true} />
 
             {isWorkoutModalOpen && (
                 <WorkoutEditForm
                     workout={workout}
-                    workoutId={workoutId}
-                    accessToken={accessToken}
                     onClose={() => setIsWorkoutModalOpen(false)}
                     onUpdate={handleWorkoutUpdate}
                 />
@@ -74,8 +67,6 @@ const WorkoutDetailsFull = ({ workoutId }) => {
 
             {isSetModalOpen && (
                 <SetCreationForm
-                    workoutId={workoutId}
-                    accessToken={accessToken}
                     onSetCreated={handleSetUpdated}
                     onClose={() => setIsSetModalOpen(false)}
                 />

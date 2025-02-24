@@ -132,9 +132,12 @@ class SetDictView(APIView):
 def complete_set(request, workout_id, set_dict_id):
     """Mark a SetDict as Complete"""
     set_dict = get_object_or_404(SetDict, id=set_dict_id, workout_id=workout_id, workout__user=request.user)
-    set_dict.complete = True
+    if set_dict.complete == True:
+        set_dict.complete = False
+    elif set_dict.complete == False:
+        set_dict.complete = True
     set_dict.save()
-    return Response({"message": f"Set {set_dict.id} marked complete", "set": SetDictSerializer(set_dict).data}, status=status.HTTP_200_OK)
+    return Response({"message": f"Set {set_dict.id} completion status changed", "set": SetDictSerializer(set_dict).data}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])  # ✅ Changed from PATCH to POST
