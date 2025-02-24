@@ -8,3 +8,15 @@
 - Next set full details card centrally
 - Sets collapsible inline
 - Separate timer display?
+
+
+
+Workout Context
+
+ - WorkoutFeedFull.jsx
+    - useWorkoutDetails.jsx
+
+ - WorkoutLiveTracking.jsx
+
+
+ - SetEditForm.jsx

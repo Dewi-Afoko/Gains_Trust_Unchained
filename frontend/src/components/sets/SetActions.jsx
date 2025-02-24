@@ -1,102 +1,89 @@
-import { useState } from 'react'
-import axios from 'axios'
-import SetEditForm from '../forms/SetEditForm'
+import { useState } from 'react';
+import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Use context
+import SetEditForm from '../forms/SetEditForm';
 
-const SetActions = ({ set, workoutId, accessToken, updateSingleSet }) => {
-    const [editingSetId, setEditingSetId] = useState(null)
+const SetActions = ({ set, hideCompleteButton }) => {
+    const { workout, toggleSetComplete, duplicateSet, deleteSet } = useWorkoutContext(); // ✅ Get functions from context
+    const [editingSetId, setEditingSetId] = useState(null);
+    const [deleteModal, setDeleteModal] = useState(false); // ✅ Track delete confirmation modal
 
-    const openEditModal = () => setEditingSetId(set.id)
-    const closeEditModal = () => setEditingSetId(null)
+    const openEditModal = (setId) => {
+        setEditingSetId(setId); // ✅ Ensure `setId` is set before rendering modal
+    };
 
-    const toggleComplete = async () => {
-        try {
-            console.log(`📡 Toggling complete status for set ${set.id}...`)
-            const response = await axios.patch(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/${set.id}/`,
-                { complete: !set.complete },
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            )
+    const closeEditModal = () => {
+        setEditingSetId(null);
+    };
 
-            console.log('✅ Set completion updated:', response.data)
-            updateSingleSet(response.data.set) // ✅ Update only the modified set
-        } catch (error) {
-            console.error('❌ Error updating set:', error)
+    const confirmDelete = () => {
+        if (workout?.id) {
+            deleteSet(workout.id, set.id);
         }
-    }
-
-    const duplicateSet = async () => {
-        try {
-            console.log(`📡 Duplicating set ${set.id}...`)
-            const newSetData = {
-                exercise_name: set.exercise_name,
-                set_type: set.set_type || '',
-                loading: set.loading ? parseFloat(set.loading) : null,
-                reps: set.reps ? parseInt(set.reps) : null,
-                rest: set.rest ? parseInt(set.rest) : null,
-                focus: set.focus || '',
-                notes: set.notes || '',
-            }
-
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`,
-                newSetData,
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            )
-
-            console.log('✅ Set duplicated successfully:', response.data.set)
-            updateSingleSet(response.data.set) // ✅ Update only the modified set
-        } catch (error) {
-            console.error('❌ Error duplicating set:', error)
-        }
-    }
-
-    const deleteSet = async () => {
-        try {
-            console.log(`📡 Deleting set ${set.id}...`)
-            await axios.delete(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/${set.id}/`,
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            )
-
-            console.log('✅ Set deleted successfully.')
-            updateSingleSet({ id: set.id, deleted: true }) // ✅ Remove set locally
-        } catch (error) {
-            console.error('❌ Error deleting set:', error)
-        }
-    }
+        setDeleteModal(false);
+    };
 
     return (
         <div className="flex space-x-2 min-w-[200px]">
             <button
-                onClick={openEditModal}
+                onClick={() => openEditModal(set.id)} // ✅ Pass setId when opening modal
                 className="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-300 transition"
             >
                 Edit
             </button>
             <button
-                onClick={duplicateSet}
+                onClick={() => duplicateSet(workout.id, set)}
                 className="bg-blue-500 text-black px-3 py-1 rounded hover:bg-blue-400 transition"
             >
                 Duplicate
             </button>
             <button
-                onClick={deleteSet}
+                onClick={() => setDeleteModal(true)} // ✅ Open delete confirmation
                 className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-400 transition"
             >
                 Delete
             </button>
 
-            {editingSetId && (
-                <SetEditForm
-                    workoutId={workoutId}
-                    setId={editingSetId}
-                    accessToken={accessToken}
-                    onClose={closeEditModal}
-                    onUpdate={updateSingleSet} // ✅ Pass update function directly
-                />
+            {!hideCompleteButton && (
+                <button
+                    onClick={() => toggleSetComplete(set.id, set.complete)}
+                    className={`px-3 py-1 rounded ${
+                        set.complete ? 'bg-green-500 hover:bg-green-400' : 'bg-red-500 hover:bg-red-400'
+                    } transition text-black`}
+                >
+                    {set.complete ? '💪🏾' : '⏳'}
+                </button>
+            )}
+
+            {/* ✅ Ensure `SetEditForm` is only rendered when `editingSetId` is set */}
+            {editingSetId !== null && (
+                <SetEditForm setId={editingSetId} onClose={closeEditModal} />
+            )}
+
+            {/* ✅ Delete Confirmation Modal */}
+            {deleteModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+                    <div className="bg-[#600000] p-6 rounded-lg shadow-lg text-white max-w-sm">
+                        <h3 className="text-lg font-bold text-yellow-400">Confirm Deletion</h3>
+                        <p className="mt-2">Are you sure you want to delete this set? This action cannot be undone.</p>
+                        <div className="flex justify-end mt-4 space-x-3">
+                            <button
+                                className="bg-gray-500 px-4 py-2 rounded hover:bg-gray-400 transition"
+                                onClick={() => setDeleteModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="bg-red-500 px-4 py-2 rounded hover:bg-red-400 transition"
+                                onClick={confirmDelete}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default SetActions
+export default SetActions;
