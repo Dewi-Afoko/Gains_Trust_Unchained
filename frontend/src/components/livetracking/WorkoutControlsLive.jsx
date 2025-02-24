@@ -1,17 +1,9 @@
 import { useState } from 'react'
 import SetsTableFull from '../sets/SetsTableFull'
 
-const WorkoutControlsLive = ({
-    workoutId,
-    sets,
-    accessToken,
-    onSetUpdated,
-}) => {
+const WorkoutControlsLive = () => {
     const [showIncomplete, setShowIncomplete] = useState(false) // ✅ Default to collapsed
     const [showCompleted, setShowCompleted] = useState(false) // ✅ Default to collapsed
-
-    const incompleteSets = sets.filter((set) => !set.complete)
-    const completedSets = sets.filter((set) => set.complete)
 
     return (
         <div className="bg-[#500000] text-white p-6 rounded-xl border border-yellow-400 shadow-lg mt-6 text-center">
@@ -31,13 +23,7 @@ const WorkoutControlsLive = ({
                     className={`overflow-hidden transition-all duration-500 ${showIncomplete ? 'max-h-[400px]' : 'max-h-0'}`}
                 >
                     <div className="overflow-y-auto max-h-[400px]">
-                        <SetsTableFull
-                            sets={incompleteSets}
-                            workoutId={workoutId}
-                            accessToken={accessToken}
-                            onSetUpdated={onSetUpdated}
-                            hideCompleteColumn={true}
-                        />
+                        <SetsTableFull hideCompleteColumn={true} /> {/* ✅ No more props */}
                     </div>
                 </div>
             </div>
@@ -54,13 +40,7 @@ const WorkoutControlsLive = ({
                     className={`overflow-hidden transition-all duration-500 ${showCompleted ? 'max-h-[400px]' : 'max-h-0'}`}
                 >
                     <div className="overflow-y-auto max-h-[400px]">
-                        <SetsTableFull
-                            sets={completedSets}
-                            workoutId={workoutId}
-                            accessToken={accessToken}
-                            onSetUpdated={onSetUpdated}
-                            hideCompleteColumn={true}
-                        />
+                        <SetsTableFull hideCompleteColumn={true} /> {/* ✅ No more props */}
                     </div>
                 </div>
             </div>

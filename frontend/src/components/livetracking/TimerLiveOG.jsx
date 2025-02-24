@@ -66,19 +66,20 @@ const TimerLive = ({
                 )}
             </h2>
 
-            {/* ✅ Display next set details during rest */}
+            {/* ✅ Replicating Full Next Set UI During Rest */}
             {activeRest && nextSet && (
-                <div className="mt-4 p-4 bg-[#500000] rounded-lg border border-yellow-400 shadow-md">
-                    <h3 className="text-2xl font-bold text-yellow-300">Up Next: {nextSet.exercise_name}</h3>
-                    <p className="text-2xl font-extrabold text-stroke mt-2">
+                <div className="mt-6 text-xl text-yellow-300">
+                    <p className="text-4xl font-extrabold text-stroke">
                         {nextSet.loading}kg X {nextSet.reps} reps
                     </p>
-                    <p className="text-lg font-extrabold text-stroke">
-                        ({nextSet.exercise_name} - Set {nextSet.set_number})
+                    <p className="text-1xl font-extrabold text-stroke">
+                        ({nextSet.exercise_name} Set Number: {nextSet.set_number})
                     </p>
+                    <br />
                     {nextSet.notes && (
-                        <p className="text-sm font-extrabold text-stroke mt-2">
-                            Notes: {nextSet.notes}
+                        <p className="text-1xl font-extrabold text-stroke">
+                            Performance Notes:
+                            <br /> {nextSet.notes}
                         </p>
                     )}
                 </div>

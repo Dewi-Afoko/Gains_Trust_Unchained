@@ -2,12 +2,12 @@ import { useState, useEffect, useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import AuthContext from '../../context/AuthContext'
+import { Toaster, toast } from 'react-hot-toast'
 
 const UserDetailsEditForm = ({ user, accessToken, onClose, onUpdate }) => {
     const { setUser } = useContext(AuthContext)
     const { register, handleSubmit, setValue } = useForm()
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [alert, setAlert] = useState(null)
 
     // ✅ Auto-populate form fields
     useEffect(() => {
@@ -32,20 +32,12 @@ const UserDetailsEditForm = ({ user, accessToken, onClose, onUpdate }) => {
             setUser(updatedUser) // ✅ Update user globally in AuthContext
             onUpdate(updatedUser) // ✅ Trigger re-render in UserDetailsCard
 
-            setAlert({
-                type: 'success',
-                message: 'User details updated successfully!',
-            })
-
+            toast.success('User details updated successfully!') // ✅ Show success toast
             setTimeout(() => {
                 onClose()
-                setAlert(null)
-            }, 2000)
+            }, 1500)
         } catch (error) {
-            setAlert({
-                type: 'error',
-                message: 'Error updating details. Please try again.',
-            })
+            toast.error('Error updating details. Please try again.') // ✅ Show error toast
         } finally {
             setIsSubmitting(false)
         }
@@ -53,18 +45,10 @@ const UserDetailsEditForm = ({ user, accessToken, onClose, onUpdate }) => {
 
     return (
         <div className="bg-[#600000] text-white p-6 rounded-lg shadow-lg max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000]">
+            <Toaster />
             <h3 className="text-lg font-semibold text-yellow-400">
                 Edit User Details
             </h3>
-
-            {alert && (
-                <div
-                    className={`text-center p-3 mb-4 rounded ${alert.type === 'success' ? 'bg-green-500 text-black' : 'bg-red-600 text-white'}`}
-                >
-                    {alert.message}
-                </div>
-            )}
-
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <label className="block">
                     First Name:

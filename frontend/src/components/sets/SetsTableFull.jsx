@@ -1,29 +1,26 @@
-import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
-import SetActions from './SetActions'
-import axios from 'axios'
+import { useEffect, useState } from 'react';
+import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Use WorkoutContext
+import { useReactTable, getCoreRowModel } from '@tanstack/react-table';
+import SetActions from './SetActions';
 
-const SetsTableFull = ({
-    sets,
-    workoutId,
-    accessToken,
-    onSetUpdated,
-    hideCompleteColumn = false,
-}) => {
-    const toggleComplete = async (setId, currentState) => {
-        try {
-            console.log(`📡 Toggling complete status for set ${setId}...`)
-            const response = await axios.patch(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/${setId}/`,
-                { complete: !currentState },
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            )
+const SetsTableFull = ({ hideCompleteButton = true }) => {
+    const { sets, updateSingleSet, toggleSetComplete, workout } = useWorkoutContext(); // ✅ Get data from context
+    const [tableData, setTableData] = useState(sets);
+    const [editingSetId, setEditingSetId] = useState(null); // ✅ Track which set is being edited
 
-            console.log('✅ Set completion updated:', response.data)
-            onSetUpdated(response.data.set)
-        } catch (error) {
-            console.error('❌ Error updating set:', error)
-        }
-    }
+    // ✅ Ensure table data updates dynamically when `sets` change
+    useEffect(() => {
+        console.log('🔄 Updating table data with new sets state...');
+        setTableData([...sets]); // ✅ Force new reference to trigger React Table update
+    }, [sets]);
+
+    const openEditModal = (setId) => {
+        setEditingSetId(setId); // ✅ Ensure `setId` is set before opening modal
+    };
+
+    const closeEditModal = () => {
+        setEditingSetId(null);
+    };
 
     const columns = [
         { accessorKey: 'exercise_name', header: 'Exercise' },
@@ -35,14 +32,12 @@ const SetsTableFull = ({
         { accessorKey: 'rest', header: 'Rest (s)' },
         { accessorKey: 'focus', header: 'Focus' },
         { accessorKey: 'notes', header: 'Notes' },
-        !hideCompleteColumn && {
+        {
             accessorKey: 'complete',
             header: 'Complete',
             cell: ({ row }) => (
                 <button
-                    onClick={() =>
-                        toggleComplete(row.original.id, row.original.complete)
-                    }
+                    onClick={() => toggleSetComplete(row.original.id, row.original.complete)}
                     className={`px-3 py-1 rounded ${
                         row.original.complete
                             ? 'bg-green-500 hover:bg-green-400'
@@ -60,31 +55,27 @@ const SetsTableFull = ({
                 <div className="flex flex-wrap gap-2 justify-center min-w-fit">
                     <SetActions
                         set={row.original}
-                        workoutId={workoutId}
-                        accessToken={accessToken}
-                        onSetUpdated={onSetUpdated}
+                        hideCompleteButton={hideCompleteButton}
+                        onEdit={() => openEditModal(row.original.id)} // ✅ Ensure `setId` is passed
                     />
                 </div>
             ),
         },
-    ].filter(Boolean) // ✅ Remove `undefined` if hideCompleteColumn is true
+    ];
 
     const table = useReactTable({
-        data: sets,
+        data: tableData,
         columns,
         getCoreRowModel: getCoreRowModel(),
-    })
+    });
 
     return (
         <div className="overflow-x-auto mt-4">
-            <table className="w-full border-collapse border border-yellow-400">
+            <table key={tableData.length} className="w-full border-collapse border border-yellow-400">
                 <thead>
                     <tr className="bg-[#500000] text-yellow-400">
                         {columns.map((col) => (
-                            <th
-                                key={col.accessorKey}
-                                className="border border-yellow-400 p-2"
-                            >
+                            <th key={col.accessorKey} className="border border-yellow-400 p-2">
                                 {col.header}
                             </th>
                         ))}
@@ -94,14 +85,9 @@ const SetsTableFull = ({
                     {table.getRowModel().rows.map((row) => (
                         <tr key={row.id} className="text-white">
                             {row.getVisibleCells().map((cell) => (
-                                <td
-                                    key={cell.id}
-                                    className="border border-yellow-400 p-2"
-                                >
+                                <td key={cell.id} className="border border-yellow-400 p-2">
                                     {cell.column.columnDef.cell
-                                        ? cell.column.columnDef.cell(
-                                            cell.getContext()
-                                        )
+                                        ? cell.column.columnDef.cell(cell.getContext())
                                         : cell.getValue()}
                                 </td>
                             ))}
@@ -109,8 +95,10 @@ const SetsTableFull = ({
                     ))}
                 </tbody>
             </table>
-        </div>
-    )
-}
 
-export default SetsTableFull
+
+        </div>
+    );
+};
+
+export default SetsTableFull;
