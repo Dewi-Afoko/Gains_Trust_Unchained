@@ -6,6 +6,7 @@ import WorkoutHeaderLive from '../components/livetracking/WorkoutHeaderLive';
 import TimerLive from '../components/livetracking/TimerLive';
 import SetTrackerLive from '../components/livetracking/SetTrackerLive';
 import WorkoutControlsLive from '../components/livetracking/WorkoutControlsLive';
+import { WorkoutProvider } from '../context/WorkoutContext';
 
 const WorkoutLiveTracking = () => {
     const { accessToken } = useAuthContext();
@@ -132,13 +133,9 @@ const WorkoutLiveTracking = () => {
                     />
                 </div>
             </div>
-
-            <WorkoutControlsLive
-                sets={sets}
-                workoutId={workoutId}
-                accessToken={accessToken}
-                onSetUpdated={handleSetUpdated}
-            />
+            <WorkoutProvider workoutId={workoutId}> {/* ✅ Wrap workout controls */}
+                <WorkoutControlsLive />
+            </WorkoutProvider>
         </div>
     );
 };

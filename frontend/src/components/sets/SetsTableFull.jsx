@@ -3,7 +3,7 @@ import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Use Wor
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table';
 import SetActions from './SetActions';
 
-const SetsTableFull = ({ hideCompleteButton = false }) => {
+const SetsTableFull = ({ hideCompleteButton = true }) => {
     const { sets, updateSingleSet, toggleSetComplete, workout } = useWorkoutContext(); // ✅ Get data from context
     const [tableData, setTableData] = useState(sets);
     const [editingSetId, setEditingSetId] = useState(null); // ✅ Track which set is being edited
