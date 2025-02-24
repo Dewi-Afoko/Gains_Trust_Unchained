@@ -1,4 +1,5 @@
 import WorkoutFeedFull from '../components/WorkoutFeedFull'
+import { WorkoutProvider } from '../context/WorkoutContext'
 
 const WorkoutsList = () => {
     return (
@@ -6,7 +7,9 @@ const WorkoutsList = () => {
             <h1 className="text-3xl font-bold text-yellow-400 mb-6">
                 Your Workouts
             </h1>
-            <WorkoutFeedFull />
+            <WorkoutProvider>
+                <WorkoutFeedFull />
+            </WorkoutProvider>
         </div>
     )
 }
