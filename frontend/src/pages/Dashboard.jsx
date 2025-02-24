@@ -5,7 +5,7 @@ import UserWeightCard from '../components/UserWeightsCard'
 import WorkoutFeed from '../components/WorkoutFeedPreview'
 import WorkoutCreationForm from '../components/forms/WorkoutCreationForm'
 import WorkoutDetailsPreview from '../components/WorkoutDetailsPreview'
-import useWorkoutDetails from '../hooks/useWorkoutDetails'
+import { WorkoutProvider } from '../context/WorkoutContext' // ✅ Import WorkoutProvider
 import axios from 'axios'
 
 const Dashboard = () => {
@@ -74,17 +74,21 @@ const Dashboard = () => {
             )}
 
             {/* ✅ Display WorkoutDetails if a workout is selected */}
+            {/* ✅ Pass workoutId into WorkoutProvider */}
             {workoutId && (
-                <div className="mt-6 w-full max-w-6xl">
-                    <WorkoutDetailsPreview workoutId={workoutId} />
-                    <button
-                        onClick={() => setWorkoutId(null)}
-                        className="bg-red-500 text-black px-4 py-2 rounded mt-4 hover:bg-red-400 transition"
-                    >
-                        Back to Workout Feed
-                    </button>
-                </div>
+                <WorkoutProvider workoutId={workoutId}> 
+                    <div className="mt-6 w-full max-w-6xl">
+                        <WorkoutDetailsPreview workoutId={workoutId} />
+                        <button
+                            onClick={() => setWorkoutId(null)}
+                            className="bg-red-500 text-black px-4 py-2 rounded mt-4 hover:bg-red-400 transition"
+                        >
+                            Back to Workout Feed
+                        </button>
+                    </div>
+                </WorkoutProvider>
             )}
+
 
             {/* ✅ Show Workout Feed & Weight Chart only when no workout is selected */}
             {!workoutId && (
