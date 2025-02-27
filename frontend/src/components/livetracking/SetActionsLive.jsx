@@ -1,51 +1,57 @@
-import axios from 'axios'
-import { useState } from 'react'
+import { useState } from 'react';
+import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Keep context
 
 const SetActionsLive = ({
     setId,
-    workoutId,
-    accessToken,
     isNextSet,
     restTime,
     startRestTimer,
-    onSetUpdated,
 }) => {
-    const [loading, setLoading] = useState(false)
+    const { workoutId, toggleSetComplete, skipSet } = useWorkoutContext(); // ✅ Keep context functions
+    const [loading, setLoading] = useState(false);
 
     const handleComplete = async () => {
-        if (!isNextSet) return // ✅ Ensure only the next set is actionable
-        setLoading(true)
-        try {
-            await axios.post(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/${setId}/complete/`,
-                {},
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            )
-            startRestTimer(restTime)
-            onSetUpdated()
-        } catch (error) {
-            console.error('❌ Error marking set complete:', error)
-        } finally {
-            setLoading(false)
+        if (!isNextSet) return; // ✅ Prevent completing the wrong set
+        setLoading(true);
+
+        console.log('🟢 Completing set. Set ID:', setId); // ✅ Debugging log
+
+        if (!setId) {
+            console.error('❌ ERROR: Attempted to complete a set with an undefined setId.');
+            setLoading(false);
+            return;
         }
-    }
+
+        try {
+            await toggleSetComplete(setId);
+            startRestTimer(restTime);
+        } catch (error) {
+            console.error('❌ Error marking set complete:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleSkip = async () => {
-        if (!isNextSet) return
-        setLoading(true)
-        try {
-            await axios.post(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/${setId}/skip/`,
-                {},
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            )
-            onSetUpdated()
-        } catch (error) {
-            console.error('❌ Error skipping set:', error)
-        } finally {
-            setLoading(false)
+        if (!isNextSet) return; // ✅ Prevent skipping the wrong set
+        setLoading(true);
+
+        console.log('⚠️ Skipping set. Set ID:', setId); // ✅ Debugging log
+
+        if (!setId) {
+            console.error('❌ ERROR: Attempted to skip a set with an undefined setId.');
+            setLoading(false);
+            return;
         }
-    }
+
+        try {
+            await skipSet(setId);
+        } catch (error) {
+            console.error('❌ Error skipping set:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="flex justify-between mt-4">
@@ -60,6 +66,7 @@ const SetActionsLive = ({
             >
                 {loading ? '⏳ Processing...' : '🔥 Complete'}
             </button>
+
             <button
                 onClick={handleSkip}
                 disabled={!isNextSet || loading}
@@ -72,7 +79,7 @@ const SetActionsLive = ({
                 {loading ? '⏳ Processing...' : '⏭ Skip'}
             </button>
         </div>
-    )
-}
+    );
+};
 
-export default SetActionsLive
+export default SetActionsLive;

@@ -1,7 +1,9 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Use context
 
-const WorkoutHeaderLive = ({ workout }) => {
-    const navigate = useNavigate()
+const WorkoutHeaderLive = () => {
+    const { workout } = useWorkoutContext(); // ✅ Get workout from context
+    const navigate = useNavigate();
 
     return (
         <div className="flex justify-between items-center bg-[#400000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg">
@@ -15,7 +17,7 @@ const WorkoutHeaderLive = ({ workout }) => {
                 ❌ Exit Workout
             </button>
         </div>
-    )
-}
+    );
+};
 
-export default WorkoutHeaderLive
+export default WorkoutHeaderLive;
