@@ -38,11 +38,10 @@ def reorder_sets_after_creation(sender, instance, created, **kwargs):
     SetDict.objects.bulk_update(sets, ["set_number", "set_order"])
 
 
-
 @receiver(post_delete, sender=SetDict)
 def reorder_sets_after_deletion(sender, instance, **kwargs):
     """Ensures `set_number` and `set_order` update correctly after a set is deleted."""
-    
+
     # ✅ Fetch all remaining sets in this workout ordered by `set_order`
     remaining_sets = list(
         SetDict.objects.filter(workout=instance.workout).order_by("set_order")
@@ -65,4 +64,3 @@ def reorder_sets_after_deletion(sender, instance, **kwargs):
 
     # ✅ Bulk update all affected sets
     SetDict.objects.bulk_update(remaining_sets, ["set_number", "set_order"])
-

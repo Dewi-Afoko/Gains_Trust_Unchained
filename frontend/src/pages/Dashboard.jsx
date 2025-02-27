@@ -76,7 +76,7 @@ const Dashboard = () => {
             {/* ✅ Display WorkoutDetails if a workout is selected */}
             {/* ✅ Pass workoutId into WorkoutProvider */}
             {workoutId && (
-                <WorkoutProvider workoutId={workoutId}> 
+                <WorkoutProvider workoutId={workoutId}>
                     <div className="mt-6 w-full max-w-6xl">
                         <WorkoutDetailsPreview workoutId={workoutId} />
                         <button
@@ -88,7 +88,6 @@ const Dashboard = () => {
                     </div>
                 </WorkoutProvider>
             )}
-
 
             {/* ✅ Show Workout Feed & Weight Chart only when no workout is selected */}
             {!workoutId && (

@@ -6,7 +6,8 @@ import SetCreationForm from './forms/SetCreationForm'
 import LoadingSpinner from './ui/LoadingSpinner'
 
 const WorkoutDetailsFull = () => {
-    const { workout, sets, loading, error, setWorkout, updateSingleSet } = useWorkoutContext()
+    const { workout, sets, loading, error, setWorkout, updateSingleSet } =
+        useWorkoutContext()
     const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
     const [isSetModalOpen, setIsSetModalOpen] = useState(false)
 
@@ -19,9 +20,8 @@ const WorkoutDetailsFull = () => {
         updateSingleSet(updatedSet) // ✅ Update only the modified set
     }
 
-    console.log("🟢 WorkoutDetailsFull - Received Workout:", workout);
-    console.log("🟢 WorkoutDetailsFull - Received Sets:", sets);
-    
+    console.log('🟢 WorkoutDetailsFull - Received Workout:', workout)
+    console.log('🟢 WorkoutDetailsFull - Received Sets:', sets)
 
     if (loading) return <LoadingSpinner />
     if (error) return <p className="text-red-500">Error: {error}</p>

@@ -1,17 +1,19 @@
-import { useState } from 'react';
-import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Import context
-import SetsTableFull from '../sets/SetsTableFull';
+import { useState } from 'react'
+import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Import context
+import SetsTableFull from '../sets/SetsTableFull'
 
 const WorkoutControlsLive = () => {
-    const [showIncomplete, setShowIncomplete] = useState(false); // ✅ Default to collapsed
-    const [showCompleted, setShowCompleted] = useState(false); // ✅ Default to collapsed
-    const { completeSets, incompleteSets } = useWorkoutContext(); // ✅ Get complete/incomplete sets
+    const [showIncomplete, setShowIncomplete] = useState(false) // ✅ Default to collapsed
+    const [showCompleted, setShowCompleted] = useState(false) // ✅ Default to collapsed
+    const { completeSets, incompleteSets } = useWorkoutContext() // ✅ Get complete/incomplete sets
 
-    console.log('✅ Incomplete Sets:', incompleteSets.length);
-    console.log('✅ Complete Sets:', completeSets.length);
+    console.log('✅ Incomplete Sets:', incompleteSets.length)
+    console.log('✅ Complete Sets:', completeSets.length)
 
     // ✅ Reverse completed sets so most recent appear first
-    const sortedCompleteSets = [...completeSets].sort((a, b) => b.set_order - a.set_order);
+    const sortedCompleteSets = [...completeSets].sort(
+        (a, b) => b.set_order - a.set_order
+    )
 
     return (
         <div className="bg-[#500000] text-white p-6 rounded-xl border border-yellow-400 shadow-lg mt-6 text-center">
@@ -36,25 +38,39 @@ const WorkoutControlsLive = () => {
             </div>
 
             {/* ✅ Tables: Side by Side if Both Open, Full Width if One Open */}
-            <div className={`flex gap-6 transition-all ${showIncomplete && showCompleted ? 'flex-row' : 'flex-col'}`}>
+            <div
+                className={`flex gap-6 transition-all ${showIncomplete && showCompleted ? 'flex-row' : 'flex-col'}`}
+            >
                 {showIncomplete && (
-                    <div className={`overflow-hidden transition-all duration-500 flex-1 ${showIncomplete ? 'max-h-[400px]' : 'max-h-0'}`}>
+                    <div
+                        className={`overflow-hidden transition-all duration-500 flex-1 ${showIncomplete ? 'max-h-[400px]' : 'max-h-0'}`}
+                    >
                         <div className="overflow-y-auto max-h-[400px]">
-                            <SetsTableFull sets={incompleteSets} hideCompleteColumn={true} /> {/* ✅ Use incompleteSets */}
+                            <SetsTableFull
+                                sets={incompleteSets}
+                                hideCompleteColumn={true}
+                            />{' '}
+                            {/* ✅ Use incompleteSets */}
                         </div>
                     </div>
                 )}
 
                 {showCompleted && (
-                    <div className={`overflow-hidden transition-all duration-500 flex-1 ${showCompleted ? 'max-h-[400px]' : 'max-h-0'}`}>
+                    <div
+                        className={`overflow-hidden transition-all duration-500 flex-1 ${showCompleted ? 'max-h-[400px]' : 'max-h-0'}`}
+                    >
                         <div className="overflow-y-auto max-h-[400px]">
-                            <SetsTableFull sets={sortedCompleteSets} hideCompleteColumn={true} /> {/* ✅ Sorted completed sets */}
+                            <SetsTableFull
+                                sets={sortedCompleteSets}
+                                hideCompleteColumn={true}
+                            />{' '}
+                            {/* ✅ Sorted completed sets */}
                         </div>
                     </div>
                 )}
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default WorkoutControlsLive;
+export default WorkoutControlsLive
