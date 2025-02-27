@@ -73,6 +73,10 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     
             // ✅ Ensure workoutSets is also updated for the selected workout
             setWorkoutSets((prev) => ({ ...prev, [workoutId]: data.sets || [] }));
+            console.log('🔄 Fetching workout details...');
+            console.log('✅ Received complete sets:', data.complete_sets);
+            console.log('✅ Received incomplete sets:', data.incomplete_sets);
+
     
             // ✅ Add new functionality without removing anything else
             setIncompleteSets(data.incomplete_sets || []);
@@ -141,28 +145,16 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     };
 
     const toggleSetComplete = async (setId, currentState) => {
-        console.log(`🔄 Toggling completion for Set ID: ${setId} (Currently: ${currentState})`);
+        if (!workout?.id) return;
     
         try {
-            const data = await apiRequest('post', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout?.id}/sets/${setId}/complete/`);
-            console.log('✅ API Response:', data);
+            await apiRequest(
+                'post',
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/${setId}/complete/`
+            );
     
-            if (!data.set || !data.set.id) {
-                console.error('❌ API returned an invalid set:', data);
-                return;
-            }
-    
-            setSets((prev) => {
-                console.log('🛠 Previous sets before update:', prev);
-    
-                let updatedSets = prev.map((set) => 
-                    set.id === setId ? data.set : set
-                );
-    
-                console.log('✅ Updated sets:', updatedSets);
-    
-                return updatedSets;
-            });
+            console.log(`🔄 Fetching updated workout details for workout ${workout.id}...`);
+            await fetchWorkoutDetails(workout.id); // ✅ Ensure complete/incomplete sets refresh
     
             toast.success('Set completion updated!');
         } catch (err) {
@@ -170,6 +162,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
             toast.error('Failed to update set.');
         }
     };
+    
     
     
     

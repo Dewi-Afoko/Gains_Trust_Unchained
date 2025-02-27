@@ -13,6 +13,11 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => { // �
         setTableData([...propSets || contextSets]); // ✅ Forces re-render
     }, [propSets, contextSets]);
 
+    console.log('📊 SetsTableFull received propSets:', propSets?.length);
+    console.log('📊 SetsTableFull received contextSets:', contextSets.length);
+    console.log('📊 Table currently displaying:', tableData.length);
+
+
     const openEditModal = (setId) => {
         setEditingSetId(setId); // ✅ Ensure `setId` is set before opening modal
     };
