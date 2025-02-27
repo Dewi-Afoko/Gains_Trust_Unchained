@@ -87,13 +87,24 @@ class SetDictView(APIView):
             except ValueError:
                 return Response({"error": "Invalid value for 'completed' parameter"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Default: Return all sets for the workout
+        # Default: Return workout, all sets for workout and complete/incomplete list
         set_dicts = SetDict.objects.filter(workout=workout).order_by("set_order")
-        serializer = SetDictSerializer(set_dicts, many=True)
+        completed_sets = SetDict.objects.filter(workout=workout, complete=True).order_by("set_order")
+        incomplete_sets = SetDict.objects.filter(workout=workout, complete=False).order_by("set_order")
+        workout_serialized = WorkoutSerializer(workout)
+        sets_serialized = SetDictSerializer(set_dicts, many=True)
+        complete_sets_serialized = SetDictSerializer(completed_sets, many=True)
+        incomplete_sets_serialized = SetDictSerializer(incomplete_sets, many=True)
         return Response(
-            {"message": f"All sets for '{workout.workout_name}'", "sets": serializer.data},
+            {"message": f"All data for '{workout.workout_name}'", 
+            "workout" : workout_serialized.data,
+            "sets": sets_serialized.data,
+            "incomplete_sets": incomplete_sets_serialized.data,
+            "complete_sets": complete_sets_serialized.data,
+            },
             status=status.HTTP_200_OK
         )
+
 
 
     def post(self, request, workout_id):
