@@ -1,37 +1,40 @@
-import { useState, useEffect } from 'react';
-import SetActionsLive from './SetActionsLive';
+import { useState, useEffect } from 'react'
+import SetActionsLive from './SetActionsLive'
 
-const TimerLive = ({ nextSet, restTime, startRestTimer }) => { // ✅ Keep `nextSet` as a prop
-    const [timeLeft, setTimeLeft] = useState(restTime);
-    const [activeRest, setActiveRest] = useState(false);
+const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
+    // ✅ Keep `nextSet` as a prop
+    const [timeLeft, setTimeLeft] = useState(restTime)
+    const [activeRest, setActiveRest] = useState(false)
 
     // ✅ Reset timer when restTime changes
     useEffect(() => {
         if (restTime > 0) {
-            console.log(`🔔 New rest timer started: ${restTime}s`);
-            setTimeLeft(restTime);
-            setActiveRest(true);
+            console.log(`🔔 New rest timer started: ${restTime}s`)
+            setTimeLeft(restTime)
+            setActiveRest(true)
         }
-    }, [restTime]);
+    }, [restTime])
 
     // ✅ Countdown Logic
     useEffect(() => {
         if (timeLeft > 0) {
             const timer = setInterval(() => {
-                setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-            }, 1000);
-            return () => clearInterval(timer);
+                setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0))
+            }, 1000)
+            return () => clearInterval(timer)
         } else {
-            setActiveRest(false);
+            setActiveRest(false)
         }
-    }, [timeLeft]);
+    }, [timeLeft])
 
     return (
         <div className="bg-[#400000] text-white p-8 rounded-xl shadow-lg mb-6 border border-yellow-400 w-full max-w-[900px] mx-auto text-center">
             <h2 className="text-6xl font-extrabold text-stroke">
                 {activeRest ? (
                     <>
-                        ⏳ <span className="animate-pulse">Rest Up, Comrade!</span> ⌛️
+                        ⏳{' '}
+                        <span className="animate-pulse">Rest Up, Comrade!</span>{' '}
+                        ⌛️
                         <br />
                         <span
                             className={
@@ -62,7 +65,9 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => { // ✅ Keep `next
             {/* ✅ Display next set details during rest */}
             {activeRest && nextSet && (
                 <div className="mt-4 p-4 bg-[#500000] rounded-lg border border-yellow-400 shadow-md">
-                    <h3 className="text-2xl font-bold text-yellow-300">Up Next: {nextSet.exercise_name}</h3>
+                    <h3 className="text-2xl font-bold text-yellow-300">
+                        Up Next: {nextSet.exercise_name}
+                    </h3>
                     <p className="text-2xl font-extrabold text-stroke mt-2">
                         {nextSet.loading}kg X {nextSet.reps} reps
                     </p>
@@ -84,7 +89,8 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => { // ✅ Keep `next
                         {nextSet.loading}kg X {nextSet.reps} reps
                     </p>
                     <p className="text-1xl font-extrabold text-stroke">
-                        ({nextSet.exercise_name} Set Number: {nextSet.set_number})
+                        ({nextSet.exercise_name} Set Number:{' '}
+                        {nextSet.set_number})
                     </p>
                     <br />
                     {nextSet.notes && (
@@ -108,7 +114,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => { // ✅ Keep `next
                 </div>
             )}
         </div>
-    );
-};
+    )
+}
 
-export default TimerLive;
+export default TimerLive

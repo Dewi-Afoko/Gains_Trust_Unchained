@@ -5,23 +5,24 @@ import SetsTablePreview from '../components/SetsTablePreview'
 import SetCreationForm from './forms/SetCreationForm'
 
 const WorkoutDetailsPreview = ({ workoutId }) => {
-    const { workout, sets, loading, updateWorkout, fetchAllWorkouts } = useWorkoutContext(); // ✅ Get values from context
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isSetModalOpen, setIsSetModalOpen] = useState(false);
+    const { workout, sets, loading, updateWorkout, fetchAllWorkouts } =
+        useWorkoutContext() // ✅ Get values from context
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [isSetModalOpen, setIsSetModalOpen] = useState(false)
 
     const handleWorkoutUpdate = async (updatedWorkout) => {
-        await updateWorkout(workoutId, updatedWorkout); // ✅ Update via context
-        fetchAllWorkouts(); // ✅ Refresh all workouts to reflect changes
-        setIsEditModalOpen(false);
-    };
+        await updateWorkout(workoutId, updatedWorkout) // ✅ Update via context
+        fetchAllWorkouts() // ✅ Refresh all workouts to reflect changes
+        setIsEditModalOpen(false)
+    }
 
     const handleSetAdded = () => {
-        fetchAllWorkouts(); // ✅ Re-fetch sets after adding a new one
-        setIsSetModalOpen(false);
-    };
+        fetchAllWorkouts() // ✅ Re-fetch sets after adding a new one
+        setIsSetModalOpen(false)
+    }
 
-    if (loading) return <p className="text-white">Loading workout...</p>;
-    if (!workout) return <p className="text-red-500">Workout not found.</p>;
+    if (loading) return <p className="text-white">Loading workout...</p>
+    if (!workout) return <p className="text-red-500">Workout not found.</p>
 
     return (
         <div className="w-full max-w-4xl bg-[#600000] border border-yellow-400 shadow-lg p-6 text-white rounded-lg">
@@ -74,7 +75,7 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
             {/* ✅ Sets Table Preview Component ✅ */}
             <SetsTablePreview sets={sets} />
         </div>
-    );
-};
+    )
+}
 
-export default WorkoutDetailsPreview;
+export default WorkoutDetailsPreview

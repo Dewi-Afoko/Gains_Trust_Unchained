@@ -40,9 +40,15 @@ const TimerLive = ({
                 {activeRest ? (
                     <>
                         <div className="flex justify-center items-center mb-2">
-                            <img src="/icons/hourglass.svg" alt="Rest Timer" className="h-12 w-12" />
+                            <img
+                                src="/icons/hourglass.svg"
+                                alt="Rest Timer"
+                                className="h-12 w-12"
+                            />
                         </div>
-                        <span className="animate-pulse">Rebuild Your Strength!</span>
+                        <span className="animate-pulse">
+                            Rebuild Your Strength!
+                        </span>
                         <br />
                         <span
                             className={
@@ -58,9 +64,15 @@ const TimerLive = ({
                 ) : (
                     <>
                         <div className="flex justify-center items-center mb-2">
-                            <img src="/icons/barbell.svg" alt="Workout Icon" className="h-14 w-14" />
+                            <img
+                                src="/icons/barbell.svg"
+                                alt="Workout Icon"
+                                className="h-14 w-14"
+                            />
                         </div>
-                        <span className="text-yellow-400 text-7xl animate-bounce">Time to Smash!</span>
+                        <span className="text-yellow-400 text-7xl animate-bounce">
+                            Time to Smash!
+                        </span>
                         <br />
                         <br />
                         <span className="text-6xl font-extrabold text-yellow-500 drop-shadow-lg">
@@ -72,7 +84,9 @@ const TimerLive = ({
 
             {activeRest && nextSet && (
                 <div className="mt-6 p-6 bg-[#500000] rounded-lg border border-yellow-500 shadow-lg">
-                    <h3 className="text-3xl font-extrabold text-yellow-300 uppercase">Next Up:</h3>
+                    <h3 className="text-3xl font-extrabold text-yellow-300 uppercase">
+                        Next Up:
+                    </h3>
                     <p className="text-4xl font-extrabold text-stroke mt-2">
                         {nextSet.loading}kg X {nextSet.reps} reps
                     </p>
@@ -88,7 +102,9 @@ const TimerLive = ({
             )}
 
             {!activeRest && nextSet && (
-                <div className={`mt-6 text-xl text-yellow-300 transition-all ${highlightNextSet ? 'bg-yellow-600 p-4 rounded-lg scale-105' : ''}`}>
+                <div
+                    className={`mt-6 text-xl text-yellow-300 transition-all ${highlightNextSet ? 'bg-yellow-600 p-4 rounded-lg scale-105' : ''}`}
+                >
                     <p className="text-4xl font-extrabold text-yellow-500 drop-shadow-lg">
                         {nextSet.loading}kg X {nextSet.reps} reps
                     </p>

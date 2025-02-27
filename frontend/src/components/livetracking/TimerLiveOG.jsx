@@ -38,7 +38,9 @@ const TimerLive = ({
             <h2 className="text-6xl font-extrabold text-stroke">
                 {activeRest ? (
                     <>
-                        ⏳ <span className="animate-pulse">Rest Up, Comrade!</span> ⌛️
+                        ⏳{' '}
+                        <span className="animate-pulse">Rest Up, Comrade!</span>{' '}
+                        ⌛️
                         <br />
                         <span
                             className={
@@ -73,7 +75,8 @@ const TimerLive = ({
                         {nextSet.loading}kg X {nextSet.reps} reps
                     </p>
                     <p className="text-1xl font-extrabold text-stroke">
-                        ({nextSet.exercise_name} Set Number: {nextSet.set_number})
+                        ({nextSet.exercise_name} Set Number:{' '}
+                        {nextSet.set_number})
                     </p>
                     <br />
                     {nextSet.notes && (
@@ -92,7 +95,8 @@ const TimerLive = ({
                         {nextSet.loading}kg X {nextSet.reps} reps
                     </p>
                     <p className="text-1xl font-extrabold text-stroke">
-                        ({nextSet.exercise_name} Set Number: {nextSet.set_number})
+                        ({nextSet.exercise_name} Set Number:{' '}
+                        {nextSet.set_number})
                     </p>
                     <br />
                     {nextSet.notes && (
