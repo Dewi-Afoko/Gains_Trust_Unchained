@@ -19,8 +19,9 @@ const WorkoutDetailsFull = () => {
         updateSingleSet(updatedSet) // ✅ Update only the modified set
     }
 
-    console.log("🔄 Re-render triggered. Current workout:", workout); // ✅ Debug
-
+    console.log("🟢 WorkoutDetailsFull - Received Workout:", workout);
+    console.log("🟢 WorkoutDetailsFull - Received Sets:", sets);
+    
 
     if (loading) return <LoadingSpinner />
     if (error) return <p className="text-red-500">Error: {error}</p>
