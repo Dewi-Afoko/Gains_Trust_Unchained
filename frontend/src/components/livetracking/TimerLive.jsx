@@ -1,37 +1,30 @@
-import { useState, useEffect } from 'react'
-import SetActionsLive from './SetActionsLive'
+import { useState, useEffect } from 'react';
+import SetActionsLive from './SetActionsLive';
 
-const TimerLive = ({
-    nextSet,
-    restTime,
-    workoutId,
-    accessToken,
-    startRestTimer,
-    onSetUpdated,
-}) => {
-    const [timeLeft, setTimeLeft] = useState(restTime)
-    const [activeRest, setActiveRest] = useState(false)
+const TimerLive = ({ nextSet, restTime, startRestTimer }) => { // ✅ Keep `nextSet` as a prop
+    const [timeLeft, setTimeLeft] = useState(restTime);
+    const [activeRest, setActiveRest] = useState(false);
 
     // ✅ Reset timer when restTime changes
     useEffect(() => {
         if (restTime > 0) {
-            console.log(`🔔 New rest timer started: ${restTime}s`)
-            setTimeLeft(restTime)
-            setActiveRest(true)
+            console.log(`🔔 New rest timer started: ${restTime}s`);
+            setTimeLeft(restTime);
+            setActiveRest(true);
         }
-    }, [restTime]) // ✅ This now updates the timer when a new set is completed
+    }, [restTime]);
 
     // ✅ Countdown Logic
     useEffect(() => {
         if (timeLeft > 0) {
             const timer = setInterval(() => {
-                setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0))
-            }, 1000)
-            return () => clearInterval(timer)
+                setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+            }, 1000);
+            return () => clearInterval(timer);
         } else {
-            setActiveRest(false)
+            setActiveRest(false);
         }
-    }, [timeLeft])
+    }, [timeLeft]);
 
     return (
         <div className="bg-[#400000] text-white p-8 rounded-xl shadow-lg mb-6 border border-yellow-400 w-full max-w-[900px] mx-auto text-center">
@@ -108,17 +101,14 @@ const TimerLive = ({
                 <div className="mt-6 flex justify-center">
                     <SetActionsLive
                         setId={nextSet.id}
-                        workoutId={workoutId}
-                        accessToken={accessToken}
                         isNextSet={true}
                         restTime={nextSet.rest}
                         startRestTimer={startRestTimer}
-                        onSetUpdated={onSetUpdated}
                     />
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default TimerLive
+export default TimerLive;

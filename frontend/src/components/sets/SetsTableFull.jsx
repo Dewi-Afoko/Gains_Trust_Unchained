@@ -3,23 +3,23 @@ import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Use Wor
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table';
 import SetActions from './SetActions';
 
-const SetsTableFull = ({ hideCompleteButton = true }) => {
-    const { sets, updateSingleSet, toggleSetComplete, workout } = useWorkoutContext(); // ✅ Get data from context
-    const [tableData, setTableData] = useState(sets);
+const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => { // ✅ Allow `sets` to be passed as a prop
+    const { sets: contextSets, toggleSetComplete } = useWorkoutContext();
+    const [tableData, setTableData] = useState(propSets || contextSets);
     const [editingSetId, setEditingSetId] = useState(null); // ✅ Track which set is being edited
 
     // ✅ Ensure table data updates dynamically when `sets` change
     useEffect(() => {
-        console.log('🔄 Updating table data with new sets state...');
-        setTableData([...sets]); // ✅ Force new reference to trigger React Table update
-    }, [sets]);
+        setTableData([...propSets || contextSets]); // ✅ Forces re-render
+    }, [propSets, contextSets]);
+
+    console.log('📊 SetsTableFull received propSets:', propSets?.length);
+    console.log('📊 SetsTableFull received contextSets:', contextSets.length);
+    console.log('📊 Table currently displaying:', tableData.length);
+
 
     const openEditModal = (setId) => {
         setEditingSetId(setId); // ✅ Ensure `setId` is set before opening modal
-    };
-
-    const closeEditModal = () => {
-        setEditingSetId(null);
     };
 
     const columns = [
@@ -95,8 +95,6 @@ const SetsTableFull = ({ hideCompleteButton = true }) => {
                     ))}
                 </tbody>
             </table>
-
-
         </div>
     );
 };
