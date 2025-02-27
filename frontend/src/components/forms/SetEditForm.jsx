@@ -1,27 +1,25 @@
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use context
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useWorkoutContext } from '../../context/WorkoutContext';
 
 const SetEditForm = ({ setId, onClose }) => {
-    const { fetchSetDetails, updateSet } = useWorkoutContext(); // ✅ Get functions from context
-    const { register, handleSubmit, setValue, reset } = useForm()
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const { fetchSetDetails, updateSet } = useWorkoutContext();
+    const { register, handleSubmit, reset } = useForm();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // ✅ Fetch set details and pre-fill fields correctly
     useEffect(() => {
         const loadSetDetails = async () => {
             const setData = await fetchSetDetails(setId);
             if (setData) {
-                reset(setData.set); // ✅ Use reset to apply all values at once
+                reset(setData?.set || {}); // ✅ Fix: Ensure reset is correctly applied
             }
         };
         loadSetDetails();
     }, [setId, reset]);
 
     const onSubmit = async (data) => {
-        setIsSubmitting(true)
+        setIsSubmitting(true);
         try {
-            // Convert empty fields to correct values
             const formattedData = {
                 exercise_name: data.exercise_name,
                 set_type: data.set_type || '',
@@ -30,10 +28,9 @@ const SetEditForm = ({ setId, onClose }) => {
                 rest: data.rest !== '' ? parseInt(data.rest) : null,
                 focus: data.focus || '',
                 notes: data.notes || '',
-            }
+            };
 
-            await updateSet(setId, formattedData); // ✅ Use function from context
-
+            await updateSet(setId, formattedData);
             setTimeout(() => {
                 onClose();
             }, 100);
