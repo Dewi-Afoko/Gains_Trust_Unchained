@@ -235,13 +235,17 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     
         try {
             await apiRequest('post', `${process.env.REACT_APP_API_BASE_URL}/workouts/${id}/sets/${setId}/skip/`);
-            await updateSetsFromAPI(id); // ✅ Ensure state refreshes properly
+            
+            console.log(`🔄 Fetching updated workout details after skipping set ${setId}...`);
+            await fetchWorkoutDetails(id); // ✅ Ensures complete/incomplete sets update correctly
+    
             toast.success('Set skipped!');
         } catch (error) {
             console.error('❌ Error skipping set:', error);
             toast.error('Failed to skip set.');
         }
     };
+    
     
     
     
