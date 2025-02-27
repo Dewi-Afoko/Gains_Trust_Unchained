@@ -1,9 +1,15 @@
-import { useState } from 'react'
-import SetsTableFull from '../sets/SetsTableFull'
+import { useState } from 'react';
+import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Import context
+import SetsTableFull from '../sets/SetsTableFull';
 
 const WorkoutControlsLive = () => {
-    const [showIncomplete, setShowIncomplete] = useState(false) // ✅ Default to collapsed
-    const [showCompleted, setShowCompleted] = useState(false) // ✅ Default to collapsed
+    const [showIncomplete, setShowIncomplete] = useState(false); // ✅ Default to collapsed
+    const [showCompleted, setShowCompleted] = useState(false); // ✅ Default to collapsed
+    const { completeSets, incompleteSets } = useWorkoutContext(); // ✅ Get complete/incomplete sets
+
+    console.log('✅ Incomplete Sets:', incompleteSets.length);
+    console.log('✅ Complete Sets:', completeSets.length);
+
 
     return (
         <div className="bg-[#500000] text-white p-6 rounded-xl border border-yellow-400 shadow-lg mt-6 text-center">
@@ -23,7 +29,7 @@ const WorkoutControlsLive = () => {
                     className={`overflow-hidden transition-all duration-500 ${showIncomplete ? 'max-h-[400px]' : 'max-h-0'}`}
                 >
                     <div className="overflow-y-auto max-h-[400px]">
-                        <SetsTableFull hideCompleteColumn={true} /> {/* ✅ No more props */}
+                        <SetsTableFull sets={incompleteSets} hideCompleteColumn={true} /> {/* ✅ Use incompleteSets */}
                     </div>
                 </div>
             </div>
@@ -40,12 +46,12 @@ const WorkoutControlsLive = () => {
                     className={`overflow-hidden transition-all duration-500 ${showCompleted ? 'max-h-[400px]' : 'max-h-0'}`}
                 >
                     <div className="overflow-y-auto max-h-[400px]">
-                        <SetsTableFull hideCompleteColumn={true} /> {/* ✅ No more props */}
+                        <SetsTableFull sets={completeSets} hideCompleteColumn={true} /> {/* ✅ Use completeSets */}
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default WorkoutControlsLive
+export default WorkoutControlsLive;
