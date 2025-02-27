@@ -13,6 +13,9 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     const [sets, setSets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [completeSets, setCompleteSets] = useState([]);
+    const [incompleteSets, setIncompleteSets] = useState([]);
+
 
     // ✅ Centralized API request helper function
     const apiRequest = async (method, url, data = {}) => {
@@ -64,15 +67,22 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         setLoading(true);
         try {
             const data = await apiRequest('get', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`);
+            
             setWorkout(data.workout);
             setSets(data.sets || []);
-
+    
             // ✅ Ensure workoutSets is also updated for the selected workout
             setWorkoutSets((prev) => ({ ...prev, [workoutId]: data.sets || [] }));
+    
+            // ✅ Add new functionality without removing anything else
+            setIncompleteSets(data.incomplete_sets || []);
+            setCompleteSets(data.complete_sets || []);
+    
         } finally {
             setLoading(false);
         }
     };
+    
 
     const updateWorkout = async (workoutId, updatedFields) => {
         await apiRequest('patch', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`, updatedFields);
@@ -130,17 +140,39 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         }
     };
 
-    const toggleSetComplete = async (setId) => {
-        const data = await apiRequest('post', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout?.id}/sets/${setId}/complete/`);
-        
-        // ✅ Ensure `workoutSets` is updated
-        setWorkoutSets((prev) => ({
-            ...prev,
-            [workout.id]: prev[workout.id].map((set) => (set.id === setId ? data.set : set))
-        }));
+    const toggleSetComplete = async (setId, currentState) => {
+        console.log(`🔄 Toggling completion for Set ID: ${setId} (Currently: ${currentState})`);
     
-        setSets((prev) => prev.map((set) => (set.id === setId ? data.set : set)));
+        try {
+            const data = await apiRequest('post', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout?.id}/sets/${setId}/complete/`);
+            console.log('✅ API Response:', data);
+    
+            if (!data.set || !data.set.id) {
+                console.error('❌ API returned an invalid set:', data);
+                return;
+            }
+    
+            setSets((prev) => {
+                console.log('🛠 Previous sets before update:', prev);
+    
+                let updatedSets = prev.map((set) => 
+                    set.id === setId ? data.set : set
+                );
+    
+                console.log('✅ Updated sets:', updatedSets);
+    
+                return updatedSets;
+            });
+    
+            toast.success('Set completion updated!');
+        } catch (err) {
+            console.error('❌ Error updating set completion:', err);
+            toast.error('Failed to update set.');
+        }
     };
+    
+    
+    
     
 
     const createSets = async (workoutId, setData, numberOfSets = 1) => {
@@ -174,14 +206,53 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         return await apiRequest('get', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/${setId}/`);
     };
     
-    const updateSetsFromAPI = async () => {
+    const updateSetsFromAPI = async (workoutId) => {
+        if (!workoutId) {
+            console.error('❌ updateSetsFromAPI called with no valid workout ID');
+            return;
+        }
+    
         try {
-            const response = await apiRequest('get', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/`);
-            setSets(response.data.sets);
+            const response = await apiRequest('get', `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`);
+            
+            if (!response || !response.sets) {  // ✅ Prevents undefined errors
+                console.error('❌ API response missing expected data:', response);
+                return;
+            }
+    
+            console.log('✅ Successfully fetched updated sets:', response.sets);
+    
+            setSets([]); // ✅ Force re-render by clearing first
+            setTimeout(() => setSets(response.sets), 0); // ✅ Ensure a state change is detected
         } catch (error) {
             console.error('❌ Error fetching updated sets:', error);
         }
     };
+    
+    
+    
+    
+
+    const skipSet = async (setId) => {
+        const id = workoutId || workout?.id;
+        if (!id) {
+            console.error('❌ skipSet called with no valid workout ID');
+            return;
+        }
+    
+        try {
+            await apiRequest('post', `${process.env.REACT_APP_API_BASE_URL}/workouts/${id}/sets/${setId}/skip/`);
+            await updateSetsFromAPI(id); // ✅ Ensure state refreshes properly
+            toast.success('Set skipped!');
+        } catch (error) {
+            console.error('❌ Error skipping set:', error);
+            toast.error('Failed to skip set.');
+        }
+    };
+    
+    
+    
+    
     
 
     return (
@@ -191,8 +262,11 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 workoutSets,
                 workout,
                 sets,
+                completeSets,
+                incompleteSets,
                 loading,
                 error,
+                workoutId: workoutId || workout?.id,
                 fetchAllWorkouts,
                 fetchWorkoutDetails,
                 updateWorkout,
@@ -204,6 +278,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 duplicateSet,
                 deleteSet,
                 fetchSetDetails,
+                skipSet,
+                updateSetsFromAPI,
             }}
         >
             {children}

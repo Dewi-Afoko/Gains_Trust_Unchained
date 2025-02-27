@@ -1,29 +1,33 @@
 import { useState, useEffect } from 'react';
+import { useWorkoutContext } from '../../context/WorkoutContext'; // ✅ Use context
 import SetEditForm from '../forms/SetEditForm';
 
-const SetTrackerLive = ({
-    sets,
-    workoutId,
-    accessToken,
-    startRestTimer,
-    onSetUpdated,
-    showNextOnly,
-    showCompletedOnly,
-}) => {
+const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
+    const { sets } = useWorkoutContext(); // ✅ Get sets from context
     const [editingSetId, setEditingSetId] = useState(null);
     const [isExpanded, setIsExpanded] = useState(true); // ✅ Open by default
     const [filteredSets, setFilteredSets] = useState([]);
 
-    // ✅ Ensure `filteredSets` updates dynamically when `sets` change
     useEffect(() => {
-        let newFilteredSets = sets;
+        console.log('🔄 Updating filtered sets. New sets:', sets);
+    
+        if (!sets || sets.length === 0) {
+            setFilteredSets([]);
+            return;
+        }
+    
+        let newFilteredSets = [...sets]; // ✅ Ensure React detects the change
+    
         if (showNextOnly) {
             newFilteredSets = sets.filter((set) => !set.complete).slice(0, 3);
         } else if (showCompletedOnly) {
             newFilteredSets = sets.filter((set) => set.complete).slice(-3).reverse();
         }
-        setFilteredSets(newFilteredSets);
+    
+        console.log('✅ Filtered sets:', newFilteredSets);
+        setFilteredSets([...newFilteredSets]); // ✅ Ensure new reference is created
     }, [sets, showNextOnly, showCompletedOnly]);
+    
 
     return (
         <div className="bg-[#500000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg w-auto max-w-md">
@@ -38,9 +42,9 @@ const SetTrackerLive = ({
             <div className={`overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-[1000px]' : 'max-h-0'}`}>
                 {filteredSets.length > 0 ? (
                     <ul className="space-y-3 text-center">
-                        {filteredSets.map((set) => (
+                        {filteredSets.map((set, index) => (
                             <li
-                                key={set.id}
+                                key={`${set.id}-${set.set_order}-${index}`} // ✅ Guarantees uniqueness
                                 className="p-3 bg-[#600000] border border-yellow-400 rounded-lg shadow-md min-w-[250px] max-w-full group hover:scale-105 transition-transform duration-200"
                             >
                                 <p className="text-lg text-yellow-300 font-bold">
@@ -59,6 +63,7 @@ const SetTrackerLive = ({
                             </li>
                         ))}
                     </ul>
+            
                 ) : (
                     <p className="text-gray-400 text-center">
                         {showNextOnly ? 'No upcoming sets.' : 'No completed sets.'}
@@ -68,11 +73,8 @@ const SetTrackerLive = ({
 
             {editingSetId && (
                 <SetEditForm
-                    workoutId={workoutId}
                     setId={editingSetId}
-                    accessToken={accessToken}
                     onClose={() => setEditingSetId(null)}
-                    onUpdate={onSetUpdated}
                 />
             )}
         </div>
