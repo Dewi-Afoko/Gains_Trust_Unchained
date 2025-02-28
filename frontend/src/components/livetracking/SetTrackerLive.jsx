@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use context
 import SetEditForm from '../forms/SetEditForm'
+import { formatLoading } from '../../lib/utils'
 
 const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
     const { sets } = useWorkoutContext() // ✅ Get sets from context
@@ -61,11 +62,11 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
                                         🧠 Focus: {set.focus}
                                     </p>
                                 )}
-                                {set.loading && (
+                                {
                                     <p className="text-sm text-gray-300">
-                                        🔥 Loading: {set.loading}kg
+                                        🔥 Loading: {formatLoading(set.loading)}
                                     </p>
-                                )}
+                                }
                                 {set.reps && (
                                     <p className="text-sm text-gray-300">
                                         💪🏾 Reps: {set.reps}

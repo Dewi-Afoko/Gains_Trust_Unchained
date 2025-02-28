@@ -10,6 +10,7 @@ const WorkoutFeedFull = () => {
         fetchAllWorkouts,
         toggleComplete,
         deleteWorkout,
+        duplicateWorkout, // ✅ Added duplicateWorkout from context
     } = useWorkoutContext()
 
     const navigate = useNavigate()
@@ -32,6 +33,14 @@ const WorkoutFeedFull = () => {
         }
         setDeleteModal({ isOpen: false, workoutId: null })
     }
+
+    const handleDuplicate = async (workoutId) => {
+        const newWorkout = await duplicateWorkout(workoutId);
+        if (newWorkout) {
+            fetchAllWorkouts(); 
+        }
+    };
+
 
     if (loading)
         return (
@@ -115,6 +124,12 @@ const WorkoutFeedFull = () => {
                                     className="bg-[#8B0000] text-white font-bold px-4 py-2 rounded-xl hover:bg-[#600000] transition"
                                 >
                                     💀 Delete
+                                </button>
+                                <button
+                                    onClick={() => handleDuplicate(workout.id)}
+                                    className="bg-yellow-500 text-black font-bold px-4 py-2 rounded-xl hover:bg-yellow-400 transition"
+                                >
+                                    📝 Duplicate
                                 </button>
                             </div>
                         </div>

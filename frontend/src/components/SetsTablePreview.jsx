@@ -1,3 +1,5 @@
+import { formatLoading } from "../lib/utils"
+
 const SetsTablePreview = ({ sets }) => {
     if (!sets || sets.length === 0) {
         return <p className="text-white mt-4">No sets available.</p>
@@ -41,7 +43,7 @@ const SetsTablePreview = ({ sets }) => {
                                 {set.set_type || 'N/A'}
                             </td>
                             <td className="border border-yellow-400 p-2 text-center">
-                                {set.loading || 'N/A'}
+                                {formatLoading(set.loading)}
                             </td>
                             <td className="border border-yellow-400 p-2 text-center">
                                 {set.reps || 'N/A'}
