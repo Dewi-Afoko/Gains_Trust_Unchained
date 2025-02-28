@@ -150,6 +150,30 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         toast.success('Workout deleted successfully!')
     }
 
+    const duplicateWorkout = async (workoutId) => {
+        if (!accessToken) return;
+    
+        try {
+            const response = await apiRequest("post", `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/duplicate/`);
+            const newWorkout = response.workout;
+    
+            if (!newWorkout || !newWorkout.id) {
+                throw new Error("Invalid response: Workout data missing.");
+            }
+    
+            // ✅ Update state with the duplicated workout immediately
+            setWorkouts((prev) => [...prev, newWorkout]);
+    
+            toast.success("Workout duplicated successfully!");
+            return newWorkout; // ✅ Return the new workout for immediate UI updates
+        } catch (err) {
+            console.error("❌ Error duplicating workout:", err);
+            toast.error("Failed to duplicate workout.");
+        }
+    };
+    
+    
+
     // 📌 SET FUNCTIONS
 
     const updateSet = async (setId, updatedData) => {
@@ -319,6 +343,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 fetchSetDetails,
                 skipSet,
                 updateSetsFromAPI,
+                duplicateWorkout
             }}
         >
             {children}
