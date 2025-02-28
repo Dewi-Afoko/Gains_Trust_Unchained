@@ -102,8 +102,8 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                                 >
                                     {cell.column.columnDef.cell
                                         ? cell.column.columnDef.cell(
-                                              cell.getContext()
-                                          )
+                                            cell.getContext()
+                                        )
                                         : cell.getValue()}
                                 </td>
                             ))}
