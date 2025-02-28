@@ -15,6 +15,7 @@ const WorkoutEditForm = ({ onClose }) => {
             setValue('sleep_score', workout.sleep_score || '')
             setValue('sleep_quality', workout.sleep_quality || '')
             setValue('notes', workout.notes || '')
+            setValue('date', workout.date ? workout.date.split('T')[0] : '') // ✅ Prefill date input
         }
     }, [workout, setValue])
 
@@ -31,6 +32,7 @@ const WorkoutEditForm = ({ onClose }) => {
                     data.sleep_score !== '' ? parseInt(data.sleep_score) : null,
                 sleep_quality: data.sleep_quality.trim() || '',
                 notes: data.notes.trim() || '',
+                date: data.date || null, // ✅ Ensure date is sent properly
             }
 
             await updateWorkout(workout.id, updatedFields) // ✅ Use the function from context
@@ -67,6 +69,14 @@ const WorkoutEditForm = ({ onClose }) => {
                     Workout Name:
                     <input
                         {...register('workout_name')}
+                        className="w-full p-2 mt-1 rounded text-black"
+                    />
+                </label>
+                <label className="block">
+                    Workout Date:
+                    <input
+                        type="date"
+                        {...register('date')}
                         className="w-full p-2 mt-1 rounded text-black"
                     />
                 </label>
