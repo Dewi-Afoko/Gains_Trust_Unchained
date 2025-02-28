@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import SetActionsLive from './SetActionsLive'
+import { formatLoading } from '../../lib/utils'
 
 const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
     const [timeLeft, setTimeLeft] = useState(restTime)
@@ -86,7 +87,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
                         Up Next: {nextSet.exercise_name}
                     </h3>
                     <p className="text-2xl font-extrabold text-stroke mt-2">
-                        {nextSet.loading}kg X {nextSet.reps} reps
+                        {formatLoading(nextSet.loading)} X {nextSet.reps} reps
                     </p>
                     <p className="text-lg font-extrabold text-stroke">
                         ({nextSet.exercise_name} - Set {nextSet.set_number})
@@ -103,7 +104,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
             {!activeRest && nextSet && (
                 <div className="mt-6 text-xl text-yellow-300">
                     <p className="text-4xl font-extrabold text-stroke">
-                        {nextSet.loading}kg X {nextSet.reps} reps
+                        {formatLoading(nextSet.loading)} X {nextSet.reps} reps
                     </p>
                     <p className="text-1xl font-extrabold text-stroke">
                         ({nextSet.exercise_name} Set Number: {nextSet.set_number})

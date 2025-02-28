@@ -20,3 +20,9 @@ export function formatDateTime(isoString) {
 
     return `${hours}:${minutes} - ${year}/${month}/${day}`
 }
+
+export const formatLoading = (loading) => {
+    if (!loading || loading === 0) return "Bodyweight"; // ✅ Replace blank with "Bodyweight"
+    return `${loading}kg`; // ✅ Append kg only if loading is set
+};
+
