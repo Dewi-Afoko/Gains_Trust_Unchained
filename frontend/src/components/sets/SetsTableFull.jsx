@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use WorkoutContext
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import SetActions from './SetActions'
+import { formatLoading } from '../../lib/utils'
 
 const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
     // ✅ Allow `sets` to be passed as a prop
@@ -27,7 +28,7 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
         { accessorKey: 'set_order', header: 'Set Sequence' },
         { accessorKey: 'set_number', header: 'Set Count' },
         { accessorKey: 'set_type', header: 'Set Type' },
-        { accessorKey: 'loading', header: 'Loading (kg)' },
+        { accessorKey: 'loading', header: 'Loading', cell: ({ row }) => formatLoading(row.original.loading) },
         { accessorKey: 'reps', header: 'Reps' },
         { accessorKey: 'rest', header: 'Rest (s)' },
         { accessorKey: 'focus', header: 'Focus' },
