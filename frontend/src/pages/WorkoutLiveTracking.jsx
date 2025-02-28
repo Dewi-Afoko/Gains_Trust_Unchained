@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useAuthContext } from '../context/AuthContext'
 import { WorkoutProvider, useWorkoutContext } from '../context/WorkoutContext' // ✅ Use context
 import WorkoutHeaderLive from '../components/livetracking/WorkoutHeaderLive'
 import TimerLive from '../components/livetracking/TimerLive'
