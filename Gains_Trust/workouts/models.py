@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 # Create your models here.
@@ -7,7 +8,7 @@ class Workout(models.Model):
         "users.User", on_delete=models.CASCADE, related_name="workoutss"
     )
     workout_name = models.CharField(max_length=255)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(default=timezone.now)
     complete = models.BooleanField(default=False)
     user_weight = models.FloatField(null=True, blank=True)
     sleep_score = models.IntegerField(null=True, blank=True)
