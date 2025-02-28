@@ -1,31 +1,49 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import SetActionsLive from './SetActionsLive'
+import { formatLoading } from '../../lib/utils'
 
 const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
-    // ✅ Keep `nextSet` as a prop
     const [timeLeft, setTimeLeft] = useState(restTime)
     const [activeRest, setActiveRest] = useState(false)
+    const startTimeRef = useRef(null)
+    const intervalRef = useRef(null)
 
-    // ✅ Reset timer when restTime changes
-    useEffect(() => {
-        if (restTime > 0) {
-            console.log(`🔔 New rest timer started: ${restTime}s`)
-            setTimeLeft(restTime)
-            setActiveRest(true)
-        }
-    }, [restTime])
+    // ✅ Function to start the timer
+    const handleStartRest = (newRestTime) => {
+        console.log(`🔔 New rest timer started: ${newRestTime}s`)
+        setTimeLeft(newRestTime)
+        startTimeRef.current = Date.now()
+        setActiveRest(true)
 
-    // ✅ Countdown Logic
+        // ✅ Clear any existing interval to avoid multiple timers running
+        if (intervalRef.current) clearInterval(intervalRef.current)
+
+        // ✅ Start a new countdown interval
+        intervalRef.current = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
+            const remaining = Math.max(newRestTime - elapsed, 0)
+            setTimeLeft(remaining)
+
+            if (remaining === 0) {
+                clearInterval(intervalRef.current)
+                setActiveRest(false)
+            }
+        }, 1000)
+    }
+
+    // ✅ Ensure timer syncs properly when tab regains focus
     useEffect(() => {
-        if (timeLeft > 0) {
-            const timer = setInterval(() => {
-                setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0))
-            }, 1000)
-            return () => clearInterval(timer)
-        } else {
-            setActiveRest(false)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && activeRest) {
+                const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
+                const remaining = Math.max(restTime - elapsed, 0)
+                setTimeLeft(remaining)
+            }
         }
-    }, [timeLeft])
+
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }, [activeRest, restTime])
 
     return (
         <div className="bg-[#400000] text-white p-8 rounded-xl shadow-lg mb-6 border border-yellow-400 w-full max-w-[900px] mx-auto text-center">
@@ -69,7 +87,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
                         Up Next: {nextSet.exercise_name}
                     </h3>
                     <p className="text-2xl font-extrabold text-stroke mt-2">
-                        {nextSet.loading}kg X {nextSet.reps} reps
+                        {formatLoading(nextSet.loading)} X {nextSet.reps} reps
                     </p>
                     <p className="text-lg font-extrabold text-stroke">
                         ({nextSet.exercise_name} - Set {nextSet.set_number})
@@ -86,11 +104,10 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
             {!activeRest && nextSet && (
                 <div className="mt-6 text-xl text-yellow-300">
                     <p className="text-4xl font-extrabold text-stroke">
-                        {nextSet.loading}kg X {nextSet.reps} reps
+                        {formatLoading(nextSet.loading)} X {nextSet.reps} reps
                     </p>
                     <p className="text-1xl font-extrabold text-stroke">
-                        ({nextSet.exercise_name} Set Number:{' '}
-                        {nextSet.set_number})
+                        ({nextSet.exercise_name} Set Number: {nextSet.set_number})
                     </p>
                     <br />
                     {nextSet.notes && (
@@ -109,7 +126,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
                         setId={nextSet.id}
                         isNextSet={true}
                         restTime={nextSet.rest}
-                        startRestTimer={startRestTimer}
+                        startRestTimer={handleStartRest} // ✅ Ensure timer starts properly
                     />
                 </div>
             )}

@@ -65,6 +65,39 @@ class WorkoutView(APIView):
             {"message": f"Workout '{workout.workout_name}' deleted"},
             status=status.HTTP_200_OK,
         )
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def duplicate_workout(request, workout_id):
+
+    original_workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+
+    new_workout = Workout.objects.create(
+        user=original_workout.user,
+        workout_name=f"{original_workout.workout_name} (Copy)",
+        notes=original_workout.notes,
+    )
+
+    og_workout_sets = SetDict.objects.filter(workout=original_workout)
+
+    for set_dict in og_workout_sets:
+        SetDict.objects.create(
+            workout=new_workout,  # ✅ Assign to the new workout
+            exercise_name=set_dict.exercise_name,
+            set_number=set_dict.set_number,
+            set_order=set_dict.set_order,
+            set_type=set_dict.set_type,
+            reps=set_dict.reps,
+            loading=set_dict.loading,
+            rest=set_dict.rest,
+            focus=set_dict.focus,
+            notes=set_dict.notes,
+        )
+
+
+    return Response({"message": "Workout duplicated", "workout": WorkoutSerializer(new_workout).data}, status=201)
+
+
 
 
 # ✅ SetDict Views
