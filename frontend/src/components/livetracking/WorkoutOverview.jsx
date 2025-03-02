@@ -1,12 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useWorkoutContext } from "../../context/WorkoutContext"; // ✅ Use context
-import useWorkoutTimer from "../../lib/useWorkoutTimer"; // ✅ Import timer hook
 import WorkoutTimerDisplay from "./WorkoutTimerDisplay"; // ✅ Import timer display
 
-const WorkoutOverview = () => {
+const WorkoutOverview = ({ timeElapsed }) => {
     const { workout, completeSets, sets } = useWorkoutContext(); // ✅ Corrected context values
     const navigate = useNavigate();
-    const { timeElapsed, startTimer, stopTimer } = useWorkoutTimer();
 
     // ✅ Ensure progress updates dynamically
     const totalSets = sets.length;
@@ -32,33 +30,16 @@ const WorkoutOverview = () => {
                 <WorkoutTimerDisplay timeElapsed={timeElapsed} />
             </div>
 
-            {/* 📊 Workout Progress Bar (Moved Closer to Timer) */}
+            {/* 📊 Workout Progress Bar (Fixed text positioning) */}
             <div className="relative w-full bg-gray-700 rounded-full h-6 mb-4">
                 <div
                     className="bg-yellow-400 h-full rounded-full transition-all"
                     style={{ width: `${progress}%` }}
                 ></div>
-                <span className="absolute w-full text-center text-sm font-bold text-yellow-400 pb-2">
+                <span className="absolute inset-0 flex justify-center items-center text-sm font-bold text-yellow-400">
                     {Math.round(progress)}% Completed
                 </span>
             </div>
-
-            {/* 🎮 Controls Section */}
-            <div className="flex justify-between items-center">
-                <button
-                    onClick={startTimer}
-                    className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl font-bold transition"
-                >
-                    ▶ Start Workout
-                </button>
-                <button
-                    onClick={stopTimer}
-                    className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-xl font-bold transition"
-                >
-                    ⏹ Stop Timer
-                </button>
-            </div>
-
         </div>
     );
 };
