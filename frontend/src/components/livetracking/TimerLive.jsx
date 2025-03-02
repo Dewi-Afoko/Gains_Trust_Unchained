@@ -2,11 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import SetActionsLive from './SetActionsLive';
 import { formatLoading } from '../../lib/utils';
 
-const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
+const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp, startTimer, stopTimer }) => {
     const [timeLeft, setTimeLeft] = useState(restTime);
     const [activeRest, setActiveRest] = useState(false);
+    const [isRunning, setIsRunning] = useState(isRunningProp); // ✅ Store isRunning in state
     const startTimeRef = useRef(null);
     const intervalRef = useRef(null);
+
+    useEffect(() => {
+        setIsRunning(isRunningProp); // ✅ Ensure isRunning updates in TimerLive
+    }, [isRunningProp]);
 
     const handleStartRest = (newRestTime) => {
         console.log(`🔔 New rest timer started: ${newRestTime}s`);
@@ -27,19 +32,6 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
         }, 1000);
     };
 
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && activeRest) {
-                const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
-                const remaining = Math.max(restTime - elapsed, 0);
-                setTimeLeft(remaining);
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }, [activeRest, restTime]);
-
     return (
         <div className={`bg-[#400000] text-white p-6 rounded-2xl shadow-lg border border-yellow-400 w-full max-w-[900px] mx-auto text-center relative ${timeLeft <= 5 && activeRest ? 'animate-glow' : ''}`}>
             <div className={`absolute inset-0 z-[-1] ${timeLeft <= 5 && activeRest ? 'animate-pulse-glow' : ''}`}></div>
@@ -48,9 +40,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer }) => {
                     <>
                         ⏳ <span className="animate-pulse">Rest Up, Comrade!</span> ⌛️
                         <br />
-                        <span
-                            className={`block mt-2 text-6xl font-extrabold ${timeLeft <= 5 ? 'text-red-600 animate-bounce' : 'text-yellow-300'}`}
-                        >
+                        <span className={`block mt-2 text-6xl font-extrabold ${timeLeft <= 5 ? 'text-red-600 animate-bounce' : 'text-yellow-300'}`}>
                             Next Set In: {timeLeft}s
                         </span>
                     </>
