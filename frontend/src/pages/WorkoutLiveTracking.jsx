@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { WorkoutProvider, useWorkoutContext } from '../context/WorkoutContext' // ✅ Use context
-import WorkoutHeaderLive from '../components/livetracking/WorkoutHeaderLive'
+import WorkoutOverview from '../components/livetracking/WorkoutOverview'
 import TimerLive from '../components/livetracking/TimerLive'
 import SetTrackerLive from '../components/livetracking/SetTrackerLive'
 import WorkoutControlsLive from '../components/livetracking/WorkoutControlsLive'
@@ -32,7 +32,7 @@ const LiveTrackingContent = () => {
 
     return (
         <div className="min-h-screen bg-[#600000] text-white pt-24 px-6">
-            <WorkoutHeaderLive />
+            <WorkoutOverview />
             <div className="flex justify-between items-start gap-6 mt-8">
                 <SetTrackerLive showNextOnly={true} />
                 <TimerLive
