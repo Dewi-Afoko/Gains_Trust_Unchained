@@ -106,33 +106,66 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         toast.success('Workout updated successfully!')
     }
 
-    const toggleComplete = async (workoutId, currentState) => {
-        if (!accessToken) return
+    const startWorkout = async (workoutId) => {
+        if (!accessToken) return;
         try {
-            await apiRequest(
+            const response = await apiRequest(
                 'patch',
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`,
-                {
-                    complete: !currentState,
-                }
-            )
-
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/start/`,
+                {}
+            );
+    
             setWorkouts((prev) =>
                 prev.map((w) =>
-                    w.id === workoutId ? { ...w, complete: !currentState } : w
+                    w.id === workoutId ? { ...w, ...response.workout } : w
+                )
+            );
+    
+            if (workout?.id === workoutId) {
+                setWorkout((prev) => ({
+                    ...prev,
+                    start_time: response.workout.start_time,  // ✅ Ensure immediate state update
+                }));
+            }
+    
+            console.log("🕒 WorkoutContext: workout.start_time updated:", response.workout.start_time); // ✅ Debugging log
+            toast.success('Workout started!');
+        } catch (err) {
+            console.error('❌ Error updating workout completion:', err);
+            toast.error('Failed to start workout.');
+        }
+    };
+    
+    
+
+
+
+    const toggleComplete = async (workoutId) => {
+        if (!accessToken) return
+        try {
+            const response = await apiRequest(
+                'patch',
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/complete/`,
+                {}
+            )
+    
+            setWorkouts((prev) =>
+                prev.map((w) =>
+                    w.id === workoutId ? { ...w, ...response.workout } : w
                 )
             )
-
+    
             if (workout?.id === workoutId) {
-                setWorkout((prev) => ({ ...prev, complete: !currentState }))
+                setWorkout((prev) => ({ ...prev, ...response.workout }))
             }
-
+    
             toast.success('Workout completion status updated!')
         } catch (err) {
             console.error('❌ Error updating workout completion:', err)
-            toast.error('Failed to update workout.')
+            toast.error('Failed to mark workout complete.')
         }
     }
+    
 
     const deleteWorkout = async (workoutId) => {
         await apiRequest(
@@ -343,7 +376,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 fetchSetDetails,
                 skipSet,
                 updateSetsFromAPI,
-                duplicateWorkout
+                duplicateWorkout,
+                startWorkout
             }}
         >
             {children}

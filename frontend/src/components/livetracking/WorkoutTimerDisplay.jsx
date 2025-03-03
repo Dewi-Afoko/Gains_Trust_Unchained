@@ -1,19 +1,15 @@
-import React from "react";
+import { useEffect, useState } from "react";
 
 const WorkoutTimerDisplay = ({ timeElapsed }) => {
-    // Format time as HH:MM:SS
-    const formatTime = (seconds) => {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = seconds % 60;
-        return [h, m, s]
-            .map((unit) => String(unit).padStart(2, "0"))
-            .join(":");
-    };
+    const [displayTime, setDisplayTime] = useState(timeElapsed);
+
+    useEffect(() => {
+        setDisplayTime(timeElapsed); // ✅ Update display time when `timeElapsed` changes
+    }, [timeElapsed]);
 
     return (
-        <div className="text-lg font-bold text-yellow-400">
-        🕒 Time Elapsed: {formatTime(timeElapsed)}
+        <div className="text-yellow-400 font-bold text-xl">
+            ⏱ Time Elapsed: {new Date(displayTime * 1000).toISOString().substr(11, 8)}
         </div>
     );
 };

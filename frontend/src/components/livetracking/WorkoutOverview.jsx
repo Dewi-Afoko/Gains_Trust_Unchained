@@ -1,15 +1,35 @@
 import { useNavigate } from "react-router-dom";
 import { useWorkoutContext } from "../../context/WorkoutContext"; // ✅ Use context
 import WorkoutTimerDisplay from "./WorkoutTimerDisplay"; // ✅ Import timer display
+import { useEffect, useState } from "react";
+import { differenceInSeconds } from "date-fns";
 
-const WorkoutOverview = ({ timeElapsed }) => {
-    const { workout, completeSets, sets } = useWorkoutContext(); // ✅ Corrected context values
+const WorkoutOverview = () => {
+    const { workout } = useWorkoutContext(); // ✅ Get workout from context
     const navigate = useNavigate();
+    const [timeElapsed, setTimeElapsed] = useState(0);
 
     // ✅ Ensure progress updates dynamically
-    const totalSets = sets.length;
-    const completedCount = completeSets.length;
+    const totalSets = workout?.sets?.length || 0;
+    const completedCount = workout?.completeSets?.length || 0;
     const progress = totalSets > 0 ? (completedCount / totalSets) * 100 : 0;
+
+    // ✅ Update timer when `workout.start_time` changes
+    useEffect(() => {
+        if (workout?.start_time) {
+            const startTime = new Date(workout.start_time);
+            setTimeElapsed(differenceInSeconds(new Date(), startTime));
+
+            // ✅ Keep updating the timer every second
+            const interval = setInterval(() => {
+                setTimeElapsed(differenceInSeconds(new Date(), startTime));
+            }, 1000);
+
+            return () => clearInterval(interval); // ✅ Cleanup on unmount
+        } else {
+            setTimeElapsed(0); // ✅ Reset if no `start_time`
+        }
+    }, [workout?.start_time, workout?.id]); // ✅ Now reacts to `start_time` updates
 
     return (
         <div className="relative flex flex-col bg-[#400000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg">
@@ -27,10 +47,11 @@ const WorkoutOverview = ({ timeElapsed }) => {
                 <h2 className="text-yellow-400 text-3xl font-extrabold text-stroke text-center">
                     🏋🏾‍♂️ {workout?.workout_name || "Live Workout"}
                 </h2>
-                <WorkoutTimerDisplay timeElapsed={timeElapsed} />
+                <WorkoutTimerDisplay key={workout?.start_time || "no-start"} timeElapsed={timeElapsed} />
+
             </div>
 
-            {/* 📊 Workout Progress Bar (Fixed text positioning) */}
+            {/* 📊 Workout Progress Bar */}
             <div className="relative w-full bg-gray-700 rounded-full h-6 mb-4">
                 <div
                     className="bg-yellow-400 h-full rounded-full transition-all"
