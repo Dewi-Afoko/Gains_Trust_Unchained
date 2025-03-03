@@ -4,3 +4,7 @@
 - Exploit radix more. More tooltips, etc. Less info just there.
 
 - PASSWORD RECOVERY!
+
+- Refactor Toasts for workout complete
+    - Redesign how mark complete buttons work/appear based on whether they can be used
+    - More feedback that you must start a workout

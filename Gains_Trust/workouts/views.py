@@ -77,6 +77,7 @@ def duplicate_workout(request, workout_id):
     new_workout = Workout.objects.create(
         user=original_workout.user,
         workout_name=f"{original_workout.workout_name} (Copy)",
+        date=now().date(),
         notes=original_workout.notes,
     )
 
@@ -107,8 +108,8 @@ def start_timer(request, workout_id):
     if workout.start_time == None:
         workout.start_time = now()
         workout.save()
-        return Response({"message" : "Workout timer started", "start_time" : workout.start_time}, status=201)
-    return Response({"message" : "Workout timer restarted", "start_time" : workout.start_time}, status=status.HTTP_200_OK)
+        return Response({"message" : "Workout timer started", "start_time" : workout.start_time, "workout" : WorkoutSerializer(workout).data}, status=status.HTTP_200_OK)
+    return Response({"message" : "Workout timer restarted", "start_time" : workout.start_time, "workout" : WorkoutSerializer(workout).data}, status=status.HTTP_200_OK)
 
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
@@ -121,7 +122,7 @@ def complete_workout(request, workout_id):
         workout.duration = int((now() - workout.start_time).total_seconds())
         workout.complete = True
         workout.save()
-        return Response({'message' : 'Workout marked complete!', "workout_duration" : workout.duration }, status=status.HTTP_200_OK)
+        return Response({'message' : 'Workout marked complete!', "workout_duration" : workout.duration, "workout": WorkoutSerializer(workout).data }, status=status.HTTP_200_OK)
     return Response({'error': 'Workout already marked as complete!'}, status=status.HTTP_400_BAD_REQUEST)
 
 # ✅ SetDict Views

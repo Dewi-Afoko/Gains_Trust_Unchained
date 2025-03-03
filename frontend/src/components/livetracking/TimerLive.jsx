@@ -91,10 +91,12 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
             {!activeRest && nextSet && (
                 <div className="mt-6 flex justify-center">
                     <SetActionsLive
+                        key={isRunning}
                         setId={nextSet.id}
                         isNextSet={true}
                         restTime={nextSet.rest}
                         startRestTimer={handleStartRest}
+                        isRunning={isRunning}
                     />
                 </div>
             )}

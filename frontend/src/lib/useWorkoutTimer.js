@@ -1,56 +1,39 @@
-import { useState, useEffect, useRef } from "react";
-
-let globalIsRunning = false; // ✅ Ensures one shared timer state
-let globalTimeElapsed = 0;
-let globalSetters = [];
+import { useState, useEffect } from "react";
+import { useWorkoutContext } from "../context/WorkoutContext"; // ✅ Use global workout state
+import { differenceInSeconds } from "date-fns";
+import useInterval from "./useInterval";
 
 const useWorkoutTimer = () => {
-    const [timeElapsed, setTimeElapsed] = useState(globalTimeElapsed);
-    const [isRunning, setIsRunning] = useState(globalIsRunning);
-    const intervalRef = useRef(null);
+    const { workout } = useWorkoutContext(); // ✅ Get workout data from context
+    const [timeElapsed, setTimeElapsed] = useState(0);
+    const [isRunning, setIsRunning] = useState(false);
 
-    // ✅ Ensures components share the same timer instance
+    console.log("⏳ useWorkoutTimer: isRunning updated:", isRunning);
+
+
+    // ✅ Update `isRunning` dynamically when `start_time` changes
     useEffect(() => {
-        globalSetters.push(setTimeElapsed);
-
-        return () => {
-            globalSetters = globalSetters.filter(setter => setter !== setTimeElapsed);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (isRunning) {
-            intervalRef.current = setInterval(() => {
-                globalTimeElapsed += 1;
-                globalSetters.forEach(setter => setter(globalTimeElapsed));
-            }, 1000);
+        if (workout?.start_time) {
+            const startTime = new Date(workout.start_time);
+            const elapsed = differenceInSeconds(new Date(), startTime);
+            setTimeElapsed(elapsed);
+            setIsRunning(true); // ✅ Ensure it updates when `workout.start_time` is set
         } else {
-            clearInterval(intervalRef.current);
+            setTimeElapsed(0); // ✅ Reset if no `start_time`
+            setIsRunning(false);
         }
+    }, [workout?.start_time]);
 
-        return () => clearInterval(intervalRef.current);
-    }, [isRunning]);
-
-    const startTimer = () => {
-        if (!globalIsRunning) {
-            console.log("▶ Timer Started");
-            globalIsRunning = true;
-            setIsRunning(true);
+    // ✅ Keep timer updating every second
+    useInterval(() => {
+        if (isRunning) {
+            setTimeElapsed((prev) => prev + 1);
         }
-    };
-
-    const stopTimer = () => {
-        console.log("⏹ Timer Stopped");
-        globalIsRunning = false;
-        setIsRunning(false);
-        clearInterval(intervalRef.current);
-    };
+    }, isRunning ? 1000 : null); // ✅ Stop interval when workout isn't running
 
     return {
         timeElapsed,
         isRunning,
-        startTimer,
-        stopTimer
     };
 };
 

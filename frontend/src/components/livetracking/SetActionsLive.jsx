@@ -1,17 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWorkoutContext } from "../../context/WorkoutContext"; // ✅ Keep context
 import useWorkoutTimer from "../../lib/useWorkoutTimer"; // ✅ Get timer state
 
 const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
-    const { workoutId, toggleSetComplete, skipSet } = useWorkoutContext(); // ✅ Keep context functions
-    const { isRunning, startTimer } = useWorkoutTimer(); // ✅ Get timer functions directly
-    console.log("🟢 isRunning in SetActionsLive:", isRunning); // ✅ Debug log
-    console.log("✅ isNextSet in SetActionsLive:", isNextSet);
-
+    const { workoutId, workout, toggleSetComplete, skipSet, startWorkout } = useWorkoutContext(); // ✅ Include workout
+    const { isRunning } = useWorkoutTimer(); // ✅ Get timer state
     const [loading, setLoading] = useState(false);
+    const [renderKey, setRenderKey] = useState(0); // ✅ Force re-render when `isRunning` changes
+    console.log("🔥 isRunning in SetActionsLive:", isRunning);
+
+    // ✅ Force re-render when `workout.start_time` updates
+    useEffect(() => {
+        setRenderKey((prevKey) => prevKey + 1);
+    }, [isRunning, workout?.start_time]);
 
     const handleComplete = async () => {
-        if (!isNextSet) return; // ✅ Prevent if not the next set
+        if (!isNextSet || !isRunning) return; // ✅ Prevent if not the next set or timer inactive
         setLoading(true);
 
         console.log("🟢 Completing set. Set ID:", setId); // ✅ Debugging log
@@ -54,11 +58,11 @@ const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
     };
 
     return (
-        <div className="relative flex flex-col items-center mt-6 w-full">
+        <div key={renderKey} className="relative flex flex-col items-center mt-6 w-full">
             {/* 🔥 Complete Button - Replaced with Start Workout if Timer Not Started */}
             {!isRunning ? (
                 <button
-                    onClick={startTimer}
+                    onClick={() => startWorkout(workoutId)} // ✅ Fix: Now runs only on click
                     className="px-6 py-3 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 transition text-stroke"
                 >
                     ▶ Start Workout
