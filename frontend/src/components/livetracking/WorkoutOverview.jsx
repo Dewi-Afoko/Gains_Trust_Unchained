@@ -8,6 +8,7 @@ const WorkoutOverview = () => {
     const { workout } = useWorkoutContext(); // ✅ Get workout from context
     const navigate = useNavigate();
     const [timeElapsed, setTimeElapsed] = useState(0);
+    const [renderKey, setRenderKey] = useState(0); // ✅ Force re-render key
 
     // ✅ Ensure progress updates dynamically
     const totalSets = workout?.sets?.length || 0;
@@ -19,6 +20,9 @@ const WorkoutOverview = () => {
         if (workout?.start_time) {
             const startTime = new Date(workout.start_time);
             setTimeElapsed(differenceInSeconds(new Date(), startTime));
+            
+            // ✅ Trigger re-render when workout starts
+            setRenderKey((prevKey) => prevKey + 1);
 
             // ✅ Keep updating the timer every second
             const interval = setInterval(() => {
@@ -47,8 +51,7 @@ const WorkoutOverview = () => {
                 <h2 className="text-yellow-400 text-3xl font-extrabold text-stroke text-center">
                     🏋🏾‍♂️ {workout?.workout_name || "Live Workout"}
                 </h2>
-                <WorkoutTimerDisplay key={workout?.start_time || "no-start"} timeElapsed={timeElapsed} />
-
+                <WorkoutTimerDisplay key={renderKey} timeElapsed={timeElapsed} />
             </div>
 
             {/* 📊 Workout Progress Bar */}
