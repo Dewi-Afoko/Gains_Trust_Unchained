@@ -18,6 +18,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
         console.log("🔄 TimerLive: isRunning state is now:", isRunning);
     }, [isRunning]);
     
+    
 
     const handleStartRest = (newRestTime) => {
         console.log(`🔔 New rest timer started: ${newRestTime}s`);
