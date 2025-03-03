@@ -10,8 +10,14 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
     const intervalRef = useRef(null);
 
     useEffect(() => {
-        setIsRunning(isRunningProp); // ✅ Ensure isRunning updates in TimerLive
+        console.log("🔄 TimerLive: isRunningProp updated to:", isRunningProp);
+        setIsRunning(isRunningProp);
     }, [isRunningProp]);
+    
+    useEffect(() => {
+        console.log("🔄 TimerLive: isRunning state is now:", isRunning);
+    }, [isRunning]);
+    
 
     const handleStartRest = (newRestTime) => {
         console.log(`🔔 New rest timer started: ${newRestTime}s`);
