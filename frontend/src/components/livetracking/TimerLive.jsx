@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import SetActionsLive from './SetActionsLive';
+import { useWorkoutContext } from "../../context/WorkoutContext"; // ✅ Get context
 import { formatLoading } from '../../lib/utils';
 
 const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp, startTimer, stopTimer }) => {
     const [timeLeft, setTimeLeft] = useState(restTime);
     const [activeRest, setActiveRest] = useState(false);
     const [isRunning, setIsRunning] = useState(isRunningProp); // ✅ Store isRunning in state
+    const { timeElapsed } = useWorkoutContext(); // ✅ Get timeElapsed from context
     const startTimeRef = useRef(null);
     const intervalRef = useRef(null);
 
@@ -103,7 +105,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
                         isNextSet={true}
                         restTime={nextSet.rest}
                         startRestTimer={handleStartRest}
-                        isRunning={isRunning}
+                        isRunning={timeElapsed > 0}
                     />
                 </div>
             )}

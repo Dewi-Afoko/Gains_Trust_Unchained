@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuthContext } from './AuthContext'
 import toast from 'react-hot-toast'
+import { differenceInSeconds } from 'date-fns'
 
 const WorkoutContext = createContext()
 
@@ -15,6 +16,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     const [error, setError] = useState(null)
     const [completeSets, setCompleteSets] = useState([])
     const [incompleteSets, setIncompleteSets] = useState([])
+    const [timeElapsed, setTimeElapsed] = useState(0); // ⏳ Track elapsed time
+
 
     // ✅ Centralized API request helper function
     const apiRequest = async (method, url, data = {}) => {
@@ -38,6 +41,22 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     useEffect(() => {
         workoutId ? fetchWorkoutDetails(workoutId) : fetchAllWorkouts()
     }, [workoutId])
+
+    useEffect(() => {
+        if (workout?.start_time) {
+            const startTime = new Date(workout.start_time);
+            setTimeElapsed(differenceInSeconds(new Date(), startTime));
+    
+            const interval = setInterval(() => {
+                setTimeElapsed(differenceInSeconds(new Date(), startTime));
+            }, 1000);
+    
+            return () => clearInterval(interval); // ✅ Cleanup on unmount
+        } else {
+            setTimeElapsed(0); // ✅ Reset when no `start_time`
+        }
+    }, [workout?.start_time, workout?.id]); // ✅ Runs when `start_time` updates
+    
 
     // 📌 WORKOUT FUNCTIONS
 
@@ -109,6 +128,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     const startWorkout = async (workoutId) => {
         if (!accessToken) return;
         try {
+            setTimeElapsed(0); // ✅ Reset immediately for UI update
+
             await apiRequest(
                 'patch',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/start/`,
@@ -367,7 +388,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 skipSet,
                 updateSetsFromAPI,
                 duplicateWorkout,
-                startWorkout
+                startWorkout,
+                timeElapsed,
             }}
         >
             {children}
