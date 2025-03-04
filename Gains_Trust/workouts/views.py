@@ -84,7 +84,7 @@ def duplicate_workout(request, workout_id):
     og_workout_sets = SetDict.objects.filter(workout=original_workout)
 
     for set_dict in og_workout_sets:
-        SetDict.objects.create(
+        new_dict = SetDict.objects.create(
             workout=new_workout,  # ✅ Assign to the new workout
             exercise_name=set_dict.exercise_name,
             set_number=set_dict.set_number,
@@ -96,6 +96,7 @@ def duplicate_workout(request, workout_id):
             focus=set_dict.focus,
             notes=set_dict.notes,
         )
+        new_dict.save()
 
 
     return Response({"message": "Workout duplicated", "workout": WorkoutSerializer(new_workout).data}, status=201)
