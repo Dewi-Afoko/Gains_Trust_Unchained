@@ -19,8 +19,7 @@ const WorkoutLiveTracking = () => {
 }
 
 const LiveTrackingContent = () => {
-    const { sets } = useWorkoutContext(); // ✅ Get sets from context
-
+    const { sets, timeElapsed } = useWorkoutContext(); // ✅ Get timeElapsed from context
     const nextSet = sets.find((set) => !set.complete) || null; // ✅ Calculate nextSet here
     const [restTime, setRestTime] = useState(0);
     const [timerKey, setTimerKey] = useState(0);
