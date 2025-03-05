@@ -17,7 +17,7 @@ const WorkoutOverview = () => {
             
             {/* ❌ Exit Workout (Top-Right) */}
             <button
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/workouts")}
                 className="absolute top-4 right-4 bg-[#8B0000] hover:bg-[#600000] text-white font-bold px-4 py-2 rounded-xl transition text-stroke"
             >
                 ❌ Exit Workout
