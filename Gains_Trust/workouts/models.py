@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils import timezone
+from django.utils.timezone import now
 
 
 # Create your models here.
@@ -8,12 +8,14 @@ class Workout(models.Model):
         "users.User", on_delete=models.CASCADE, related_name="workoutss"
     )
     workout_name = models.CharField(max_length=255)
-    date = models.DateField(default=timezone.now().date)
+    date = models.DateField(default=lambda: now().date())
     complete = models.BooleanField(default=False)
     user_weight = models.FloatField(null=True, blank=True)
     sleep_score = models.IntegerField(null=True, blank=True)
     sleep_quality = models.TextField(blank=True)
     notes = models.TextField(blank=True)
+    start_time = models.DateTimeField(blank=True, null=True)
+    duration = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.workout_name} ({self.date})"
@@ -33,6 +35,9 @@ class SetDict(models.Model):
     rest = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
     complete = models.BooleanField(default=False)
+    set_start_time = models.DateTimeField(blank=True, null=True)
+    set_duration = models.IntegerField(blank=True, null=True)
+    
 
     def __str__(self):
         return (

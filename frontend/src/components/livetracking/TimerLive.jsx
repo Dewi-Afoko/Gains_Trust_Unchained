@@ -1,36 +1,143 @@
 import { useState, useEffect, useRef } from 'react';
 import SetActionsLive from './SetActionsLive';
+import { useWorkoutContext } from "../../context/WorkoutContext"; // ✅ Get context
 import { formatLoading } from '../../lib/utils';
 
 const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp, startTimer, stopTimer }) => {
     const [timeLeft, setTimeLeft] = useState(restTime);
     const [activeRest, setActiveRest] = useState(false);
     const [isRunning, setIsRunning] = useState(isRunningProp); // ✅ Store isRunning in state
+    const { timeElapsed, workoutId } = useWorkoutContext(); // ✅ Get timeElapsed from context
     const startTimeRef = useRef(null);
     const intervalRef = useRef(null);
 
     useEffect(() => {
-        setIsRunning(isRunningProp); // ✅ Ensure isRunning updates in TimerLive
+        console.log("🔄 TimerLive: isRunningProp updated to:", isRunningProp);
+        setIsRunning(isRunningProp);
     }, [isRunningProp]);
+    
+    useEffect(() => {
+        console.log("🔄 TimerLive: isRunning state is now:", isRunning);
+    }, [isRunning]);
+    
+    useEffect(() => {
+        const savedStartTime = localStorage.getItem(`restStartTime_${workoutId}`);
+        const savedDuration = localStorage.getItem(`restDuration_${workoutId}`);
+    
+        if (savedStartTime && savedDuration) {
+            const startTimestamp = parseInt(savedStartTime, 10);
+            const duration = parseInt(savedDuration, 10);
+            const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
+            const remaining = Math.max(duration - elapsed, 0);
+    
+            if (remaining > 0) {
+                setTimeLeft(remaining);
+                setActiveRest(true);
+                startTimeRef.current = startTimestamp;
+    
+                if (intervalRef.current) clearInterval(intervalRef.current);
+                intervalRef.current = setInterval(() => {
+                    const nowElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+                    const updatedRemaining = Math.max(duration - nowElapsed, 0);
+                    setTimeLeft(updatedRemaining);
+    
+                    if (updatedRemaining === 0) {
+                        clearInterval(intervalRef.current);
+                        setActiveRest(false);
+                        localStorage.removeItem(`restStartTime_${workoutId}`);
+                        localStorage.removeItem(`restDuration_${workoutId}`);
+                    }
+                }, 1000);
+            } else {
+                setActiveRest(false);
+                setTimeLeft(0);
+                localStorage.removeItem(`restStartTime_${workoutId}`);
+                localStorage.removeItem(`restDuration_${workoutId}`);
+            }
+        } else {
+            setActiveRest(false);
+            setTimeLeft(0);
+        }
+    
+        localStorage.setItem("lastWorkoutId", workoutId); // ✅ Store last visited workout
+    }, [workoutId]); // ✅ Runs when switching workouts
+    
+    
+    
+    
+
+    useEffect(() => {
+        const lastWorkoutId = localStorage.getItem("lastWorkoutId") || workoutId;
+        const savedStartTime = localStorage.getItem(`restStartTime_${lastWorkoutId}`);
+        const savedDuration = localStorage.getItem(`restDuration_${lastWorkoutId}`);
+    
+        if (savedStartTime && savedDuration) {
+            const startTimestamp = parseInt(savedStartTime, 10);
+            const duration = parseInt(savedDuration, 10);
+            const elapsed = Math.floor((Date.now() - startTimestamp) / 1000);
+            const remaining = Math.max(duration - elapsed, 0);
+    
+            if (remaining > 0) {
+                setTimeLeft(remaining);
+                setActiveRest(true);
+                startTimeRef.current = startTimestamp;
+    
+                if (intervalRef.current) clearInterval(intervalRef.current);
+                intervalRef.current = setInterval(() => {
+                    const nowElapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+                    const updatedRemaining = Math.max(duration - nowElapsed, 0);
+                    setTimeLeft(updatedRemaining);
+    
+                    if (updatedRemaining === 0) {
+                        clearInterval(intervalRef.current);
+                        setActiveRest(false);
+                        localStorage.removeItem(`restStartTime_${lastWorkoutId}`);
+                        localStorage.removeItem(`restDuration_${lastWorkoutId}`);
+                    }
+                }, 1000);
+            } else {
+                localStorage.removeItem(`restStartTime_${lastWorkoutId}`);
+                localStorage.removeItem(`restDuration_${lastWorkoutId}`);
+            }
+        }
+    }, []); // ✅ Runs once on mount
+    
+    
+    
+    
+    
+    
+    
 
     const handleStartRest = (newRestTime) => {
         console.log(`🔔 New rest timer started: ${newRestTime}s`);
-        setTimeLeft(newRestTime);
-        startTimeRef.current = Date.now();
-        setActiveRest(true);
-        if (intervalRef.current) clearInterval(intervalRef.current);
+        const now = Date.now();
+    
+        localStorage.setItem(`restStartTime_${workoutId}`, now);
+        localStorage.setItem(`restDuration_${workoutId}`, newRestTime);
         
+    
+        setTimeLeft(newRestTime);
+        startTimeRef.current = now;
+        setActiveRest(true);
+    
+        if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = setInterval(() => {
             const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
             const remaining = Math.max(newRestTime - elapsed, 0);
-            setTimeLeft(remaining);
-
+    
+            setTimeLeft(remaining); // ✅ UI updates, but no `localStorage` changes
+    
             if (remaining === 0) {
                 clearInterval(intervalRef.current);
                 setActiveRest(false);
+                localStorage.removeItem("restStartTime");
+                localStorage.removeItem("restDuration");
             }
         }, 1000);
     };
+    
+    
 
     return (
         <div className={`bg-[#400000] text-white p-6 rounded-2xl shadow-lg border border-yellow-400 w-full max-w-[900px] mx-auto text-center relative ${timeLeft <= 5 && activeRest ? 'animate-glow' : ''}`}>
@@ -91,10 +198,12 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
             {!activeRest && nextSet && (
                 <div className="mt-6 flex justify-center">
                     <SetActionsLive
+                        key={isRunning}
                         setId={nextSet.id}
                         isNextSet={true}
                         restTime={nextSet.rest}
                         startRestTimer={handleStartRest}
+                        isRunning={timeElapsed > 0}
                     />
                 </div>
             )}

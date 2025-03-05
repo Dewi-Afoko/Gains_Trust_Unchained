@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useWorkoutContext } from "../../context/WorkoutContext"; // ✅ Keep context
-import useWorkoutTimer from "../../lib/useWorkoutTimer"; // ✅ Get timer state
 
 const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
-    const { workoutId, toggleSetComplete, skipSet } = useWorkoutContext(); // ✅ Keep context functions
-    const { isRunning, startTimer } = useWorkoutTimer(); // ✅ Get timer functions directly
-    console.log("🟢 isRunning in SetActionsLive:", isRunning); // ✅ Debug log
-    console.log("✅ isNextSet in SetActionsLive:", isNextSet);
-
+    const { workoutId, workout, timeElapsed, toggleSetComplete, skipSet, startWorkout, toggleComplete, incompleteSets } = useWorkoutContext();
     const [loading, setLoading] = useState(false);
+    const isRunning = timeElapsed > 0; // ✅ Workout is running if timeElapsed is greater than zero
+    const isFinalSet = incompleteSets.length === 1; // ✅ If only 1 set remains, it's the final set
+
+
+    const handleStartWorkout = async () => {
+        await startWorkout(workoutId);
+    };
 
     const handleComplete = async () => {
-        if (!isNextSet) return; // ✅ Prevent if not the next set
+        if (!isNextSet || !isRunning) return; // ✅ Prevent if not the next set or timer inactive
         setLoading(true);
 
         console.log("🟢 Completing set. Set ID:", setId); // ✅ Debugging log
@@ -31,6 +33,29 @@ const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
             setLoading(false);
         }
     };
+
+    const handleCompleteFinalSetAndWorkout = async () => {
+        if (!isNextSet || !isRunning) return; // ✅ Prevent if not the next set or workout isn't active
+        setLoading(true);
+    
+        console.log("🏁 Completing final set & marking workout complete. Set ID:", setId); // ✅ Debugging log
+    
+        if (!setId) {
+            console.error("❌ ERROR: Attempted to complete a final set with an undefined setId.");
+            setLoading(false);
+            return;
+        }
+    
+        try {
+            await toggleSetComplete(setId); // ✅ Mark set as complete
+            await toggleComplete(workoutId); // ✅ Mark workout as complete
+        } catch (error) {
+            console.error("❌ Error marking final set & workout complete:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
 
     const handleSkip = async () => {
         if (!isNextSet || !isRunning) return; // ✅ Prevent if not the next set or timer inactive
@@ -55,15 +80,29 @@ const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
 
     return (
         <div className="relative flex flex-col items-center mt-6 w-full">
-            {/* 🔥 Complete Button - Replaced with Start Workout if Timer Not Started */}
-            {!isRunning ? (
+            {/* ▶ Start Workout Button (Shown if Workout Hasn't Started) */}
+            {!isRunning && (
                 <button
-                    onClick={startTimer}
-                    className="px-6 py-3 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 transition text-stroke"
+                    onClick={handleStartWorkout}
+                    className="px-6 py-3 rounded-xl font-bold text-white bg-green-700 hover:bg-green-700 transition text-stroke"
                 >
                     ▶ Start Workout
                 </button>
-            ) : (
+            )}
+    
+            {/* 🏁 Complete Final Set & Workout Button (Shown on Final Set) */}
+            {isRunning && isFinalSet && (
+                <button
+                    onClick={handleCompleteFinalSetAndWorkout}
+                    disabled={!isNextSet || loading}
+                    className="px-6 py-3 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 transition text-stroke animate-pulse"
+                >
+                    {loading ? "⏳ Processing..." : "🏁 Complete Final Set & Workout!"}
+                </button>
+            )}
+    
+            {/* 🔥 Complete Set Button (Shown on All Other Sets) */}
+            {isRunning && !isFinalSet && (
                 <button
                     onClick={handleComplete}
                     disabled={!isNextSet || loading}
@@ -76,7 +115,7 @@ const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
                     {loading ? "⏳ Processing..." : "🔥 Complete"}
                 </button>
             )}
-
+    
             {/* ⏭ Skip Button - Bottom Right */}
             <div className="absolute bottom-0 right-0">
                 <button
@@ -93,6 +132,7 @@ const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
             </div>
         </div>
     );
+    
 };
 
 export default SetActionsLive;
