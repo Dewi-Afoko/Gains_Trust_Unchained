@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Workout, SetDict
 from .serializers import SetDictSerializer, WorkoutSerializer
+from datetime import datetime
+from django.utils.timezone import now
 
 
 # ✅ Workout Views
@@ -75,13 +77,14 @@ def duplicate_workout(request, workout_id):
     new_workout = Workout.objects.create(
         user=original_workout.user,
         workout_name=f"{original_workout.workout_name} (Copy)",
+        date=now().date(),
         notes=original_workout.notes,
     )
 
-    og_workout_sets = SetDict.objects.filter(workout=original_workout)
+    og_workout_sets = SetDict.objects.filter(workout=original_workout).order_by("set_order")
 
     for set_dict in og_workout_sets:
-        SetDict.objects.create(
+        new_dict = SetDict.objects.create(
             workout=new_workout,  # ✅ Assign to the new workout
             exercise_name=set_dict.exercise_name,
             set_number=set_dict.set_number,
@@ -93,12 +96,35 @@ def duplicate_workout(request, workout_id):
             focus=set_dict.focus,
             notes=set_dict.notes,
         )
+        new_dict.save()
 
 
     return Response({"message": "Workout duplicated", "workout": WorkoutSerializer(new_workout).data}, status=201)
 
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def start_timer(request, workout_id):
 
+    workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+    if workout.start_time == None:
+        workout.start_time = now()
+        workout.save()
+        return Response({"message" : "Workout timer started", "start_time" : workout.start_time, "workout" : WorkoutSerializer(workout).data}, status=status.HTTP_200_OK)
+    return Response({"message" : "Workout timer restarted", "start_time" : workout.start_time, "workout" : WorkoutSerializer(workout).data}, status=status.HTTP_200_OK)
 
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def complete_workout(request, workout_id):
+    workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+
+    if not workout.start_time:
+        return Response({'message' : 'Workout cannot be marked complete before it has been started!'}, status=status.HTTP_400_BAD_REQUEST)
+    if not workout.complete:
+        workout.duration = int((now() - workout.start_time).total_seconds())
+        workout.complete = True
+        workout.save()
+        return Response({'message' : 'Workout marked complete!', "workout_duration" : workout.duration, "workout": WorkoutSerializer(workout).data }, status=status.HTTP_200_OK)
+    return Response({'error': 'Workout already marked as complete!'}, status=status.HTTP_400_BAD_REQUEST)
 
 # ✅ SetDict Views
 class SetDictView(APIView):

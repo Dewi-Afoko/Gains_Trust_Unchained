@@ -7,8 +7,7 @@ const WorkoutControlsLive = () => {
     const [showCompleted, setShowCompleted] = useState(false) // ✅ Default to collapsed
     const { completeSets, incompleteSets } = useWorkoutContext() // ✅ Get complete/incomplete sets
 
-    console.log('✅ Incomplete Sets:', incompleteSets.length)
-    console.log('✅ Complete Sets:', completeSets.length)
+
 
     // ✅ Reverse completed sets so most recent appear first
     const sortedCompleteSets = [...completeSets].sort(

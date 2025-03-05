@@ -5,7 +5,9 @@ from .views import (
     complete_set,
     skip_set,
     move_set,
-    duplicate_workout
+    duplicate_workout,
+    start_timer,
+    complete_workout
 )
 
 urlpatterns = [
@@ -28,4 +30,6 @@ urlpatterns = [
     path("<int:workout_id>/sets/<int:set_dict_id>/skip/", skip_set, name="set-skip"),
     path("<int:workout_id>/sets/<int:set_dict_id>/move/", move_set, name="set-move"),
     path("<int:workout_id>/duplicate/", duplicate_workout, name="duplicate-workout"),
+    path("<int:workout_id>/start/", start_timer, name="start-workout"),
+    path("<int:workout_id>/complete/", complete_workout, name="complete-workout"),
 ]
