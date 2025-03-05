@@ -29,7 +29,7 @@ const WorkoutOverview = () => {
                 <h2 className="text-yellow-400 text-3xl font-extrabold text-stroke text-center">
                     🏋🏾‍♂️ {workout?.workout_name || "Live Workout"}
                 </h2>
-                <WorkoutTimerDisplay timeElapsed={timeElapsed} />
+                <WorkoutTimerDisplay timeElapsed={timeElapsed} workout={workout} />
             </div>
 
             {/* 📊 Workout Progress Bar */}
