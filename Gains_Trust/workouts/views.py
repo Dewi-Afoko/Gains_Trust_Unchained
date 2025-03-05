@@ -81,7 +81,7 @@ def duplicate_workout(request, workout_id):
         notes=original_workout.notes,
     )
 
-    og_workout_sets = SetDict.objects.filter(workout=original_workout)
+    og_workout_sets = SetDict.objects.filter(workout=original_workout).order_by("set_order")
 
     for set_dict in og_workout_sets:
         new_dict = SetDict.objects.create(
