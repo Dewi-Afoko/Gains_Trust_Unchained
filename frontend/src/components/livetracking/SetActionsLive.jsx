@@ -60,7 +60,7 @@ const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
             {!isRunning ? (
                 <button
                     onClick={handleStartWorkout}
-                    className="px-6 py-3 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 transition text-stroke"
+                    className="px-6 py-3 rounded-xl font-bold text-white bg-green-700 hover:bg-green-700 transition text-stroke"
                 >
                     ▶ Start Workout
                 </button>
