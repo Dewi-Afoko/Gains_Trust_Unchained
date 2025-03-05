@@ -3,14 +3,13 @@ import { useWorkoutContext } from "../../context/WorkoutContext"; // ✅ Use con
 import WorkoutTimerDisplay from "./WorkoutTimerDisplay"; // ✅ Import timer display
 
 const WorkoutOverview = () => {
-    const { workout, timeElapsed } = useWorkoutContext(); // ✅ Get workout from context
+    const { workout, completeSets, workoutSets, timeElapsed } = useWorkoutContext(); // ✅ Get workout from context
     const navigate = useNavigate();
 
-    // ✅ Ensure progress updates dynamically
-    const totalSets = workout?.sets?.length || 0;
-    const completedCount = workout?.completeSets?.length || 0;
+    const totalSets = workoutSets?.[workout?.id]?.length || 0; // ✅ Get total sets for this workout
+    const completedCount = completeSets?.length || 0; // ✅ Use completeSets directly from context
     const progress = totalSets > 0 ? (completedCount / totalSets) * 100 : 0;
-
+    
 
 
     return (
@@ -35,11 +34,11 @@ const WorkoutOverview = () => {
             {/* 📊 Workout Progress Bar */}
             <div className="relative w-full bg-gray-700 rounded-full h-6 mb-4">
                 <div
-                    className="bg-yellow-400 h-full rounded-full transition-all"
+                    className="bg-green-700 h-full rounded-full transition-all"
                     style={{ width: `${progress}%` }}
                 ></div>
-                <span className="absolute inset-0 flex justify-center items-center text-sm font-bold text-yellow-400">
-                    {Math.round(progress)}% Completed
+                <span className="absolute inset-0 flex justify-center items-center text-sm font-bold text-black-400">
+                    {Math.round(progress)}% Complete
                 </span>
             </div>
         </div>
