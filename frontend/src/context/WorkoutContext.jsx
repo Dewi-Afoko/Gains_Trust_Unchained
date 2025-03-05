@@ -152,30 +152,23 @@ export const WorkoutProvider = ({ workoutId, children }) => {
 
 
     const toggleComplete = async (workoutId) => {
-        if (!accessToken) return
+        if (!accessToken) return;
         try {
-            const response = await apiRequest(
+            await apiRequest(
                 'patch',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/complete/`,
                 {}
-            )
+            );
     
-            setWorkouts((prev) =>
-                prev.map((w) =>
-                    w.id === workoutId ? { ...w, ...response.workout } : w
-                )
-            )
+            await fetchWorkoutDetails(workoutId); // ✅ Force re-fetch of workout details
     
-            if (workout?.id === workoutId) {
-                setWorkout((prev) => ({ ...prev, ...response.workout }))
-            }
-    
-            toast.success('Workout completion status updated!')
+            toast.success('Workout completion status updated!');
         } catch (err) {
-            console.error('❌ Error updating workout completion:', err)
-            toast.error('Failed to mark workout complete.')
+            console.error('❌ Error updating workout completion:', err);
+            toast.error('Failed to mark workout complete.');
         }
-    }
+    };
+    
     
 
     const deleteWorkout = async (workoutId) => {
