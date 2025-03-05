@@ -4,10 +4,6 @@
 - Exploit radix more. More tooltips, etc. Less info just there.
 
 
-- Duplicate Workout needs to copy set_order correctly.
-- Editing sets eventually resets timer if active. 
-    - Batch updating issue?
-
 
 - PASSWORD RECOVERY!
 
