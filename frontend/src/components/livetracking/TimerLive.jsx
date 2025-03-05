@@ -7,7 +7,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
     const [timeLeft, setTimeLeft] = useState(restTime);
     const [activeRest, setActiveRest] = useState(false);
     const [isRunning, setIsRunning] = useState(isRunningProp); // ✅ Store isRunning in state
-    const { timeElapsed } = useWorkoutContext(); // ✅ Get timeElapsed from context
+    const { timeElapsed, workoutId } = useWorkoutContext(); // ✅ Get timeElapsed from context
     const startTimeRef = useRef(null);
     const intervalRef = useRef(null);
 
@@ -20,6 +20,10 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
         console.log("🔄 TimerLive: isRunning state is now:", isRunning);
     }, [isRunning]);
     
+    useEffect(() => {
+        setActiveRest(false); // ✅ Ensure UI resets rest state
+        setTimeLeft(0); // ✅ Reset timer only when switching workouts
+    }, [workoutId]); // ✅ Runs only when the workout ID changes
     
 
     const handleStartRest = (newRestTime) => {
