@@ -8,7 +8,7 @@
 - Editing sets eventually resets timer if active. 
     - Batch updating issue?
 
-- Workouts marked complete shouldn't have an incrementing timer.
+- Workouts marked complete with final set need to re-render the Overview section
 
 - PASSWORD RECOVERY!
 
