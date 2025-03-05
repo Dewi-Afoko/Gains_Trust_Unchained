@@ -161,6 +161,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
             );
     
             await fetchWorkoutDetails(workoutId); // ✅ Force re-fetch of workout details
+            await fetchAllWorkouts(); // ✅ Force UI re-render by fetching fresh data
+
     
             toast.success('Workout completion status updated!');
         } catch (err) {
