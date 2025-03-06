@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useWorkoutContext } from "../../context/WorkoutContext"; // ✅ Keep context
 
-const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
+const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer, resetSetTimer }) => {
     const { workoutId, workout, timeElapsed, toggleSetComplete, skipSet, startWorkout, toggleComplete, incompleteSets } = useWorkoutContext();
     const [loading, setLoading] = useState(false);
     const isRunning = timeElapsed > 0; // ✅ Workout is running if timeElapsed is greater than zero
@@ -70,6 +70,7 @@ const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer }) => {
         }
 
         try {
+            resetSetTimer(true); // 🔥 Reset set duration timer before skipping the set
             await skipSet(setId);
         } catch (error) {
             console.error("❌ Error skipping set:", error);

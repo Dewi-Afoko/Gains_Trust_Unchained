@@ -12,15 +12,13 @@ from django.utils.timezone import now
 
 # 💻 Helper Functions
 def update_active_set(workout_id):
-    """Updates which set is active after a set is completed or skipped"""
-
+    """Ensures only one active set per workout, adjusting start times correctly."""
     workout = get_object_or_404(Workout, id=workout_id)
 
-    # ❌ Do NOT set an active set if the workout hasn't started
     if not workout.start_time:
         return  
 
-    # ✅ Find the next incomplete set in order
+    # ✅ Find the next incomplete set
     next_set = SetDict.objects.filter(
         workout_id=workout_id, complete=False
     ).order_by("set_order").first()
@@ -29,19 +27,39 @@ def update_active_set(workout_id):
     SetDict.objects.filter(workout_id=workout_id).update(is_active_set=False)
 
     if next_set:
-        # 🔥 Check if a previous set was completed
+        # ✅ Get the last completed set, if available
         last_completed_set = SetDict.objects.filter(
             workout_id=workout_id, complete=True
-        ).order_by("-set_order").first()  # Get last completed set
+        ).order_by("-set_order").first()
 
-        # ✅ If there's a previous set, add its rest time to `set_start_time`
-        if last_completed_set and last_completed_set.rest:
-            next_set.set_start_time = now() + timedelta(seconds=last_completed_set.rest)
+        # ✅ Apply rest time only if the last completed set was immediately before this one
+        if last_completed_set and last_completed_set.set_order == (next_set.set_order - 1):
+            next_set.set_start_time = now() + timedelta(seconds=last_completed_set.rest) if last_completed_set.rest else now()
         else:
-            next_set.set_start_time = now()  # No rest adjustment if no previous set
+            next_set.set_start_time = now()
 
         next_set.is_active_set = True
         next_set.save()
+
+
+def skip_active_set(workout_id, skipped_set):
+    """Handles skipping a set and ensures the correct next set is activated."""
+    
+    # ✅ Find the next available set to activate
+    next_set = SetDict.objects.filter(
+        workout_id=workout_id, complete=False
+    ).exclude(id=skipped_set.id).order_by("set_order").first()
+
+    # ✅ Reset all sets to inactive
+    SetDict.objects.filter(workout_id=workout_id).update(is_active_set=False)
+
+    if next_set:
+        # ❌ Since a set was skipped, start immediately (no rest delay)
+        next_set.set_start_time = now()
+        next_set.is_active_set = True
+        next_set.save()
+
+
 
 # ✅ Workout Views
 class WorkoutView(APIView):
@@ -316,16 +334,14 @@ def skip_set(request, workout_id, set_dict_id):
     set_dict = get_object_or_404(
         SetDict, id=set_dict_id, workout__id=workout_id, workout__user=request.user
     )
-
     max_set_order = SetDict.objects.filter(workout_id=workout_id).count()
     set_dict.set_order = max_set_order + 1  # Moves set to last position
-
     set_dict.is_active_set = False  # 🔥 Ensure skipped sets aren’t active
     set_dict.set_start_time = None
     set_dict.save()
 
     # 🔥 Update which set is now active
-    update_active_set(workout_id)
+    skip_active_set(workout_id, set_dict)
 
     return Response(
         {
