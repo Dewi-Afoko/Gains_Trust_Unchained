@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useWorkoutContext } from "../../context/WorkoutContext";
 import WorkoutTimerDisplay from "./WorkoutTimerDisplay";
 import { motion, AnimatePresence } from "framer-motion";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const WorkoutOverview = () => {
     const { workout, completeSets, workoutSets, timeElapsed } = useWorkoutContext();
@@ -13,16 +12,34 @@ const WorkoutOverview = () => {
     const progress = totalSets > 0 ? (completedCount / totalSets) * 100 : 0;
     const isWorkoutComplete = Boolean(workout?.duration);
 
-    // Compute raw count of exercises
-    const exerciseCount = completeSets.reduce((acc, set) => {
-        acc[set.exercise_name] = (acc[set.exercise_name] || 0) + 1;
+    const exerciseStats = completeSets.reduce((acc, set) => {
+        if (!acc[set.exercise_name]) {
+            acc[set.exercise_name] = {
+                count: 0,
+                totalDuration: 0,
+                minDuration: Infinity,
+                maxDuration: 0,
+            };
+        }
+        acc[set.exercise_name].count += 1;
+        acc[set.exercise_name].totalDuration += set.set_duration || 0;
+        acc[set.exercise_name].minDuration = Math.min(acc[set.exercise_name].minDuration, set.set_duration || 0);
+        acc[set.exercise_name].maxDuration = Math.max(acc[set.exercise_name].maxDuration, set.set_duration || 0);
         return acc;
     }, {});
+    
 
-    const summaryData = Object.keys(exerciseCount).map((exercise) => ({
+    const summaryData = Object.keys(exerciseStats).map((exercise) => ({
         name: exercise,
-        value: exerciseCount[exercise]
+        value: exerciseStats[exercise]
     }));
+
+    const totalSetDuration = Object.values(exerciseStats).reduce((sum, stats) => sum + stats.totalDuration, 0);
+    const activeWorkoutPercentage = workout?.duration ? ((totalSetDuration / workout.duration) * 100).toFixed(1) : 0;
+    const efficiencyColor = activeWorkoutPercentage >= 80 ? "text-green-400" 
+        : activeWorkoutPercentage >= 50 ? "text-yellow-400" 
+            : "text-red-400";
+
 
     return (
         <div className="relative flex flex-col bg-[#400000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg">
@@ -70,22 +87,31 @@ const WorkoutOverview = () => {
                             🎉 Workout Complete!
                         </h2>
                         <motion.div
-                            className="text-yellow-300 text-xl font-bold mt-2"
+                            className={`text-xl font-bold mt-2 ${efficiencyColor}`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.3 }}
                         >
-                            Total Time: {new Date(workout.duration * 1000).toISOString().substr(11, 8)}
+                            <span className="block text-center">💪🏾 Workout Duration: {new Date(workout.duration * 1000).toISOString().substr(11, 8)}</span>
+                            ⛓️‍💥 Time Active: {new Date(totalSetDuration * 1000).toISOString().substr(11, 8)}
+                            <br />
+                            <span className="block text-center">📈 Set Duration: {activeWorkoutPercentage}%</span>
                         </motion.div>
 
-                        <ResponsiveContainer width="100%" height={200} className="mt-4">
-                            <BarChart data={summaryData}>
-                                <XAxis dataKey="name" stroke="#FFD700" />
-                                <YAxis stroke="#FFD700" />
-                                <Tooltip formatter={(value, name) => [`${value} set(s)`]} wrapperStyle={{ color: "black" }} />
-                                <Bar dataKey="value" fill="#FFD700" barSize={40} />
-                            </BarChart>
-                        </ResponsiveContainer>
+
+                        <motion.div
+                            className="mt-4 overflow-hidden whitespace-nowrap w-full flex"
+                            initial={{ x: "100%" }}
+                            animate={{ x: "-100%" }}
+                            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                        >
+                            {Object.entries(exerciseStats).map(([exercise, stats]) => (
+                                <span key={exercise} className="text-yellow-300 text-xl font-bold mx-6">
+                                    🔄 Set Times For - {exercise}: Avg {Math.round(stats.totalDuration / stats.count)}s | ⏩ Fastest: {stats.minDuration}s | 🛑 Slowest: {stats.maxDuration}s
+                                </span>
+                            ))}
+                        </motion.div>
+
                     </motion.div>
                 )}
             </AnimatePresence>
