@@ -10,6 +10,28 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
     const { timeElapsed, workoutId } = useWorkoutContext(); // ✅ Get timeElapsed from context
     const startTimeRef = useRef(null);
     const intervalRef = useRef(null);
+    const [setTimer, setSetTimer] = useState(0);
+    const intervalRefSet = useRef(null); // To track the set timer interval
+
+    const resetSetTimer = (restart = false) => {
+        console.log("🔄 Resetting set duration timer...");
+        setSetTimer(0); // ✅ Reset the timer
+    
+        if (intervalRefSet.current) {
+            clearInterval(intervalRefSet.current);
+            intervalRefSet.current = null;
+        }
+    
+        if (restart) {
+            console.log("⏳ Restarting set duration timer after skipping...");
+            intervalRefSet.current = setInterval(() => {
+                setSetTimer((prev) => prev + 1);
+            }, 1000);
+        }
+    };
+    
+    
+
 
     useEffect(() => {
         console.log("🔄 TimerLive: isRunningProp updated to:", isRunningProp);
@@ -46,6 +68,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
                         setActiveRest(false);
                         localStorage.removeItem(`restStartTime_${workoutId}`);
                         localStorage.removeItem(`restDuration_${workoutId}`);
+
                     }
                 }, 1000);
             } else {
@@ -59,10 +82,29 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
             setTimeLeft(0);
         }
     
-        localStorage.setItem("lastWorkoutId", workoutId); // ✅ Store last visited workout
-    }, [workoutId]); // ✅ Runs when switching workouts
+        localStorage.setItem("lastWorkoutId", workoutId);
+    }, [workoutId, nextSet?.is_active_set]);
     
+    useEffect(() => {
+        if (nextSet?.is_active_set && timeLeft === 0) {
+            console.log("✅ Starting set duration timer...");
+            setSetTimer(0); // Reset timer
     
+            if (intervalRefSet.current) clearInterval(intervalRefSet.current);
+            intervalRefSet.current = setInterval(() => {
+                setSetTimer((prev) => prev + 1);
+            }, 1000);
+        }
+    
+        return () => {
+            if (intervalRefSet.current) {
+                clearInterval(intervalRefSet.current);
+                intervalRefSet.current = null;
+            }
+        };
+    }, [nextSet?.is_active_set, timeLeft]);
+    
+
     
     
 
@@ -101,7 +143,14 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
             }
         }
     }, []); // ✅ Runs once on mount
-    
+
+    useEffect(() => {
+        if (nextSet?.complete && intervalRefSet.current) {
+            console.log(`✅ Set ${nextSet.id} completed. Stopping set duration timer at ${setTimer}s.`);
+            clearInterval(intervalRefSet.current);
+            intervalRefSet.current = null; // Ensure cleanup
+        }
+    }, [nextSet?.complete]);
     
     
     
@@ -196,6 +245,14 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
             )}
 
             {!activeRest && nextSet && (
+                <p className="text-md font-semibold mt-2 text-yellow-400">
+                    🕒 Set Duration: {new Date(setTimer * 1000).toISOString().substr(11, 8)}
+                </p>
+
+            )}
+
+
+            {!activeRest && nextSet && (
                 <div className="mt-6 flex justify-center">
                     <SetActionsLive
                         key={isRunning}
@@ -204,6 +261,7 @@ const TimerLive = ({ nextSet, restTime, startRestTimer, isRunning: isRunningProp
                         restTime={nextSet.rest}
                         startRestTimer={handleStartRest}
                         isRunning={timeElapsed > 0}
+                        resetSetTimer={resetSetTimer}
                     />
                 </div>
             )}
