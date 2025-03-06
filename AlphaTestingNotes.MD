@@ -10,3 +10,6 @@
 - Refactor Toasts for workout complete
     - Redesign how mark complete buttons work/appear based on whether they can be used
     - More feedback that you must start a workout
+
+
+- Can timer countdown provide sound/visuals while tabbed?
