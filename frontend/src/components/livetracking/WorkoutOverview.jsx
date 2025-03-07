@@ -11,6 +11,8 @@ const WorkoutOverview = () => {
     const completedCount = completeSets?.length || 0;
     const progress = totalSets > 0 ? (completedCount / totalSets) * 100 : 0;
     const isWorkoutComplete = Boolean(workout?.duration);
+    const lastCompletedSet = [...completeSets].sort((a, b) => b.set_order - a.set_order)[0] || null;
+
 
     const exerciseStats = completeSets.reduce((acc, set) => {
         if (!acc[set.exercise_name]) {
@@ -63,6 +65,22 @@ const WorkoutOverview = () => {
                         <h2 className="text-yellow-400 text-3xl font-extrabold text-stroke text-center">
                             🏋🏾‍♂️ {workout?.workout_name || "Live Workout"}
                         </h2>
+
+                        {lastCompletedSet && lastCompletedSet.set_duration !== null && (
+                            <motion.div
+                                className="text-2xl text-center text-green-400 font-bold mt-2"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.3 }}
+                            >
+                                Last Set Took {new Date(lastCompletedSet.set_duration * 1000).toISOString().substr(14, 5)} 
+                                - {lastCompletedSet.exercise_name} | Set {lastCompletedSet.set_number} 
+                                {lastCompletedSet.loading ? ` | ${lastCompletedSet.loading}kg` : ""} 
+                                {lastCompletedSet.reps ? ` | ${lastCompletedSet.reps} reps` : ""}
+                            </motion.div>
+                        )}
+
+
                         <WorkoutTimerDisplay timeElapsed={timeElapsed} workout={workout} />
                         <div className="relative w-full bg-gray-700 rounded-full h-6 mt-4">
                             <div
