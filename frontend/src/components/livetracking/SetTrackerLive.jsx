@@ -77,6 +77,12 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
                                         ⏳ Rest: {set.rest}s
                                     </p>
                                 )}
+                                {set.set_duration !== null && (
+                                    <p className="text-sm text-gray-300">
+                                        ⏱️ Set Duration: {new Date(set.set_duration * 1000).toISOString().substr(14, 5)}
+                                    </p>
+                                )}
+
                                 <button
                                     onClick={() => setEditingSetId(set.id)}
                                     className="mt-2 bg-yellow-500 text-black font-bold px-3 py-1 rounded hover:bg-yellow-400 transition w-full"
