@@ -9,6 +9,8 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
     const { sets: contextSets, toggleSetComplete } = useWorkoutContext()
     const [tableData, setTableData] = useState(propSets || contextSets)
     const [editingSetId, setEditingSetId] = useState(null) // ✅ Track which set is being edited
+    const [hoveredRowId, setHoveredRowId] = useState(null);
+
 
     // ✅ Ensure table data updates dynamically when `sets` change
     useEffect(() => {
@@ -63,6 +65,7 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                         set={row.original}
                         hideCompleteButton={hideCompleteButton}
                         onEdit={() => openEditModal(row.original.id)} // ✅ Ensure `setId` is passed
+                        hoveredRowId={hoveredRowId}
                     />
                 </div>
             ),
@@ -95,22 +98,23 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                 </thead>
                 <tbody>
                     {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id} className="text-white">
+                        <tr
+                            key={row.id}
+                            className="text-white"
+                            onMouseEnter={() => setHoveredRowId(row.original.id)}
+                            onMouseLeave={() => setHoveredRowId(null)}
+                        >
                             {row.getVisibleCells().map((cell) => (
-                                <td
-                                    key={cell.id}
-                                    className="border border-yellow-400 p-2"
-                                >
+                                <td key={cell.id} className="border border-yellow-400 p-2">
                                     {cell.column.columnDef.cell
-                                        ? cell.column.columnDef.cell(
-                                            cell.getContext()
-                                        )
+                                        ? cell.column.columnDef.cell(cell.getContext())
                                         : cell.getValue()}
                                 </td>
                             ))}
                         </tr>
                     ))}
                 </tbody>
+
             </table>
         </div>
     )
