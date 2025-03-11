@@ -7,6 +7,7 @@ import WorkoutCreationForm from '../components/forms/WorkoutCreationForm'
 import WorkoutDetailsPreview from '../components/WorkoutDetailsPreview'
 import { WorkoutProvider } from '../context/WorkoutContext' // ✅ Import WorkoutProvider
 import axios from 'axios'
+import RadialMenuPopover from '../components/ui/RadialMenuPopover'
 
 const Dashboard = () => {
     const { accessToken } = useContext(AuthContext)
@@ -56,6 +57,7 @@ const Dashboard = () => {
                     Create Workout
                 </button>
             )}
+            <RadialMenuPopover />
 
             {/* ✅ Show "Creating Workout" Status */}
             {isCreating && (
