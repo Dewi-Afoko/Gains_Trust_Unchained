@@ -1,9 +1,15 @@
 import { formatLoading } from "../lib/utils"
+import { useState } from "react";
+import { Root as PopoverRoot, Trigger as PopoverTrigger, Content as PopoverContent } from "@radix-ui/react-popover";
+import RadialMenuPopover from "./ui/RadialMenuPopover";
 
 const SetsTablePreview = ({ sets }) => {
+    const [selectedSetId, setSelectedSetId] = useState(null);
+
     if (!sets || sets.length === 0) {
         return <p className="text-white mt-4">No sets available.</p>
     }
+
 
     return (
         <div className="overflow-x-auto mt-4">
@@ -34,8 +40,19 @@ const SetsTablePreview = ({ sets }) => {
                     {sets.map((set, index) => (
                         <tr key={index} className="text-white">
                             <td className="border border-yellow-400 p-2">
-                                {set.exercise_name}
+                                <PopoverRoot open={selectedSetId === set.id} onOpenChange={(open) => setSelectedSetId(open ? set.id : null)}>
+                                    <PopoverTrigger asChild>
+                                        <div className="cursor-pointer hover:bg-gray-700 transition w-full h-full">
+                                            {set.exercise_name}
+                                        </div>
+                                    </PopoverTrigger>
+                                    <PopoverContent sideOffset={10} align="start" className="z-50">
+                                        <RadialMenuPopover setId={set.id} closeMenu={() => setSelectedSetId(null)} />
+                                    </PopoverContent>
+                                </PopoverRoot>
                             </td>
+
+
                             <td className="border border-yellow-400 p-2 text-center">
                                 {set.set_number}
                             </td>
