@@ -1,7 +1,6 @@
 import React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { motion } from "framer-motion";
-import { Button } from "./Button";
 
 const menuItems = [
     { label: "Edit", action: () => console.log("Edit Set"), color: "#FFD700" }, // Gold/Yellow 🇪🇹
@@ -29,29 +28,32 @@ const RadialMenuPopover = () => {
     const r = 50;  // Radius
 
     return (
-        <Popover.Root>
-            <Popover.Trigger asChild>
-                <button className="focus:outline-none">
-                    <Button>⚙</Button>
-                </button>
-            </Popover.Trigger>
-            <Popover.Portal>
-                <Popover.Content sideOffset={10} className="relative w-48 h-48">
-                    <svg viewBox="-10 -10 120 120" className="w-full h-full">
-                        {menuItems.map((item, index) => (
-                            <motion.path
-                                key={index}
-                                d={createPieSlicePath(index, cx, cy, r)}
-                                fill={item.color}
-                                className="cursor-pointer"
-                                whileHover={{ scale: 1.05, opacity: 0.9 }}
-                                onClick={item.action}
-                            />
-                        ))}
-                    </svg>
-                </Popover.Content>
-            </Popover.Portal>
-        </Popover.Root>
+        <Popover.Content
+            sideOffset={10}
+            className="relative bg-transparent overflow-visible"
+            style={{
+                width: 'auto', // Let the SVG control its width
+                height: 'auto', // Let the SVG control its height
+                border: 'none',
+                boxShadow: 'none',
+                outline: 'none'
+            }}
+        >
+
+            <svg viewBox="-10 -10 120 120" className="w-full h-full">
+                {menuItems.map((item, index) => (
+                    <motion.path
+                        key={index}
+                        d={createPieSlicePath(index, cx, cy, r)}
+                        fill={item.color}
+                        className="cursor-pointer"
+                        whileHover={{ scale: 1.05, opacity: 0.9 }}
+                        onClick={item.action}
+                    />
+                ))}
+            </svg>
+        </Popover.Content>
+
     );
 };
 
