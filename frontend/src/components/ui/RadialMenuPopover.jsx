@@ -3,6 +3,7 @@ import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { motion } from "framer-motion";
 import SetEditForm from "../forms/SetEditForm"
+import { useWorkoutContext } from "../../context/WorkoutContext";
 
 
 // Function to generate SVG path for a 120-degree pie slice
@@ -19,13 +20,21 @@ const createPieSlicePath = (index, cx, cy, r) => {
 };
 
 const RadialMenuPopover = ({ setId, closeMenu }) => {
+    const { duplicateSet, deleteSet } = useWorkoutContext();
     const [isEditing, setIsEditing] = useState(false);
 
     const menuItems = [
         { label: "Edit", action: () => setIsEditing(true), color: "#FFD700" },
-        { label: "Delete", action: () => console.log("Delete Set"), color: "#D90000" },
-        { label: "Duplicate", action: () => console.log("Duplicate Set"), color: "#008000" },
+        { label: "Delete", action: async () => {
+            await deleteSet(setId);
+            closeMenu(); // Close menu after deletion
+        }, color: "#D90000" },
+        { label: "Duplicate", action: async () => {
+            await duplicateSet(setId);
+            closeMenu(); // Close menu after duplication
+        }, color: "#008000" },
     ];
+    
     
     
 
@@ -35,7 +44,18 @@ const RadialMenuPopover = ({ setId, closeMenu }) => {
 
 
     return (
-        <Popover.Content sideOffset={10} className="relative w-48 h-48 bg-transparent overflow-visible">
+        <Popover.Content
+            sideOffset={10}
+            align="center"
+            className="relative bg-transparent overflow-visible"
+            style={{
+                width: "auto", // Prevents forced box size
+                height: "auto", // Ensures natural SVG fit
+                border: "none", // Removes any border
+                boxShadow: "none", // Removes unwanted shadows
+                outline: "none", // Prevents focus outline issues
+            }}
+        >
             {isEditing ? (
                 <SetEditForm setId={setId} onClose={() => setIsEditing(false)} />
             ) : (
