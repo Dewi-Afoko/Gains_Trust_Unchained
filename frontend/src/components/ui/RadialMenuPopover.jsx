@@ -19,19 +19,43 @@ const createPieSlicePath = (index, cx, cy, r) => {
     return `M ${cx},${cy} L ${x1},${y1} A ${r},${r} 0 0,1 ${x2},${y2} Z`;
 };
 
-const RadialMenuPopover = ({ setId, closeMenu }) => {
-    const { duplicateSet, deleteSet } = useWorkoutContext();
+const RadialMenuPopover = ({ setId, workoutId, closeMenu }) => {
+    const { duplicateSet, deleteSet, sets } = useWorkoutContext();
     const [isEditing, setIsEditing] = useState(false);
 
     const menuItems = [
         { label: "Edit", action: () => setIsEditing(true), color: "#FFD700" },
         { label: "Delete", action: async () => {
-            await deleteSet(setId);
-            closeMenu(); // Close menu after deletion
+            if (!setId || !workoutId) {
+                console.error("❌ Missing setId or workoutId:", { setId, workoutId });
+                return;
+            }
+            await deleteSet(workoutId, setId);
+            closeMenu();
         }, color: "#D90000" },
+    
         { label: "Duplicate", action: async () => {
-            await duplicateSet(setId);
-            closeMenu(); // Close menu after duplication
+            if (!setId || !workoutId) {
+                console.error("❌ Missing setId or workoutId:", { setId, workoutId });
+                return;
+            }
+    
+            try {
+                // ✅ Find the correct setData using the `sets` array
+                const setData = sets.find(set => set.id === setId);
+                if (!setData) {
+                    console.error("❌ Set data not found:", { setId });
+                    return;
+                }
+    
+                console.log("✅ Found set data for duplication:", setData);
+    
+                // ✅ Call duplicateSet with full set data
+                await duplicateSet(workoutId, setData);
+                closeMenu();
+            } catch (error) {
+                console.error("❌ Error duplicating set:", error);
+            }
         }, color: "#008000" },
     ];
     
