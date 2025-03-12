@@ -11,6 +11,7 @@ from django.utils.timezone import now
 import threading
 from django.db import transaction
 from rest_framework.viewsets import ModelViewSet
+import sys
 
 local_storage = threading.local()
 
@@ -65,10 +66,10 @@ def skip_active_set(workout_id, skipped_set):
 
 
 
-# ✅ Workout Views
+# ✅ Workout ViewSet
 class WorkoutViewSet(ModelViewSet):
     """
-    ViewSet for managing Workout objects.
+    ViewSet for managing Workouts.
     - `list`: Retrieves all workouts (paginated).
     - `retrieve`: Retrieves a single workout by ID.
     - `create`: Creates a new workout.
@@ -78,6 +79,7 @@ class WorkoutViewSet(ModelViewSet):
     queryset = Workout.objects.all().order_by("-date")  # Default ordering
     serializer_class = WorkoutSerializer
     permission_classes = [IsAuthenticated]  # Ensures only authenticated users can access
+    print("test")
 
     def perform_create(self, serializer):
         """Ensures the logged-in user is assigned to the created workout, logic moved from serializer."""
@@ -151,150 +153,59 @@ class WorkoutViewSet(ModelViewSet):
 
     
 
-# ✅ SetDict Views
-class SetDictView(APIView):
+# ✅ SetDict ViewSet
+class SetDictViewSet(ModelViewSet):
+    """ViewSet for managing sets"""
+    queryset = SetDict.objects.all().order_by("set_order")
+    serializer_class = SetDictSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, workout_id, set_dict_id=None):
-        """Return all SetDicts for a Workout or a single SetDict by ID"""
-        workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+    def get_queryset(self):
+        """Ensure users only see their own sets & allow filtering by workout"""
 
-        if set_dict_id:
-            set_dict = get_object_or_404(SetDict, id=set_dict_id, workout=workout)
-            serializer = SetDictSerializer(set_dict)
-            return Response(
-                {"message": f"Details for set {set_dict_id}", "set": serializer.data},
-                status=status.HTTP_200_OK,
-            )
+        queryset = SetDict.objects.filter(workout__user=self.request.user).order_by("set_order")
+        workout_id = self.request.query_params.get("workout")
 
-        # Filtering with query_params for complete status
-        completed_param = request.query_params.get("completed")
-        if completed_param is not None:
-            try:
-                completed = completed_param.lower() == "true"
-                set_dicts = SetDict.objects.filter(
-                    workout=workout, complete=completed
-                ).order_by("set_order")
-                serializer = SetDictSerializer(set_dicts, many=True)
-                return Response(
-                    {
-                        "message":
-                        f"Filtered sets ({'Completed' if completed else 'Incomplete'})",
-                        "sets": serializer.data,
-                    },
-                    status=status.HTTP_200_OK,
-                )
-            except ValueError:
-                return Response(
-                    {"error": "Invalid value for 'completed' parameter"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        if workout_id:
+            queryset = queryset.filter(workout_id=workout_id)
 
-        # Default: Return workout, all sets for workout and complete/incomplete list
-        set_dicts = SetDict.objects.filter(workout=workout).order_by("set_order")
-        completed_sets = SetDict.objects.filter(
-            workout=workout, complete=True
-        ).order_by("set_order")
-        incomplete_sets = SetDict.objects.filter(
-            workout=workout, complete=False
-        ).order_by("set_order")
-        workout_serialized = WorkoutSerializer(workout)
-        sets_serialized = SetDictSerializer(set_dicts, many=True)
-        complete_sets_serialized = SetDictSerializer(completed_sets, many=True)
-        incomplete_sets_serialized = SetDictSerializer(incomplete_sets, many=True)
+        return queryset
+
+
+    
+    @action(detail=True, methods=["PATCH"])
+    def complete_set(self, request, pk=None):
+        """Mark a SetDict as Complete or Undo Completion"""
+        set_dict = self.get_object()
+        workout = set_dict.workout
+
+        if set_dict.complete:  # ✅ Undo completion
+            set_dict.complete = False
+            set_dict.set_duration = None
+            set_dict.set_start_time = None
+        else:  # ✅ Marking set as complete
+            set_dict.complete = True
+            if set_dict.set_start_time and set_dict.set_start_time <= now():
+                set_dict.set_duration = int((now() - set_dict.set_start_time).total_seconds())
+
+        set_dict.save()
+
+        # 🔥 Update which set is now active
+        update_active_set(workout.id)
+
         return Response(
             {
-                "message": f"All data for '{workout.workout_name}'",
-                "workout": workout_serialized.data,
-                "sets": sets_serialized.data,
-                "incomplete_sets": incomplete_sets_serialized.data,
-                "complete_sets": complete_sets_serialized.data,
+                "message": f"Set {set_dict.id} completion status changed",
+                "set": SetDictSerializer(set_dict).data,
             },
             status=status.HTTP_200_OK,
         )
 
-    def post(self, request, workout_id):
-        """Create a new SetDict for a workout"""
-        workout = get_object_or_404(Workout, id=workout_id, user=request.user)
-        serializer = SetDictSerializer(
-            data=request.data, context={"request": request, "workout": workout}
-        )
 
-        if serializer.is_valid():
-            set_dict = serializer.save()
-            return Response(
-                {
-                    "message": f"Set '{set_dict.exercise_name}' created",
-                    "set": serializer.data,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, workout_id, set_dict_id):
-        """Update a SetDict"""
-        set_dict = get_object_or_404(
-            SetDict, id=set_dict_id, workout__id=workout_id, workout__user=request.user
-        )
-
-        # ✅ Standard Update Logic (Skip logic removed)
-        serializer = SetDictSerializer(
-            set_dict, data=request.data, context={"request": request}, partial=True
-        )
-        if serializer.is_valid():
-            updated_set_dict = serializer.save()
-            return Response(
-                {
-                    "message": f"Set {updated_set_dict.id} updated",
-                    "set": serializer.data,
-                },
-                status=status.HTTP_200_OK,
-            )
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, workout_id, set_dict_id):
-        """Delete a SetDict"""
-        set_dict = get_object_or_404(
-            SetDict, id=set_dict_id, workout__id=workout_id, workout__user=request.user
-        )
-        set_dict.delete()
-        return Response(
-            {"message": f"Set {set_dict_id} deleted"}, status=status.HTTP_200_OK
-        )
 
 
 # ✅ New Action-Based Views
 
-@api_view(["PATCH"])
-@permission_classes([IsAuthenticated])
-def complete_set(request, workout_id, set_dict_id):
-    """Mark a SetDict as Complete or Undo Completion"""
-    set_dict = get_object_or_404(
-        SetDict, id=set_dict_id, workout_id=workout_id, workout__user=request.user
-    )
-
-    if set_dict.complete:  # ✅ Undo completion
-        set_dict.complete = False
-        set_dict.set_duration = None  # 🔥 No need to reset start_time (it gets overwritten when reactivated)
-    else:  # ✅ Marking set as complete
-        set_dict.complete = True
-        if set_dict.set_start_time and set_dict.set_start_time <= now():
-            set_dict.set_duration = int((now() - set_dict.set_start_time).total_seconds())
-
-    set_dict.save()
-
-    # 🔥 Update which set is now active
-    update_active_set(workout_id)
-
-    return Response(
-        {
-            "message": f"Set {set_dict.id} completion status changed",
-            "set": SetDictSerializer(set_dict).data,
-        },
-        status=status.HTTP_200_OK,
-    )
 
 
 @api_view(["PATCH"])

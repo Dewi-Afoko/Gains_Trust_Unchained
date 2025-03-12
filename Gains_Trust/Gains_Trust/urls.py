@@ -26,7 +26,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("core.urls")),
     path("api/users/", include("users.urls")),
-    path("api/workouts/", include("workouts.urls")),
+    path("api/", include("workouts.urls")),
     # DRF JWTs
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

@@ -17,6 +17,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     const [completeSets, setCompleteSets] = useState([])
     const [incompleteSets, setIncompleteSets] = useState([])
     const [timeElapsed, setTimeElapsed] = useState(0); // ⏳ Track elapsed time
+    const [pagination, setPagination] = useState([]);
 
 
     // ✅ Centralized API request helper function
@@ -60,60 +61,59 @@ export const WorkoutProvider = ({ workoutId, children }) => {
 
     // 📌 WORKOUT FUNCTIONS
 
-    const fetchAllWorkouts = async () => {
-        setLoading(true)
+    const fetchAllWorkouts = async (page = 1) => {
+        setLoading(true);
         try {
             const data = await apiRequest(
                 'get',
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/`
-            )
-            setWorkouts(data.workouts || [])
-
-            // ✅ Fetch sets for all workouts and store them in `workoutSets`
-            const setsData = await Promise.all(
-                data.workouts.map(async (workout) => {
-                    const workoutData = await apiRequest(
-                        'get',
-                        `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/`
-                    )
-                    return { [workout.id]: workoutData.sets || [] }
-                })
-            )
-
-            // ✅ Merge all sets into `workoutSets`
-            setWorkoutSets(Object.assign({}, ...setsData))
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/?page=${page}`
+            );
+    
+            setWorkouts(data.results || []);  // ✅ Extracts workouts from `results`
+            
+            // Store pagination metadata for future use (if needed)
+            setPagination({ count: data.count, next: data.next, previous: data.previous });
+    
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
+    
 
     const fetchWorkoutDetails = async (workoutId) => {
-        setLoading(true)
+        setLoading(true);
         try {
-            const data = await apiRequest(
+            // ✅ Fetch workout data
+            const workoutData = await apiRequest(
+                'get',
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`
+            );
+            console.log("Fetched workout details:", workoutData);  
+            setWorkout(workoutData);
+    
+            // ✅ Fetch sets separately
+            const setsData = await apiRequest(
                 'get',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`
-            )
-
-            setWorkout(data.workout)
-            setSets(data.sets || [])
-
-            // ✅ Ensure workoutSets is also updated for the selected workout
+            );
+            console.log("Fetched sets:", setsData);
+    
+            const allSets = setsData.results || [];
+            setSets(allSets);
             setWorkoutSets((prev) => ({
                 ...prev,
-                [workoutId]: data.sets || [],
-            }))
-            console.log('🔄 Fetching workout details...')
-            console.log('✅ Received complete sets:', data.complete_sets)
-            console.log('✅ Received incomplete sets:', data.incomplete_sets)
-
-            // ✅ Add new functionality without removing anything else
-            setIncompleteSets(data.incomplete_sets || [])
-            setCompleteSets(data.complete_sets || [])
+                [workoutId]: allSets,
+            }));
+    
+        } catch (error) {
+            console.error("Error fetching workout details:", error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
+    
+    
+    
 
     const updateWorkout = async (workoutId, updatedFields) => {
         await apiRequest(
@@ -132,7 +132,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
 
             await apiRequest(
                 'patch',
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/start/`,
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/start_workout/`,
                 {}
             );
     
@@ -156,10 +156,10 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         try {
             await apiRequest(
                 'patch',
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/complete/`,
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/complete_workout/`,
                 {}
             );
-    
+
             await fetchWorkoutDetails(workoutId); // ✅ Force re-fetch of workout details
             await fetchAllWorkouts(); // ✅ Force UI re-render by fetching fresh data
 

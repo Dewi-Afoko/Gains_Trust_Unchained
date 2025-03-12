@@ -87,7 +87,7 @@ const Navbar = () => {
                             {/* 🏋🏾‍♂️ Scrollable Dropdown Menu */}
                             {trackerDropdownOpen && (
                                 <div className="absolute left-0 mt-2 bg-[#600000] text-white border border-yellow-400 rounded shadow-lg w-56 max-h-[250px] overflow-y-auto">
-                                    {workouts.length > 0 ? (
+                                    {workouts?.length > 0 ? (
                                         workouts.map((workout) => (
                                             <Link
                                                 key={workout.id}
