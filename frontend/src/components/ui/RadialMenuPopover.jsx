@@ -78,6 +78,8 @@ const RadialMenuPopover = ({ setId, workoutId, closeMenu }) => {
                 border: "none", // Removes any border
                 boxShadow: "none", // Removes unwanted shadows
                 outline: "none", // Prevents focus outline issues
+                minWidth: "300px",
+                maxWidth: "400px", // Adjust as needed
             }}
         >
             {isEditing ? (
