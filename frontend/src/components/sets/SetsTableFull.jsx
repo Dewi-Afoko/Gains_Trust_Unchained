@@ -5,29 +5,55 @@ import SetActions from './SetActions'
 import { formatLoading } from '../../lib/utils'
 
 const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
-    // ✅ Allow `sets` to be passed as a prop
-    const { sets: contextSets, toggleSetComplete } = useWorkoutContext()
-    const [tableData, setTableData] = useState(propSets || contextSets)
-    const [editingSetId, setEditingSetId] = useState(null) // ✅ Track which set is being edited
+    // ✅ Use context functions and state
+    const { sets: contextSets, toggleSetComplete, moveSet } = useWorkoutContext();
+    const [tableData, setTableData] = useState(propSets || contextSets);
+    const [editingSetId, setEditingSetId] = useState(null);
     const [hoveredRowId, setHoveredRowId] = useState(null);
-
 
     // ✅ Ensure table data updates dynamically when `sets` change
     useEffect(() => {
-        setTableData([...(propSets || contextSets)]) // ✅ Forces re-render
-    }, [propSets, contextSets])
+        
+        setTableData([...(propSets || contextSets)]); // ✅ Forces re-render
+        console.log("📊 Context sets updated:", contextSets.map(s => ({ id: s.id, order: s.set_order })));
+    }, [propSets, contextSets]
+    );
 
-    console.log('📊 SetsTableFull received propSets:', propSets?.length)
-    console.log('📊 SetsTableFull received contextSets:', contextSets.length)
-    console.log('📊 Table currently displaying:', tableData.length)
 
     const openEditModal = (setId) => {
-        setEditingSetId(setId) // ✅ Ensure `setId` is set before opening modal
-    }
+        setEditingSetId(setId); // ✅ Ensure `setId` is set before opening modal
+    };
 
     const columns = [
         { accessorKey: 'exercise_name', header: 'Exercise' },
-        { accessorKey: 'set_order', header: 'Set Sequence' },
+        {
+            accessorKey: 'set_order',
+            header: 'Set Sequence',
+            cell: ({ row }) => {
+                const set = row.original;
+                return (
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => moveSet(set.id, set.set_order - 1)}
+                            disabled={set.set_order === 1}
+                            className="bg-gray-700 px-2 py-1 rounded hover:bg-gray-500 disabled:opacity-50"
+                        >
+                            ⬆
+                        </button>
+
+                        <span>{set.set_order}</span>
+
+                        <button
+                            onClick={() => moveSet(set.id, set.set_order + 1)}
+                            disabled={set.set_order === contextSets.length}
+                            className="bg-gray-700 px-2 py-1 rounded hover:bg-gray-500 disabled:opacity-50"
+                        >
+                            ⬇
+                        </button>
+                    </div>
+                );
+            },
+        },
         { accessorKey: 'set_number', header: 'Set Count' },
         { accessorKey: 'set_type', header: 'Set Type' },
         { accessorKey: 'loading', header: 'Loading', cell: ({ row }) => formatLoading(row.original.loading) },
@@ -64,33 +90,27 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                     <SetActions
                         set={row.original}
                         hideCompleteButton={hideCompleteButton}
-                        onEdit={() => openEditModal(row.original.id)} // ✅ Ensure `setId` is passed
+                        onEdit={() => openEditModal(row.original.id)}
                         hoveredRowId={hoveredRowId}
                     />
                 </div>
             ),
         },
-    ]
+    ];
 
     const table = useReactTable({
         data: tableData,
         columns,
         getCoreRowModel: getCoreRowModel(),
-    })
+    });
 
     return (
         <div className="overflow-x-auto mt-4">
-            <table
-                key={tableData.length}
-                className="w-full border-collapse border border-yellow-400"
-            >
+            <table key={tableData.length} className="w-full border-collapse border border-yellow-400">
                 <thead>
                     <tr className="bg-[#500000] text-yellow-400">
                         {columns.map((col) => (
-                            <th
-                                key={col.accessorKey}
-                                className="border border-yellow-400 p-2"
-                            >
+                            <th key={col.accessorKey} className="border border-yellow-400 p-2">
                                 {col.header}
                             </th>
                         ))}
@@ -114,10 +134,9 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                         </tr>
                     ))}
                 </tbody>
-
             </table>
         </div>
-    )
-}
+    );
+};
 
-export default SetsTableFull
+export default SetsTableFull;
