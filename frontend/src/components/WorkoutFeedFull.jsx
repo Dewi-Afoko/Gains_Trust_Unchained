@@ -49,7 +49,7 @@ const WorkoutFeedFull = () => {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-            {workouts.length > 0 ? (
+            {workouts?.length > 0 ? (
                 workouts.map((workout) => {
                     const sets = workoutSets[workout.id] || []
                     const totalSets = sets.length

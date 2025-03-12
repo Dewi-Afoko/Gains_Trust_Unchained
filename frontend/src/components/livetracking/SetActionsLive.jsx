@@ -5,7 +5,7 @@ const SetActionsLive = ({ setId, isNextSet, restTime, startRestTimer, resetSetTi
     const { workoutId, workout, timeElapsed, toggleSetComplete, skipSet, startWorkout, toggleComplete, incompleteSets } = useWorkoutContext();
     const [loading, setLoading] = useState(false);
     const isRunning = timeElapsed > 0; // ✅ Workout is running if timeElapsed is greater than zero
-    const isFinalSet = incompleteSets.length === 1; // ✅ If only 1 set remains, it's the final set
+    const isFinalSet = (incompleteSets?.length || 0) === 1; // ✅ If only 1 set remains, it's the final set
 
 
     const handleStartWorkout = async () => {
