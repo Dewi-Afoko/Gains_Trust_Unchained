@@ -16,14 +16,8 @@ class WorkoutSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        request = self.context.get("request")
-        if not request or not request.user:
-            raise serializers.ValidationError(
-                {"user": "An authenticated user is required to create a workout."}
-            )
-
-        return Workout.objects.create(user=request.user, **validated_data)
-
+        return Workout.objects.create(**validated_data)
+    
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
