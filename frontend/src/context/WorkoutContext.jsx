@@ -237,7 +237,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
 
         try {
             await apiRequest(
-                'post',
+                'patch',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/${setId}/complete/`
             )
 
@@ -341,7 +341,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
 
         try {
             await apiRequest(
-                'post',
+                'patch',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${id}/sets/${setId}/skip/`
             )
 
@@ -365,7 +365,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     
         try {
             const response = await apiRequest(
-                'post',
+                'patch',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/${setId}/move/`,
                 { new_position: newPosition }
             );
