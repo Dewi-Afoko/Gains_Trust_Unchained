@@ -202,68 +202,63 @@ class SetDictViewSet(ModelViewSet):
         )
 
 
+    @action(detail=True, methods=["PATCH"])
+    def skip_set(self, request, pk=None):
+        """Moves a set to the last position in `set_order`."""
+        set_dict = self.get_object()
+        workout = set_dict.workout
 
+        max_set_order = SetDict.objects.filter(workout_id=workout.id).count()
 
-# ✅ New Action-Based Views
+        set_dict.set_order = max_set_order + 1  # Moves set to last position
+        set_dict.is_active_set = False  # 🔥 Ensure skipped sets aren’t active
+        set_dict.set_start_time = None
+        set_dict.save()
 
-
-
-@api_view(["PATCH"])
-@permission_classes([IsAuthenticated])
-def skip_set(request, workout_id, set_dict_id):
-    """Moves a set to the last position in `set_order`."""
-    set_dict = get_object_or_404(
-        SetDict, id=set_dict_id, workout__id=workout_id, workout__user=request.user
-    )
-    max_set_order = SetDict.objects.filter(workout_id=workout_id).count()
-    set_dict.set_order = max_set_order + 1  # Moves set to last position
-    set_dict.is_active_set = False  # 🔥 Ensure skipped sets aren’t active
-    set_dict.set_start_time = None
-    set_dict.save()
-
-    # 🔥 Update which set is now active
-    skip_active_set(workout_id, set_dict)
-
-    return Response(
-        {
-            "message": f"Set {set_dict.id} skipped",
-            "set": SetDictSerializer(set_dict).data,  # ✅ Return updated set order
-        },
-        status=status.HTTP_200_OK,
-    )
-
-
-@api_view(["PATCH"])
-@permission_classes([IsAuthenticated])
-def move_set(request, workout_id, set_dict_id):
-    """Moves a set to a new position while keeping all other sets ordered correctly."""
-
-    new_position = request.data.get("new_position")
-
-    try:
-        with transaction.atomic():  # ✅ Ensure atomicity
-            set_to_move = SetDict.objects.get(id=set_dict_id, workout_id=workout_id)
-
-            # 🚀 Temporarily disable the signal
-            local_storage.disable_reorder_signal = True  
-
-            # ✅ Shift all other sets down/up
-            affected_sets = SetDict.objects.filter(workout=workout_id).exclude(id=set_dict_id).order_by("set_order")
-            for index, set_instance in enumerate(affected_sets, start=1):
-                set_instance.set_order = index if index < new_position else index + 1
-
-            SetDict.objects.bulk_update(affected_sets, ["set_order"])
-
-            # ✅ Assign new position to the moved set
-            set_to_move.set_order = new_position
-            set_to_move.save()
-
-            # ✅ Re-enable the signal
-            local_storage.disable_reorder_signal = False  
+        # 🔥 Update which set is now active
+        skip_active_set(workout.id, set_dict)
 
         return Response(
-            {"message": f"Set {set_dict_id} moved to position {new_position}", "set": SetDictSerializer(set_to_move).data}
+            {
+                "message": f"Set {set_dict.id} skipped",
+                "set": SetDictSerializer(set_dict).data,  # ✅ Return updated set order
+            },
+            status=status.HTTP_200_OK,
         )
 
-    except SetDict.DoesNotExist:
-        return Response({"error": "Set not found"}, status=404)
+    @action(detail=True, methods=["PATCH"])
+    def move_set(self, request, pk=None):
+        """Moves a set to a new position while keeping all other sets ordered correctly."""
+
+        set_dict = self.get_object()
+        workout = set_dict.workout
+
+        new_position = request.data.get("new_position")
+
+        try:
+            with transaction.atomic():  # ✅ Ensure atomicity
+                set_to_move = SetDict.objects.get(id=set_dict.id, workout_id=workout.id)
+            
+                # 🚀 Temporarily disable the signal
+                local_storage.disable_reorder_signal = True  
+                
+                # ✅ Shift all other sets down/up
+                affected_sets = SetDict.objects.filter(workout=workout.id).exclude(id=set_dict.id).order_by("set_order")
+                for index, set_instance in enumerate(affected_sets, start=1):
+                    set_instance.set_order = index if index < new_position else index + 1
+
+                SetDict.objects.bulk_update(affected_sets, ["set_order"])
+
+                # ✅ Assign new position to the moved set
+                set_to_move.set_order = new_position
+                set_to_move.save()
+
+                # ✅ Re-enable the signal
+                local_storage.disable_reorder_signal = False  
+
+            return Response(
+                {"message": f"Set {set_dict.id} moved to position {new_position}", "set": SetDictSerializer(set_to_move).data}
+            )
+
+        except SetDict.DoesNotExist:
+            return Response({"error": "Set not found"}, status=404)
