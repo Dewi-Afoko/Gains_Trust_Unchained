@@ -26,8 +26,8 @@ def update_active_set(workout_id):
         workout_id=workout_id, complete=False
     ).order_by("set_order").first()
 
-    # ✅ Reset all sets to inactive
-    SetDict.objects.filter(workout_id=workout_id).update(is_active_set=False)
+    # ✅ Ensure all set dicts are inactive
+    SetDict.objects.filter(workout_id=workout_id, is_active_set=True).update(is_active_set=False)
 
     if next_set:
         # ✅ Get the last completed set, if available
@@ -300,7 +300,7 @@ class SetDictView(APIView):
 
 # ✅ New Action-Based Views
 
-@api_view(["POST"])
+@api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def complete_set(request, workout_id, set_dict_id):
     """Mark a SetDict as Complete or Undo Completion"""
@@ -330,7 +330,7 @@ def complete_set(request, workout_id, set_dict_id):
     )
 
 
-@api_view(["POST"])
+@api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def skip_set(request, workout_id, set_dict_id):
     """Moves a set to the last position in `set_order`."""
@@ -355,7 +355,7 @@ def skip_set(request, workout_id, set_dict_id):
     )
 
 
-@api_view(["POST"])
+@api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def move_set(request, workout_id, set_dict_id):
     """Moves a set to a new position while keeping all other sets ordered correctly."""

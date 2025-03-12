@@ -7,7 +7,7 @@ def get_today():
 # Create your models here.
 class Workout(models.Model):
     user = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="workoutss"
+        "users.User", on_delete=models.CASCADE, related_name="workouts"
     )
     workout_name = models.CharField(max_length=255)
     date = models.DateField(default=get_today)
