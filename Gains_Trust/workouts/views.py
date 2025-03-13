@@ -6,6 +6,62 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Workout, SetDict
 from .serializers import SetDictSerializer, WorkoutSerializer
+from datetime import timedelta
+from django.utils.timezone import now
+import threading
+from django.db import transaction
+
+local_storage = threading.local()
+
+# 💻 Helper Functions
+def update_active_set(workout_id):
+    """Ensures only one active set per workout, adjusting start times correctly."""
+    workout = get_object_or_404(Workout, id=workout_id)
+
+    if not workout.start_time:
+        return  
+
+    # ✅ Find the next incomplete set
+    next_set = SetDict.objects.filter(
+        workout_id=workout_id, complete=False
+    ).order_by("set_order").first()
+
+    # ✅ Reset all sets to inactive
+    SetDict.objects.filter(workout_id=workout_id).update(is_active_set=False)
+
+    if next_set:
+        # ✅ Get the last completed set, if available
+        last_completed_set = SetDict.objects.filter(
+            workout_id=workout_id, complete=True
+        ).order_by("-set_order").first()
+
+        # ✅ Apply rest time only if the last completed set was immediately before this one
+        if last_completed_set and last_completed_set.set_order == (next_set.set_order - 1):
+            next_set.set_start_time = now() + timedelta(seconds=last_completed_set.rest) if last_completed_set.rest else now()
+        else:
+            next_set.set_start_time = now()
+
+        next_set.is_active_set = True
+        next_set.save()
+
+
+def skip_active_set(workout_id, skipped_set):
+    """Handles skipping a set and ensures the correct next set is activated."""
+    
+    # ✅ Find the next available set to activate
+    next_set = SetDict.objects.filter(
+        workout_id=workout_id, complete=False
+    ).exclude(id=skipped_set.id).order_by("set_order").first()
+
+    # ✅ Reset all sets to inactive
+    SetDict.objects.filter(workout_id=workout_id).update(is_active_set=False)
+
+    if next_set:
+        # ❌ Since a set was skipped, start immediately (no rest delay)
+        next_set.set_start_time = now()
+        next_set.is_active_set = True
+        next_set.save()
+
 
 
 # ✅ Workout Views
@@ -75,13 +131,14 @@ def duplicate_workout(request, workout_id):
     new_workout = Workout.objects.create(
         user=original_workout.user,
         workout_name=f"{original_workout.workout_name} (Copy)",
+        date=now().date(),
         notes=original_workout.notes,
     )
 
-    og_workout_sets = SetDict.objects.filter(workout=original_workout)
+    og_workout_sets = SetDict.objects.filter(workout=original_workout).order_by("set_order")
 
     for set_dict in og_workout_sets:
-        SetDict.objects.create(
+        new_dict = SetDict.objects.create(
             workout=new_workout,  # ✅ Assign to the new workout
             exercise_name=set_dict.exercise_name,
             set_number=set_dict.set_number,
@@ -93,12 +150,39 @@ def duplicate_workout(request, workout_id):
             focus=set_dict.focus,
             notes=set_dict.notes,
         )
+        new_dict.save()
 
 
     return Response({"message": "Workout duplicated", "workout": WorkoutSerializer(new_workout).data}, status=201)
 
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def start_timer(request, workout_id):
 
+    workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+    if workout.start_time == None:
+        workout.start_time = now()
+        workout.save()
 
+        update_active_set(workout_id)
+
+        return Response({"message" : "Workout timer started", "start_time" : workout.start_time, "workout" : WorkoutSerializer(workout).data}, status=status.HTTP_200_OK)
+    
+    return Response({"message" : "Workout timer restarted", "start_time" : workout.start_time, "workout" : WorkoutSerializer(workout).data}, status=status.HTTP_200_OK)
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def complete_workout(request, workout_id):
+    workout = get_object_or_404(Workout, id=workout_id, user=request.user)
+
+    if not workout.start_time:
+        return Response({'message' : 'Workout cannot be marked complete before it has been started!'}, status=status.HTTP_400_BAD_REQUEST)
+    if not workout.complete:
+        workout.duration = int((now() - workout.start_time).total_seconds())
+        workout.complete = True
+        workout.save()
+        return Response({'message' : 'Workout marked complete!', "workout_duration" : workout.duration, "workout": WorkoutSerializer(workout).data }, status=status.HTTP_200_OK)
+    return Response({'error': 'Workout already marked as complete!'}, status=status.HTTP_400_BAD_REQUEST)
 
 # ✅ SetDict Views
 class SetDictView(APIView):
@@ -215,18 +299,28 @@ class SetDictView(APIView):
 
 
 # ✅ New Action-Based Views
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def complete_set(request, workout_id, set_dict_id):
-    """Mark a SetDict as Complete"""
+    """Mark a SetDict as Complete or Undo Completion"""
     set_dict = get_object_or_404(
         SetDict, id=set_dict_id, workout_id=workout_id, workout__user=request.user
     )
-    if set_dict.complete is True:
+
+    if set_dict.complete:  # ✅ Undo completion
         set_dict.complete = False
-    elif set_dict.complete is False:
+        set_dict.set_duration = None  # 🔥 No need to reset start_time (it gets overwritten when reactivated)
+    else:  # ✅ Marking set as complete
         set_dict.complete = True
+        if set_dict.set_start_time and set_dict.set_start_time <= now():
+            set_dict.set_duration = int((now() - set_dict.set_start_time).total_seconds())
+
     set_dict.save()
+
+    # 🔥 Update which set is now active
+    update_active_set(workout_id)
+
     return Response(
         {
             "message": f"Set {set_dict.id} completion status changed",
@@ -236,25 +330,26 @@ def complete_set(request, workout_id, set_dict_id):
     )
 
 
-@api_view(["POST"])  # ✅ Changed from PATCH to POST
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def skip_set(request, workout_id, set_dict_id):
     """Moves a set to the last position in `set_order`."""
     set_dict = get_object_or_404(
         SetDict, id=set_dict_id, workout__id=workout_id, workout__user=request.user
     )
-
     max_set_order = SetDict.objects.filter(workout_id=workout_id).count()
     set_dict.set_order = max_set_order + 1  # Moves set to last position
-    set_dict.save()  # Triggers signal to reorder all sets
+    set_dict.is_active_set = False  # 🔥 Ensure skipped sets aren’t active
+    set_dict.set_start_time = None
+    set_dict.save()
 
-    # ✅ Fetch the correctly reordered set
-    updated_set = SetDict.objects.get(id=set_dict.id)
+    # 🔥 Update which set is now active
+    skip_active_set(workout_id, set_dict)
 
     return Response(
         {
-            "message": f"Set {updated_set.id} skipped",
-            "set": SetDictSerializer(updated_set).data,  # ✅ Return updated set order
+            "message": f"Set {set_dict.id} skipped",
+            "set": SetDictSerializer(set_dict).data,  # ✅ Return updated set order
         },
         status=status.HTTP_200_OK,
     )
@@ -263,23 +358,34 @@ def skip_set(request, workout_id, set_dict_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def move_set(request, workout_id, set_dict_id):
-    """Move a SetDict to a new position"""
-    set_dict = get_object_or_404(
-        SetDict, id=set_dict_id, workout_id=workout_id, workout__user=request.user
-    )
+    """Moves a set to a new position while keeping all other sets ordered correctly."""
+
     new_position = request.data.get("new_position")
 
-    if not isinstance(new_position, int) or new_position < 1:
+    try:
+        with transaction.atomic():  # ✅ Ensure atomicity
+            set_to_move = SetDict.objects.get(id=set_dict_id, workout_id=workout_id)
+
+            # 🚀 Temporarily disable the signal
+            local_storage.disable_reorder_signal = True  
+
+            # ✅ Shift all other sets down/up
+            affected_sets = SetDict.objects.filter(workout=workout_id).exclude(id=set_dict_id).order_by("set_order")
+            for index, set_instance in enumerate(affected_sets, start=1):
+                set_instance.set_order = index if index < new_position else index + 1
+
+            SetDict.objects.bulk_update(affected_sets, ["set_order"])
+
+            # ✅ Assign new position to the moved set
+            set_to_move.set_order = new_position
+            set_to_move.save()
+
+            # ✅ Re-enable the signal
+            local_storage.disable_reorder_signal = False  
+
         return Response(
-            {"error": "Invalid position"}, status=status.HTTP_400_BAD_REQUEST
+            {"message": f"Set {set_dict_id} moved to position {new_position}", "set": SetDictSerializer(set_to_move).data}
         )
 
-    set_dict.set_order = new_position
-    set_dict.save()
-    return Response(
-        {
-            "message": f"Set {set_dict.id} moved to position {new_position}",
-            "set": SetDictSerializer(set_dict).data,
-        },
-        status=status.HTTP_200_OK,
-    )
+    except SetDict.DoesNotExist:
+        return Response({"error": "Set not found"}, status=404)

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { WorkoutProvider, useWorkoutContext } from '../context/WorkoutContext' // ✅ Use context
-import WorkoutHeaderLive from '../components/livetracking/WorkoutHeaderLive'
+import WorkoutOverview from '../components/livetracking/WorkoutOverview'
 import TimerLive from '../components/livetracking/TimerLive'
 import SetTrackerLive from '../components/livetracking/SetTrackerLive'
 import WorkoutControlsLive from '../components/livetracking/WorkoutControlsLive'
@@ -19,20 +19,19 @@ const WorkoutLiveTracking = () => {
 }
 
 const LiveTrackingContent = () => {
-    const { sets } = useWorkoutContext() // ✅ Get sets from context
-
-    const nextSet = sets.find((set) => !set.complete) || null // ✅ Calculate nextSet here
-    const [restTime, setRestTime] = useState(0)
-    const [timerKey, setTimerKey] = useState(0)
+    const { sets, timeElapsed } = useWorkoutContext(); // ✅ Get timeElapsed from context
+    const nextSet = sets.find((set) => !set.complete) || null; // ✅ Calculate nextSet here
+    const [restTime, setRestTime] = useState(0);
+    const [timerKey, setTimerKey] = useState(0);
 
     const startRestTimer = (time) => {
-        setRestTime(time)
-        setTimerKey((prev) => prev + 1)
-    }
+        setRestTime(time);
+        setTimerKey((prev) => prev + 1);
+    };
 
     return (
         <div className="min-h-screen bg-[#600000] text-white pt-24 px-6">
-            <WorkoutHeaderLive />
+            <WorkoutOverview /> {/* ✅ No longer tries to pass timeElapsed */}
             <div className="flex justify-between items-start gap-6 mt-8">
                 <SetTrackerLive showNextOnly={true} />
                 <TimerLive
@@ -45,7 +44,8 @@ const LiveTrackingContent = () => {
             </div>
             <WorkoutControlsLive />
         </div>
-    )
-}
+    );
+};
+
 
 export default WorkoutLiveTracking

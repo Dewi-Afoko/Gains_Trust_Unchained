@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuthContext } from './AuthContext'
 import toast from 'react-hot-toast'
+import { differenceInSeconds } from 'date-fns'
 
 const WorkoutContext = createContext()
 
@@ -15,6 +16,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     const [error, setError] = useState(null)
     const [completeSets, setCompleteSets] = useState([])
     const [incompleteSets, setIncompleteSets] = useState([])
+    const [timeElapsed, setTimeElapsed] = useState(0); // ⏳ Track elapsed time
+
 
     // ✅ Centralized API request helper function
     const apiRequest = async (method, url, data = {}) => {
@@ -38,6 +41,22 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     useEffect(() => {
         workoutId ? fetchWorkoutDetails(workoutId) : fetchAllWorkouts()
     }, [workoutId])
+
+    useEffect(() => {
+        if (workout?.start_time) {
+            const startTime = new Date(workout.start_time);
+            setTimeElapsed(differenceInSeconds(new Date(), startTime));
+    
+            const interval = setInterval(() => {
+                setTimeElapsed(differenceInSeconds(new Date(), startTime));
+            }, 1000);
+    
+            return () => clearInterval(interval); // ✅ Cleanup on unmount
+        } else {
+            setTimeElapsed(0); // ✅ Reset when no `start_time`
+        }
+    }, [workout?.start_time, workout?.id]); // ✅ Runs when `start_time` updates
+    
 
     // 📌 WORKOUT FUNCTIONS
 
@@ -106,33 +125,53 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         toast.success('Workout updated successfully!')
     }
 
-    const toggleComplete = async (workoutId, currentState) => {
-        if (!accessToken) return
+    const startWorkout = async (workoutId) => {
+        if (!accessToken) return;
+        try {
+            setTimeElapsed(0); // ✅ Reset immediately for UI update
+
+            await apiRequest(
+                'patch',
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/start/`,
+                {}
+            );
+    
+            console.log(`🔄 Fetching updated workout details after starting workout ${workoutId}...`);
+            await fetchWorkoutDetails(workoutId); // ✅ Ensure UI updates
+    
+            toast.success('Workout started!');
+        } catch (err) {
+            console.error('❌ Error starting workout:', err);
+            toast.error('Failed to start workout.');
+        }
+    };
+    
+    
+    
+
+
+
+    const toggleComplete = async (workoutId) => {
+        if (!accessToken) return;
         try {
             await apiRequest(
                 'patch',
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`,
-                {
-                    complete: !currentState,
-                }
-            )
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/complete/`,
+                {}
+            );
+    
+            await fetchWorkoutDetails(workoutId); // ✅ Force re-fetch of workout details
+            await fetchAllWorkouts(); // ✅ Force UI re-render by fetching fresh data
 
-            setWorkouts((prev) =>
-                prev.map((w) =>
-                    w.id === workoutId ? { ...w, complete: !currentState } : w
-                )
-            )
-
-            if (workout?.id === workoutId) {
-                setWorkout((prev) => ({ ...prev, complete: !currentState }))
-            }
-
-            toast.success('Workout completion status updated!')
+    
+            toast.success('Workout completion status updated!');
         } catch (err) {
-            console.error('❌ Error updating workout completion:', err)
-            toast.error('Failed to update workout.')
+            console.error('❌ Error updating workout completion:', err);
+            toast.error('Failed to mark workout complete.');
         }
-    }
+    };
+    
+    
 
     const deleteWorkout = async (workoutId) => {
         await apiRequest(
@@ -318,6 +357,32 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         }
     }
 
+    const moveSet = async (setId, newPosition) => {
+        if (!accessToken || !workout?.id) return;
+    
+        // Prevent invalid moves
+        if (newPosition < 1 || newPosition > sets.length) return;
+    
+        try {
+            const response = await apiRequest(
+                'post',
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/${setId}/move/`,
+                { new_position: newPosition }
+            );
+    
+            console.log("🔍 API Response:", response);
+    
+            await fetchWorkoutDetails(workout.id); // ✅ Ensure UI updates correctly
+            toast.success('Set reordered successfully!');
+        } catch (err) {
+            console.error('❌ Error moving set:', err);
+            toast.error('Failed to move set.');
+        }
+    };
+    
+    
+    
+
     return (
         <WorkoutContext.Provider
             value={{
@@ -343,7 +408,10 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 fetchSetDetails,
                 skipSet,
                 updateSetsFromAPI,
-                duplicateWorkout
+                duplicateWorkout,
+                startWorkout,
+                timeElapsed,
+                moveSet
             }}
         >
             {children}
