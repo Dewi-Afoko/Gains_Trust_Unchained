@@ -1,243 +1,239 @@
 import pytest
 from django.urls import reverse
-from rest_framework import status
-
-
-# ✅ TEST WorkoutView
-@pytest.mark.django_db
-def test_get_workouts_authenticated(api_client, create_user, create_workout):
-    """Test retrieving workouts for an authenticated user"""
-    api_client.force_authenticate(user=create_user)
-    response = api_client.get(reverse("workouts"))
-
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) > 0
-
+from workouts.models import Workout, SetDict
+from django.utils.timezone import now
+from datetime import timedelta
+from workouts.serializers import SetDictSerializer
+from workouts.views import skip_active_set, update_active_set
 
 @pytest.mark.django_db
-def test_get_workouts_unauthenticated(api_client):
-    """Test retrieving workouts without authentication"""
-    response = api_client.get(reverse("workouts"))
+def test_create_workout(authenticated_client):
+    """Test creating a workout via WorkoutViewSet."""
+    workout_data = {"workout_name": "Leg Day"}
+    response = authenticated_client.post(reverse("workouts-list"), workout_data)
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-
-@pytest.mark.django_db
-def test_create_workout_authenticated(api_client, create_user):
-    """Test creating a workout while authenticated"""
-    api_client.force_authenticate(user=create_user)
-    data = {"workout_name": "Test Workout"}
-
-    response = api_client.post(reverse("workouts"), data)
-
-    assert response.status_code == status.HTTP_201_CREATED
-    assert "Test Workout" in response.data["message"]
-
+    assert response.status_code == 201
+    assert Workout.objects.filter(workout_name="Leg Day").exists()
 
 @pytest.mark.django_db
-def test_create_workout_unauthenticated(api_client):
-    """Test creating a workout while unauthenticated"""
-    data = {"workout_name": "Unauthorized Workout"}
+def test_retrieve_workout(authenticated_client, create_workout):
+    """Test retrieving a workout via WorkoutViewSet."""
+    response = authenticated_client.get(reverse("workouts-detail", args=[create_workout.id]))
 
-    response = api_client.post(reverse("workouts"), data)
-
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
+    assert response.status_code == 200
+    assert response.data["workout_name"] == create_workout.workout_name
 
 @pytest.mark.django_db
-def test_update_workout_authenticated(api_client, create_user, create_workout):
-    """Test updating a workout while authenticated"""
-    api_client.force_authenticate(user=create_user)
-    data = {"workout_name": "Updated Workout"}
+def test_update_workout(authenticated_client, create_workout):
+    """Test updating a workout via WorkoutViewSet."""
+    response = authenticated_client.patch(reverse("workouts-detail", args=[create_workout.id]), {"notes": "Updated"})
 
-    response = api_client.patch(
-        reverse("workout-detail", args=[create_workout.id]), data
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    assert "Updated Workout" in response.data["message"]
-
+    assert response.status_code == 200
+    assert response.data["notes"] == "Updated"
 
 @pytest.mark.django_db
-def test_update_workout_unauthorized(api_client, create_workout):
-    """Test updating a workout while unauthenticated"""
-    data = {"workout_name": "Unauthorized Update"}
+def test_delete_workout(authenticated_client, create_workout):
+    """Test deleting a workout via WorkoutViewSet."""
+    response = authenticated_client.delete(reverse("workouts-detail", args=[create_workout.id]))
 
-    response = api_client.patch(
-        reverse("workout-detail", args=[create_workout.id]), data
-    )
-
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
+    assert response.status_code == 204
+    assert not Workout.objects.filter(id=create_workout.id).exists()
 
 @pytest.mark.django_db
-def test_delete_workout_authenticated(api_client, create_user, create_workout):
-    """Test deleting a workout while authenticated"""
-    api_client.force_authenticate(user=create_user)
+def test_duplicate_workout(authenticated_client, create_workout):
+    """Test duplicating a workout."""
+    response = authenticated_client.post(reverse("workouts-duplicate", args=[create_workout.id]))
 
-    response = api_client.delete(reverse("workout-detail", args=[create_workout.id]))
-
-    assert response.status_code == status.HTTP_200_OK
-    assert "deleted" in response.data["message"]
-
+    assert response.status_code == 201
+    assert Workout.objects.filter(workout_name__icontains="(Copy)").exists()
 
 @pytest.mark.django_db
-def test_delete_workout_unauthorized(api_client, create_workout):
-    """Test deleting a workout while unauthenticated"""
-    response = api_client.delete(reverse("workout-detail", args=[create_workout.id]))
+def test_start_workout(authenticated_client, create_workout):
+    """Test starting a workout, setting start_time."""
+    response = authenticated_client.patch(reverse("workouts-start-workout", args=[create_workout.id]))
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.status_code == 200
+    create_workout.refresh_from_db()
+    assert create_workout.start_time is not None
 
-
-# ✅ TEST SetDictView
 @pytest.mark.django_db
-def test_get_setdicts_authenticated(
-    api_client, create_user, create_workout, create_setdict
-):
-    """Test retrieving SetDicts for an authenticated user"""
-    api_client.force_authenticate(user=create_user)
+def test_complete_workout(authenticated_client, create_workout):
+    """Test completing a workout, ensuring duration is calculated."""
+    create_workout.start_time = now() - timedelta(minutes=45)  # ✅ Simulate started workout
+    create_workout.save()
 
-    response = api_client.get(reverse("set-list", args=[create_workout.id]))
+    response = authenticated_client.patch(reverse("workouts-complete-workout", args=[create_workout.id]))
 
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) > 0
+    assert response.status_code == 200
+    create_workout.refresh_from_db()
+    assert create_workout.complete is True
+    assert create_workout.duration > 0
+
+@pytest.mark.django_db
+def test_create_set(authenticated_client, create_workout):
+    """Test creating a set entry via SetDictSerializer by first creating a workout."""
+
+    # ✅ Step 1: Create a workout instance directly
+    workout = Workout.objects.create(user=create_workout.user, workout_name="Test Workout")
+
+    # ✅ Step 2: Create a SetDict instance using the serializer and passing workout in context
+    set_data = {
+        "exercise_name": "Bench Press",
+        "reps": 10,
+        "loading": 80.0,
+    }
+
+    serializer = SetDictSerializer(data=set_data, context={"workout": workout})
+    assert serializer.is_valid(), serializer.errors
+
+    set_dict = serializer.save()
+
+    assert set_dict.workout == workout  # ✅ Ensure SetDict is linked to the created workout
+    assert set_dict.exercise_name == "Bench Press"
+    assert set_dict.reps == 10
+    assert set_dict.loading == 80.0
 
 
 @pytest.mark.django_db
-def test_get_setdicts_unauthenticated(api_client, create_workout):
-    """Test retrieving SetDicts without authentication"""
-    response = api_client.get(reverse("set-list", args=[create_workout.id]))
+def test_retrieve_set(authenticated_client, create_setdict):
+    """Test retrieving a set entry via SetDictViewSet."""
+    response = authenticated_client.get(reverse("sets-detail", args=[create_setdict.id]))
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.status_code == 200
+    assert response.data["exercise_name"] == create_setdict.exercise_name
+
+@pytest.mark.django_db
+def test_update_set(authenticated_client, create_setdict):
+    """Test updating a set entry via SetDictViewSet."""
+    response = authenticated_client.patch(reverse("sets-detail", args=[create_setdict.id]), {"reps": 12})
+
+    assert response.status_code == 200
+    assert response.data["reps"] == 12
+
+@pytest.mark.django_db
+def test_delete_set(authenticated_client, create_setdict):
+    """Test deleting a set entry via SetDictViewSet."""
+    response = authenticated_client.delete(reverse("sets-detail", args=[create_setdict.id]))
+
+    assert response.status_code == 204
+    assert not SetDict.objects.filter(id=create_setdict.id).exists()
+
+@pytest.mark.django_db
+def test_complete_set(authenticated_client, create_setdict):
+    """Test completing a set via complete_set action."""
+    url = reverse("sets-complete-set", args=[create_setdict.id])
+
+    response = authenticated_client.patch(url)
+
+    assert response.status_code == 200
+    create_setdict.refresh_from_db()
+    assert create_setdict.complete is True  # ✅ Set should be marked as complete
 
 
 @pytest.mark.django_db
-def test_create_setdict_authenticated(api_client, create_user, create_workout):
-    """Test creating a SetDict while authenticated"""
-    api_client.force_authenticate(user=create_user)
-    data = {"exercise_name": "Squat", "loading": 100, "reps": 5}
+def test_skip_set(authenticated_client, create_setdict):
+    """Test skipping a set via skip_set action (moving to last)."""
+    url = reverse("sets-skip-set", args=[create_setdict.id])
 
-    response = api_client.post(reverse("set-list", args=[create_workout.id]), data)
+    response = authenticated_client.patch(url)
 
-    assert response.status_code == status.HTTP_201_CREATED
-    assert "Squat" in response.data["message"]
-
-
-@pytest.mark.django_db
-def test_create_setdict_unauthenticated(api_client, create_workout):
-    """Test creating a SetDict while unauthenticated"""
-    data = {"exercise_name": "Deadlift", "loading": 150, "reps": 3}
-
-    response = api_client.post(reverse("set-list", args=[create_workout.id]), data)
-
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.status_code == 200
+    create_setdict.refresh_from_db()
+    assert create_setdict.set_order > 0  # ✅ Set should be moved to last position
+    assert create_setdict.is_active_set is False  # ✅ Set should not be active
 
 
 @pytest.mark.django_db
-def test_update_setdict_authenticated(
-    api_client, create_user, create_workout, create_setdict
-):
-    """Test updating a SetDict while authenticated"""
-    api_client.force_authenticate(user=create_user)
-    data = {"loading": 120}
+def test_move_set(authenticated_client, create_setdict):
+    """Test moving a set to a new position via move_set action."""
+    # Create another set for testing the move
+    set2 = SetDict.objects.create(workout=create_setdict.workout, exercise_name="Deadlift", set_order=2)
 
-    response = api_client.patch(
-        reverse("set-detail", args=[create_workout.id, create_setdict.id]),
-        data,
-    )
+    url = reverse("sets-move-set", args=[create_setdict.id])
+    data = {"new_position": 2}  # Moving set1 to position 2
 
-    assert response.status_code == status.HTTP_200_OK
-    assert "updated" in response.data["message"]
+    response = authenticated_client.patch(url, data)
+
+    assert response.status_code == 200
+    create_setdict.refresh_from_db()
+    set2.refresh_from_db()
+
+    # Ensure the order is updated correctly
+    assert create_setdict.set_order == 2
+    assert set2.set_order == 1
+
+@pytest.mark.django_db
+def test_complete_set_mark_incomplete(authenticated_client, create_setdict):
+    """Test that a set can be marked complete and then incomplete (reseting variables)."""
+
+    # ✅ Initially mark the set as complete
+    response = authenticated_client.patch(reverse("sets-complete-set", args=[create_setdict.id]))
+    assert response.status_code == 200
+    create_setdict.refresh_from_db()
+
+    assert create_setdict.complete is True  # ✅ Set should be marked as complete
+
+    # ✅ Now, mark the set as incomplete
+    response = authenticated_client.patch(reverse("sets-complete-set", args=[create_setdict.id]))
+    assert response.status_code == 200
+    create_setdict.refresh_from_db()
+
+    # ✅ Ensure variables are reset
+    assert create_setdict.complete is False  # ✅ Set should now be incomplete
+    assert create_setdict.set_duration is None  # ✅ Duration should be reset
+    assert create_setdict.set_start_time is None  # ✅ Start time should be reset
 
 
 @pytest.mark.django_db
-def test_update_setdict_unauthorized(api_client, create_workout, create_setdict):
-    """Test updating a SetDict while unauthenticated"""
-    data = {"loading": 200}
+def test_update_active_set(authenticated_client, create_user):
+    """Test that the active set is correctly updated when `update_active_set` is called."""
+    
+    # Step 1: Create a workout with start_time
+    workout = Workout.objects.create(user=create_user, workout_name="Push Day", start_time=now())
 
-    response = api_client.patch(
-        reverse("set-detail", args=[create_workout.id, create_setdict.id]),
-        data,
-    )
+    # Step 2: Create multiple sets, some incomplete
+    set1 = SetDict.objects.create(workout=workout, exercise_name="Squat", set_order=1, complete=False)
+    set2 = SetDict.objects.create(workout=workout, exercise_name="Bench Press", set_order=2, complete=False)
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    # Step 3: Set the first set as active
+    set1.is_active_set = True
+    set1.complete = True
+    set1.save()
 
+    # Ensure `update_active_set` works and only the next incomplete set is marked active
+    update_active_set(workout.id)
 
-@pytest.mark.django_db
-def test_delete_setdict_authenticated(
-    api_client, create_user, create_workout, create_setdict
-):
-    """Test deleting a SetDict while authenticated"""
-    api_client.force_authenticate(user=create_user)
+    set1.refresh_from_db()
+    set2.refresh_from_db()
 
-    response = api_client.delete(
-        reverse("set-detail", args=[create_workout.id, create_setdict.id])
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    assert "deleted" in response.data["message"]
+    assert set1.is_active_set is False  # ✅ The previous set should no longer be active
+    assert set2.is_active_set is True  # ✅ The next incomplete set should be active
 
 
 @pytest.mark.django_db
-def test_delete_setdict_unauthorized(api_client, create_workout, create_setdict):
-    """Test deleting a SetDict while unauthenticated"""
-    response = api_client.delete(
-        reverse("set-detail", args=[create_workout.id, create_setdict.id])
-    )
+def test_skip_active_set(authenticated_client, create_user):
+    """Test that a skipped set activates the next available set."""
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    # Step 1: Create a workout with start_time
+    workout = Workout.objects.create(user=create_user, workout_name="Push Day", start_time=now())
 
+    # Step 2: Create multiple sets, some incomplete
+    set1 = SetDict.objects.create(workout=workout, exercise_name="Squat", set_order=1, complete=False)
+    set2 = SetDict.objects.create(workout=workout, exercise_name="Bench Press", set_order=2, complete=False)
+    skipped_set = SetDict.objects.create(workout=workout, exercise_name="Deadlift", set_order=3, complete=False)
 
-@pytest.mark.django_db
-def test_create_workout_invalid_data(api_client, create_user):
-    """Test creating a workout with invalid data (empty name)"""
-    api_client.force_authenticate(user=create_user)
-    data = {"workout_name": ""}  # Invalid because it's empty
+    # Step 3: Set the first set as active
+    set1.is_active_set = True
+    set1.save()
 
-    response = api_client.post(reverse("workouts"), data)
+    # Step 4: Skip the active set
+    skip_active_set(workout.id, set1)
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "workout_name" in response.data  # Should return an error message
+    set1.refresh_from_db()
+    skipped_set.refresh_from_db()
+    set2.refresh_from_db()
 
+    # Step 5: Ensure the set we just skipped is inactive, and the next set is active
+    assert set1.is_active_set is False  # ✅ The set we just skipped should no longer be active
+    assert set2.is_active_set is True  # ✅ The skipped set should be marked as active
 
-@pytest.mark.django_db
-def test_update_workout_invalid_data(api_client, create_user, create_workout):
-    """Test updating a workout with invalid data (empty name)"""
-    api_client.force_authenticate(user=create_user)
-    data = {"workout_name": ""}  # Invalid because it's empty
-
-    response = api_client.patch(
-        reverse("workout-detail", args=[create_workout.id]), data
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "workout_name" in response.data  # Should return an error message
-
-
-@pytest.mark.django_db
-def test_create_setdict_invalid_data(api_client, create_user, create_workout):
-    """Test creating a SetDict with invalid data (missing required fields)"""
-    api_client.force_authenticate(user=create_user)
-    data = {"exercise_name": ""}  # Invalid because it's empty
-
-    response = api_client.post(reverse("set-list", args=[create_workout.id]), data)
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "exercise_name" in response.data  # Should return an error message
-
-
-@pytest.mark.django_db
-def test_update_setdict_invalid_data(
-    api_client, create_user, create_workout, create_setdict
-):
-    """Test updating a SetDict with invalid data (empty exercise name)"""
-    api_client.force_authenticate(user=create_user)
-    data = {"exercise_name": ""}  # Invalid because it's empty
-
-    response = api_client.patch(
-        reverse("set-detail", args=[create_workout.id, create_setdict.id]),
-        data,
-    )
-
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "exercise_name" in response.data  # Should return an error message

@@ -290,7 +290,7 @@ class SetDictViewSet(ModelViewSet):
         set_dict = self.get_object()
         workout = set_dict.workout
 
-        new_position = request.data.get("new_position")
+        new_position = int(request.data.get("new_position"))
 
         try:
             with transaction.atomic():  # ✅ Ensure atomicity
