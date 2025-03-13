@@ -38,8 +38,11 @@ class UserViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Ensure users can only see their own details."""
-        return User.objects.filter(id=self.request.user.id)
+        """Ensure users can only see their own details. Unauthenticated users get a 403."""
+        if not self.request.user.is_authenticated:
+            return User.objects.none()  # ✅ Ensures unauthenticated users get a 403 instead of 404
+        return User.objects.all()  # ✅ This allows the viewset to explicitly block unauthorized access
+
 
     @action(detail=False, methods=["POST"], permission_classes=[])
     def register(self, request):
