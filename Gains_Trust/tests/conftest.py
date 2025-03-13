@@ -41,3 +41,22 @@ def user_data():
 def create_user(user_data):
     """Fixture to create a user in the database"""
     return User.objects.create_user(**user_data)
+
+@pytest.fixture
+def create_user_2():
+    """Fixture to create a second user."""
+    return User.objects.create_user(username="testuser2", password="password123")
+
+@pytest.fixture
+def create_superuser():
+    """Fixture to create a superuser."""
+    return User.objects.create_superuser(username="admin", password="adminpass")
+
+
+
+@pytest.fixture
+def authenticated_client(api_client, create_user):
+    """Fixture for an authenticated API client."""
+    api_client.force_authenticate(user=create_user)
+    return api_client
+

@@ -3,10 +3,12 @@ from django.contrib.auth import get_user_model
 from users.models import Weight
 from tests.conftest import (
     create_user,
+    create_user_2,
     user_data,
     test_request,
     api_client,
     factory,
+    authenticated_client
 )
 
 User = get_user_model()
