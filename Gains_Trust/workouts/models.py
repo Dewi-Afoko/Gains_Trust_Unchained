@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils.timezone import now
 
+
 def get_today():
     return now().date()
+
 
 # Create your models here.
 class Workout(models.Model):
@@ -40,7 +42,6 @@ class SetDict(models.Model):
     is_active_set = models.BooleanField(default=False)
     set_start_time = models.DateTimeField(blank=True, null=True)
     set_duration = models.IntegerField(blank=True, null=True)
-    
 
     def __str__(self):
         return (

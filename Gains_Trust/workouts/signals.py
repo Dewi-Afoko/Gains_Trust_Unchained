@@ -7,6 +7,7 @@ import threading
 # ✅ Thread-local storage to track when `move_set` is being used
 local_storage = threading.local()
 
+
 @receiver(pre_save, sender=SetDict)
 def assign_set_order(sender, instance, **kwargs):
     """Assigns set_order dynamically BEFORE saving a new set."""
@@ -18,11 +19,12 @@ def assign_set_order(sender, instance, **kwargs):
 
 @receiver(post_save, sender=SetDict)
 def reorder_sets_after_creation(sender, instance, created, **kwargs):
-    """Ensures `set_number` is assigned uniquely and sequentially, while skipping manually moved sets."""
+    """Ensures `set_number` is assigned uniquely and sequentially,
+    while skipping manually moved sets."""
 
     # 🚨 Check if the move_set function is active and SKIP reordering if true
     if getattr(local_storage, "disable_reorder_signal", False):
-        return  
+        return
 
     sets = SetDict.objects.filter(workout=instance.workout).order_by("set_order")
     exercise_count = {}
