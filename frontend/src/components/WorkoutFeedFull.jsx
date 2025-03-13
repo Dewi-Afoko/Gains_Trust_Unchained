@@ -66,12 +66,13 @@ const WorkoutFeedFull = () => {
                         >
                             <h3
                                 className="text-yellow-400 text-2xl font-extrabold cursor-pointer hover:text-yellow-200"
-                                onClick={() =>
-                                    navigate(`/workouts/${workout.id}/full`)
-                                }
+                                onClick={() => navigate(`/workouts/${workout.id}/full`)}
                             >
                                 🏋🏾‍♂️ {workout.workout_name}
                             </h3>
+
+
+
                             <p className="text-md text-gray-300">
                                 📅 {new Date(workout.date).toLocaleDateString()}
                             </p>
@@ -93,24 +94,26 @@ const WorkoutFeedFull = () => {
                             <p className="text-md text-yellow-400">
                                 🔥 Total Sets: {totalSets}
                             </p>
+                            <br />
+                            <p className="text-yellow-400 text-2xl font-extrabold">
+                                Status: {workout.start_time === null
+                                    ? '⏳ Not Started'
+                                    : workout.duration
+                                        ? `✅ Completed in ${new Date(workout.duration * 1000).toISOString().substr(11, 8)}`
+                                        : '🔥 In Progress'}
+                            </p>
                             <div className="flex justify-between mt-4">
-                                <button
-                                    onClick={() =>
-                                        toggleComplete(
-                                            workout.id,
-                                            workout.complete
-                                        )
-                                    }
-                                    className={`px-4 py-2 rounded-xl text-white font-bold transition ${
-                                        workout.complete
-                                            ? 'bg-[#222222] hover:bg-[#333333]'
-                                            : 'bg-[#B22222] hover:bg-[#8B0000]'
-                                    }`}
-                                >
-                                    {workout.complete
-                                        ? '⚡ Completed'
-                                        : '⏳ In Progress'}
-                                </button>
+
+                                {/* Mark Complete Button - Only Visible if Workout is In Progress */}
+                                {workout.start_time !== null && !workout.complete && (
+                                    <button
+                                        onClick={() => toggleComplete(workout.id)}
+                                        className="px-4 py-2 rounded-xl text-white font-bold bg-[#B22222] hover:bg-[#8B0000] transition"
+                                    >
+                                        🏁 Mark Complete
+                                    </button>
+                                )}
+
                                 <button
                                     onClick={() =>
                                         navigate(`/livetracking/${workout.id}`)

@@ -1,7 +1,11 @@
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from .models import SetDict
+import threading
 
+
+# ✅ Thread-local storage to track when `move_set` is being used
+local_storage = threading.local()
 
 @receiver(pre_save, sender=SetDict)
 def assign_set_order(sender, instance, **kwargs):
@@ -14,27 +18,26 @@ def assign_set_order(sender, instance, **kwargs):
 
 @receiver(post_save, sender=SetDict)
 def reorder_sets_after_creation(sender, instance, created, **kwargs):
-    """Ensures `set_number` is assigned uniquely and sequentially."""
+    """Ensures `set_number` is assigned uniquely and sequentially, while skipping manually moved sets."""
 
-    # ✅ Fetch all sets in this workout ordered by `set_order`
+    # 🚨 Check if the move_set function is active and SKIP reordering if true
+    if getattr(local_storage, "disable_reorder_signal", False):
+        return  
+
     sets = SetDict.objects.filter(workout=instance.workout).order_by("set_order")
-
-    # ✅ Dictionary to track counts for each exercise
     exercise_count = {}
 
-    # ✅ Loop through each set and correctly assign `set_number`
     for index, set_instance in enumerate(sets, start=1):
         exercise_name = set_instance.exercise_name
 
         if exercise_name not in exercise_count:
-            exercise_count[exercise_name] = 1  # Start from 1 for each exercise
+            exercise_count[exercise_name] = 1
         else:
-            exercise_count[exercise_name] += 1  # Increment count
+            exercise_count[exercise_name] += 1
 
         set_instance.set_number = exercise_count[exercise_name]
-        set_instance.set_order = index  # ✅ Reassign set_order properly
+        set_instance.set_order = index  # ✅ Reassign `set_order` for other sets
 
-    # ✅ Bulk update to apply changes efficiently
     SetDict.objects.bulk_update(sets, ["set_number", "set_order"])
 
 
