@@ -98,19 +98,21 @@ class WorkoutViewSet(ModelViewSet):
 
         og_workout_sets = original_workout.set_dicts.all().order_by("set_order")
 
-        for set_dict in og_workout_sets:
-            SetDict.objects.create(
+        SetDict.objects.bulk_create([
+            SetDict(
                 workout=new_workout,
-                exercise_name=set_dict.exercise_name,
-                set_number=set_dict.set_number,
-                set_order=set_dict.set_order,
-                set_type=set_dict.set_type,
-                reps=set_dict.reps,
-                loading=set_dict.loading,
-                rest=set_dict.rest,
-                focus=set_dict.focus,
-                notes=set_dict.notes,
-            )
+                exercise_name=s.exercise_name,
+                set_number=s.set_number,
+                set_order=s.set_order,
+                set_type=s.set_type,
+                reps=s.reps,
+                loading=s.loading,
+                rest=s.rest,
+                focus=s.focus,
+                notes=s.notes,
+            ) for s in og_workout_sets
+        ])
+
 
         return Response({"message": "Workout duplicated", "workout": WorkoutSerializer(new_workout).data}, status=201)
     
@@ -210,7 +212,11 @@ class SetDictViewSet(ModelViewSet):
 
         max_set_order = SetDict.objects.filter(workout_id=workout.id).count()
 
-        set_dict.set_order = max_set_order + 1  # Moves set to last position
+        """We move the set_dict beyond the last position in the running order,
+        because the post save signal ensures a consistent running order,
+        so by pushing the skipped set beyond that, we escape race conditions of indexing conflicts."""
+        set_dict.set_order = max_set_order + 1  # Moves set beyond last position
+
         set_dict.is_active_set = False  # 🔥 Ensure skipped sets aren’t active
         set_dict.set_start_time = None
         set_dict.save()
