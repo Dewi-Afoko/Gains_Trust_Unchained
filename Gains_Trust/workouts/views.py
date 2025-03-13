@@ -8,7 +8,10 @@ from .models import Workout, SetDict
 from .serializers import SetDictSerializer, WorkoutSerializer
 from datetime import timedelta
 from django.utils.timezone import now
+import threading
+from django.db import transaction
 
+local_storage = threading.local()
 
 # 💻 Helper Functions
 def update_active_set(workout_id):
@@ -355,27 +358,34 @@ def skip_set(request, workout_id, set_dict_id):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def move_set(request, workout_id, set_dict_id):
-    """Move a SetDict to a new position"""
-    set_dict = get_object_or_404(
-        SetDict, id=set_dict_id, workout_id=workout_id, workout__user=request.user
-    )
+    """Moves a set to a new position while keeping all other sets ordered correctly."""
+
     new_position = request.data.get("new_position")
 
-    if not isinstance(new_position, int) or new_position < 1:
+    try:
+        with transaction.atomic():  # ✅ Ensure atomicity
+            set_to_move = SetDict.objects.get(id=set_dict_id, workout_id=workout_id)
+
+            # 🚀 Temporarily disable the signal
+            local_storage.disable_reorder_signal = True  
+
+            # ✅ Shift all other sets down/up
+            affected_sets = SetDict.objects.filter(workout=workout_id).exclude(id=set_dict_id).order_by("set_order")
+            for index, set_instance in enumerate(affected_sets, start=1):
+                set_instance.set_order = index if index < new_position else index + 1
+
+            SetDict.objects.bulk_update(affected_sets, ["set_order"])
+
+            # ✅ Assign new position to the moved set
+            set_to_move.set_order = new_position
+            set_to_move.save()
+
+            # ✅ Re-enable the signal
+            local_storage.disable_reorder_signal = False  
+
         return Response(
-            {"error": "Invalid position"}, status=status.HTTP_400_BAD_REQUEST
+            {"message": f"Set {set_dict_id} moved to position {new_position}", "set": SetDictSerializer(set_to_move).data}
         )
 
-    set_dict.set_order = new_position
-    set_dict.save()
-
-    # 🔥 Ensure the correct set is active
-    update_active_set(workout_id)
-
-    return Response(
-        {
-            "message": f"Set {set_dict.id} moved to position {new_position}",
-            "set": SetDictSerializer(set_dict).data,
-        },
-        status=status.HTTP_200_OK,
-    )
+    except SetDict.DoesNotExist:
+        return Response({"error": "Set not found"}, status=404)

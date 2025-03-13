@@ -357,6 +357,32 @@ export const WorkoutProvider = ({ workoutId, children }) => {
         }
     }
 
+    const moveSet = async (setId, newPosition) => {
+        if (!accessToken || !workout?.id) return;
+    
+        // Prevent invalid moves
+        if (newPosition < 1 || newPosition > sets.length) return;
+    
+        try {
+            const response = await apiRequest(
+                'post',
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/${setId}/move/`,
+                { new_position: newPosition }
+            );
+    
+            console.log("🔍 API Response:", response);
+    
+            await fetchWorkoutDetails(workout.id); // ✅ Ensure UI updates correctly
+            toast.success('Set reordered successfully!');
+        } catch (err) {
+            console.error('❌ Error moving set:', err);
+            toast.error('Failed to move set.');
+        }
+    };
+    
+    
+    
+
     return (
         <WorkoutContext.Provider
             value={{
@@ -385,6 +411,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 duplicateWorkout,
                 startWorkout,
                 timeElapsed,
+                moveSet
             }}
         >
             {children}

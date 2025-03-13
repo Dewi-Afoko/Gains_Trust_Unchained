@@ -42,7 +42,8 @@ const SetEditForm = ({ setId, onClose }) => {
     }
 
     return (
-        <div className="bg-[#600000] text-white p-6 rounded-lg shadow-lg max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000]">
+        <div className="bg-[#600000] text-white p-6 rounded-lg shadow-lg w-full max-w-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000]">
+
             <h3 className="text-lg font-semibold text-yellow-400">Edit Set</h3>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
