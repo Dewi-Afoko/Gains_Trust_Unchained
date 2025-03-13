@@ -3,6 +3,8 @@ import { useWorkoutContext } from '../context/WorkoutContext' // ✅ Use context
 import WorkoutEditForm from './forms/WorkoutEditForm'
 import SetsTablePreview from '../components/SetsTablePreview'
 import SetCreationForm from './forms/SetCreationForm'
+import { WorkoutProvider } from "../context/WorkoutContext"; 
+
 
 const WorkoutDetailsPreview = ({ workoutId }) => {
     const { workout, sets, loading, updateWorkout, fetchAllWorkouts } =
@@ -73,7 +75,9 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
             )}
 
             {/* ✅ Sets Table Preview Component ✅ */}
-            <SetsTablePreview sets={sets} />
+            <WorkoutProvider workoutId={workoutId}>
+                <SetsTablePreview sets={sets} />
+            </WorkoutProvider>
         </div>
     )
 }

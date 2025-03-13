@@ -32,10 +32,7 @@ const WorkoutDetailsFull = () => {
             console.error("❌ Error deleting workout:", error);
         }
     };
-    
 
-    console.log('🟢 WorkoutDetailsFull - Received Workout:', workout)
-    console.log('🟢 WorkoutDetailsFull - Received Sets:', sets)
 
     if (loading) return <LoadingSpinner />;
     if (error) return <p className="text-red-500">Error: {error}</p>;
