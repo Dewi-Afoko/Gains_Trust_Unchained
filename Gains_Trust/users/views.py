@@ -1,14 +1,10 @@
-from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from rest_framework import status
 from .serializers import UserSerializer, WeightSerializer
 from .models import Weight
-from django.contrib.auth import get_user_model, authenticate, login, logout
-from django.contrib.auth.signals import user_logged_in
+from django.contrib.auth import get_user_model, authenticate, login
 from rest_framework.viewsets import ModelViewSet
 from django.utils.timezone import now
 
@@ -16,6 +12,7 @@ from django.utils.timezone import now
 # Create your views here.
 
 User = get_user_model()
+
 
 # Username and email availability checker for real-time registration feedbacvk
 @api_view(["GET"])
@@ -31,9 +28,11 @@ def check_availability(request):
 
     return Response({"message": "available"}, status=200)
 
+
 # User ViewSet
 class UserViewSet(ModelViewSet):
     """ViewSet for managing users"""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
@@ -48,7 +47,13 @@ class UserViewSet(ModelViewSet):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            return Response({"message": "User registered successfully!", "user": UserSerializer(user).data}, status=201)
+            return Response(
+                {
+                    "message": "User registered successfully!",
+                    "user": UserSerializer(user).data,
+                },
+                status=201,
+            )
         return Response(serializer.errors, status=400)
 
     @action(detail=False, methods=["POST"], permission_classes=[])
@@ -78,7 +83,6 @@ class UserViewSet(ModelViewSet):
             )
         return Response({"error": "Invalid credentials"}, status=401)
 
-
     @action(detail=False, methods=["GET", "PATCH"])
     def me(self, request):
         """Retrieve or update the logged-in user's details"""
@@ -94,14 +98,18 @@ class UserViewSet(ModelViewSet):
         """Override update to prevent users from modifying other accounts"""
         user = self.get_object()
         if user != request.user:
-            return Response({"error": "You can only update your own profile."}, status=403)
+            return Response(
+                {"error": "You can only update your own profile."}, status=403
+            )
         return super().update(request, *args, **kwargs)
 
 
 # Weight ViewSet
 
+
 class WeightViewSet(ModelViewSet):
     """ViewSet for managing user weight entries."""
+
     queryset = Weight.objects.all().order_by("-date_recorded")
     serializer_class = WeightSerializer
     permission_classes = [IsAuthenticated]

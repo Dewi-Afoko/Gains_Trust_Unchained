@@ -17,7 +17,7 @@ class WorkoutSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Workout.objects.create(**validated_data)
-    
+
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -39,7 +39,9 @@ class SetDictSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        workout = self.context.get("workout", validated_data.get("workout"))  # ✅ Fallback to validated_data
+        workout = self.context.get(
+            "workout", validated_data.get("workout")
+        )  # ✅ Fallback to validated_data
 
         if not workout:
             raise serializers.ValidationError(
@@ -49,7 +51,6 @@ class SetDictSerializer(serializers.ModelSerializer):
         set_dict = SetDict.objects.create(workout=workout, **validated_data)
         set_dict.refresh_from_db()
         return set_dict
-
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():

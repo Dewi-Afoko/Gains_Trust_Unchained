@@ -7,8 +7,8 @@ from .views import (
 
 # 🚀 DRF Router API Endpoints
 router = DefaultRouter()
-router.register(r'workouts', WorkoutViewSet, basename="workouts")
-router.register(r'sets', SetDictViewSet, basename="sets")
+router.register(r"workouts", WorkoutViewSet, basename="workouts")
+router.register(r"sets", SetDictViewSet, basename="sets")
 
 urlpatterns = [
     path("", include(router.urls)),  # ✅ Registers all workout routes automatically
