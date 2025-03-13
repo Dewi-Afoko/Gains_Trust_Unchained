@@ -1,123 +1,23 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, WeightSerializer
 from .models import Weight
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.signals import user_logged_in
+from rest_framework.viewsets import ModelViewSet
+from django.utils.timezone import now
 
 
 # Create your views here.
 
 User = get_user_model()
 
-
-@api_view(["POST"])
-def register(request):
-
-    serializer = UserSerializer(data=request.data)
-
-    if serializer.is_valid():
-        user = serializer.save()
-        return Response(
-            {
-                "message": f"{user.username} successfully registered!",
-                "user": serializer.data,
-            },
-            status=status.HTTP_201_CREATED,
-        )  # Added user object to return
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["POST"])
-def custom_login_view(request):
-    username = request.data.get("username")
-    password = request.data.get("password")
-
-    user = authenticate(username=username, password=password)
-
-    if user is not None:
-        # ✅ Manually trigger the user_logged_in signal
-        user_logged_in.send(sender=user.__class__, request=request, user=user)
-
-        # ✅ Generate JWT tokens
-        refresh = RefreshToken.for_user(user)
-
-        return Response(
-            {
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-            },
-            status=status.HTTP_200_OK,
-        )
-
-    return Response(
-        {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
-    )
-
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def logout(request):
-    try:
-        refresh_token = request.data["refresh"]
-        token = RefreshToken(refresh_token)
-        token.blacklist()
-        return Response(
-            {"message": "Successfully logged out."},
-            status=status.HTTP_205_RESET_CONTENT,
-        )
-    except KeyError:
-        return Response(
-            {"error": "Refresh token missing."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    except Exception:
-        return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["PATCH"])
-@permission_classes([IsAuthenticated])
-def update_user(request):
-    user = request.user
-    serializer = UserSerializer(
-        instance=user,
-        data=request.data,
-        context={"request": request},
-        partial=True,
-    )
-
-    if serializer.is_valid():
-        updated_user = serializer.save()
-        return Response(
-            {
-                "message": f"Details for {updated_user.username}",
-                "user": serializer.data,
-            },
-            status=status.HTTP_200_OK,
-        )  # Changed data to user, for consistency and clarity
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def my_details(request):
-    user = request.user
-    weights = Weight.objects.filter(user=user).order_by("-date_recorded")
-
-    serialize_user = UserSerializer(user)
-    serialize_weights = WeightSerializer(weights, many=True)
-    payload = {"user": serialize_user.data, "weights": serialize_weights.data}
-
-    return Response(payload, status=status.HTTP_200_OK)
-
-
+# Username and email availability checker for real-time registration feedbacvk
 @api_view(["GET"])
 def check_availability(request):
     username = request.query_params.get("username")
@@ -131,46 +31,85 @@ def check_availability(request):
 
     return Response({"message": "available"}, status=200)
 
-
-class WeightView(APIView):
+# User ViewSet
+class UserViewSet(ModelViewSet):
+    """ViewSet for managing users"""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        weights = Weight.objects.filter(user=user).order_by("-date_recorded")
-        serializer = WeightSerializer(weights, many=True)
-        serialized_data = serializer.data
+    def get_queryset(self):
+        """Ensure users can only see their own details."""
+        return User.objects.filter(id=self.request.user.id)
 
-        return Response(
-            {
-                "message": f"Latest weight object: {serialized_data[0]}",
-                "weights": serialized_data,
-            },
-            status=status.HTTP_200_OK,
-        )  # Return latest object in message and list of all objects in weights
-
-    def post(self, request):
-        user = request.user
-        serializer = WeightSerializer(data=request.data, context={"request": request})
-
+    @action(detail=False, methods=["POST"], permission_classes=[])
+    def register(self, request):
+        """User registration"""
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            weight = serializer.save()
+            user = serializer.save()
+            return Response({"message": "User registered successfully!", "user": UserSerializer(user).data}, status=201)
+        return Response(serializer.errors, status=400)
+
+    @action(detail=False, methods=["POST"], permission_classes=[])
+    def login(self, request):
+        """User login with JWT token response"""
+        username = request.data.get("username")
+        password = request.data.get("password")
+        user = authenticate(request, username=username, password=password)
+
+        if user:
+            login(request, user)
+            user.login_history.append(str(now()))
+            user.login_history = user.login_history[-2:]  # Keep last 2 logins
+            user.save()
+
+            # ✅ Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+            access = refresh.access_token
+
             return Response(
                 {
-                    "message": f"{weight.weight}kg for {user.username}",
-                    "weight": serializer.data,
-                },
-                status=status.HTTP_201_CREATED,
-            )  # Added weight to return created object
+                    "message": "Login successful!",
+                    "access_token": str(access),
+                    "refresh_token": str(refresh),  # ✅ Now returning refresh token
+                    "user": UserSerializer(user).data,
+                }
+            )
+        return Response({"error": "Invalid credentials"}, status=401)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, weight_id):
-        """Delete a specific weight record"""
-        weight = get_object_or_404(Weight, id=weight_id, user=request.user)
-        weight.delete()
+    @action(detail=False, methods=["GET", "PATCH"])
+    def me(self, request):
+        """Retrieve or update the logged-in user's details"""
+        if request.method == "PATCH":
+            serializer = UserSerializer(request.user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=200)
+            return Response(serializer.errors, status=400)
+        return Response(UserSerializer(request.user).data)
 
-        return Response(
-            {"message": f"Weight ID: {weight_id} has been deleted"},
-            status=status.HTTP_200_OK,
-        )
+    def update(self, request, *args, **kwargs):
+        """Override update to prevent users from modifying other accounts"""
+        user = self.get_object()
+        if user != request.user:
+            return Response({"error": "You can only update your own profile."}, status=403)
+        return super().update(request, *args, **kwargs)
+
+
+# Weight ViewSet
+
+class WeightViewSet(ModelViewSet):
+    """ViewSet for managing user weight entries."""
+    queryset = Weight.objects.all().order_by("-date_recorded")
+    serializer_class = WeightSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Ensure users only see their own weight entries."""
+        return Weight.objects.filter(user=self.request.user).order_by("-date_recorded")
+
+    def perform_create(self, serializer):
+        """Assigns the logged-in user when creating a weight entry."""
+        serializer.save(user=self.request.user)
