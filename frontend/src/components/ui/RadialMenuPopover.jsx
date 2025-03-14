@@ -2,8 +2,8 @@ import * as React from "react";
 import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { motion } from "framer-motion";
-import SetEditForm from "../forms/SetEditForm"
-import { useWorkoutContext } from "../../context/WorkoutContext";
+import SetEditForm from "../sets/SetEditForm"
+import { useWorkoutContext } from "../../providers/WorkoutContext";
 
 
 // Function to generate SVG path for a 120-degree pie slice

@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useWorkoutContext } from '../context/WorkoutContext' // ✅ Use WorkoutContext
-import WorkoutEditForm from './forms/WorkoutEditForm'
-import SetsTableFull from './sets/SetsTableFull'
-import SetCreationForm from './forms/SetCreationForm'
-import LoadingSpinner from './ui/LoadingSpinner'
+import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use WorkoutContext
+import WorkoutEditForm from '../forms/WorkoutEditForm'
+import SetsTableFull from '../sets/SetsTableFull'
+import SetCreationForm from '../sets/SetCreationForm'
+import LoadingSpinner from '../ui/LoadingSpinner'
 import { useNavigate } from 'react-router-dom'
 
 const WorkoutDetailsFull = () => {

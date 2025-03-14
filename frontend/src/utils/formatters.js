@@ -1,10 +1,3 @@
-import { clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-
-export function cn(...inputs) {
-    return twMerge(clsx(inputs))
-}
-
 // ✅ New function to format datetime to HH:MM - YYYY/MM/DD
 export function formatDateTime(isoString) {
     if (!isoString) return 'N/A' // Handle null values
@@ -25,4 +18,3 @@ export const formatLoading = (loading) => {
     if (!loading || loading === 0) return "Bodyweight"; // ✅ Replace blank with "Bodyweight"
     return `${loading}kg`; // ✅ Append kg only if loading is set
 };
-
