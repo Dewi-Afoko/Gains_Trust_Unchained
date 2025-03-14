@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
-import AuthContext from '../../context/AuthContext'
+import AuthContext from '../../providers/AuthContext'
 import { Toaster, toast } from 'react-hot-toast'
 
 const UserDetailsEditForm = ({ user, accessToken, onClose, onUpdate }) => {

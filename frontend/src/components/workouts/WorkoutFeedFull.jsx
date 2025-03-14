@@ -1,4 +1,4 @@
-import { useWorkoutContext } from '../context/WorkoutContext'
+import { useWorkoutContext } from '../../providers/WorkoutContext'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 

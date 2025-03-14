@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useWorkoutContext } from '../../context/WorkoutContext'
+import { useWorkoutContext } from '../../providers/WorkoutContext'
 
 const SetEditForm = ({ setId, onClose }) => {
     const { fetchSetDetails, updateSet } = useWorkoutContext()

@@ -1,8 +1,8 @@
 import { useState, useContext } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card'
 import { Dialog, DialogTrigger, DialogContent } from '@radix-ui/react-dialog'
-import AuthContext from '../context/AuthContext'
-import UserDetailsEditForm from '../components/forms/UserDetailsEditForm'
+import AuthContext from '../../providers/AuthContext'
+import UserDetailsEditForm from './UserDetailsEditForm'
 import { formatDateTime } from '../lib/utils'
 
 const UserDetailsCard = ({ user }) => {

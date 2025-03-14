@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import AuthContext from '../context/AuthContext'
+import AuthContext from '../../providers/AuthContext'
 
 const WorkoutFeed = ({ setWorkoutId }) => {
     const { accessToken } = useContext(AuthContext)
