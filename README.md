@@ -17,7 +17,7 @@ Gains Trust Unchained is a personal fitness tracking app designed to provide a *
 | **`refactoring/ViewSets`**      | ✅ **Complete Backend Refactor** (Django DRF ViewSets, improved API structure). |
 | **`refactoring/ContextFrontend`** | 🔥 **Frontend Overhaul in Progress** (modular API calls, improved UI/UX). |
 
-### 🔎 **Where to Find the Best Code**  
+### 🔎 **Where to Find the Latest Code**  
 If you're looking for **the most polished backend code**, check out **`refactoring/ViewSets`**.  
 For **the ongoing frontend overhaul**, see **`refactoring/ContextFrontend`**.
 
