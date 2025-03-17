@@ -31,6 +31,7 @@
         "react-marquee-slider": "^1.1.5",
         "react-router-dom": "^7.1.5",
         "react-scripts": "5.0.1",
+        "react-terminal-ui": "^1.4.0",
         "recharts": "^2.15.1",
         "shadcn-ui": "^0.9.4",
         "tailwind-merge": "^3.0.1",
