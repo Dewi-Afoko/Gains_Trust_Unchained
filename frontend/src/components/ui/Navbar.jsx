@@ -43,7 +43,8 @@ const Navbar = () => {
             {/* Logo / Home Link */}
             <div className="flex items-center space-x-3 pl-6">
                 <img src={logo} alt="Gains Trust Logo" className="w-16 h-16" />
-                <Link to="/" className="text-2xl font-bold tracking-wide uppercase hover:text-yellow-300 transition duration-200">
+                <Link to="/" className="bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700
+                text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] gains-font">
                     Gains Trust
                 </Link>
             </div>
