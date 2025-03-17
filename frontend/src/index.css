@@ -9,3 +9,14 @@
         -1px 1px 0 black,
         1px 1px 0 black;
 }
+
+@font-face {
+    font-family: 'GainsTrustFont';
+    src: url('./assets/fonts/kraftundstil.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.gains-font {
+    font-family: 'GainsTrustFont', sans-serif;
+}

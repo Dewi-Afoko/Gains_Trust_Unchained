@@ -101,10 +101,11 @@ export function Hero() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="text-6xl font-bold uppercase tracking-wide text-yellow-600"
+                className="text-6xl font-bold uppercase tracking-wide bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] gains-font"
             >
                 Gains Trust
             </motion.h1>
+
 
             <motion.div
                 initial={{ opacity: 0 }}
