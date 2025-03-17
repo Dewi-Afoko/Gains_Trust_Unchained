@@ -10,7 +10,7 @@ export function FinalCTA() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, ease: 'easeOut' }}
-                    className="text-5xl font-bold uppercase text-yellow-600 tracking-wide"
+                    className="text-5xl font-bold uppercase tracking-wide bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] gains-font"
                 >
                     Ready to Train Smarter?
                 </motion.h2>

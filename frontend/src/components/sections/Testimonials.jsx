@@ -23,7 +23,7 @@ export function Testimonials() {
     return (
         <section className="py-16 bg-black text-white border-t border-yellow-600">
             <div className="container mx-auto px-6">
-                <h2 className="text-4xl font-bold text-center text-yellow-600 uppercase tracking-wide">
+                <h2 className="text-5xl text-center font-bold uppercase tracking-wide bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] gains-font">
                     Strength in Numbers
                 </h2>
                 <p className="text-gray-400 text-center mt-2">
