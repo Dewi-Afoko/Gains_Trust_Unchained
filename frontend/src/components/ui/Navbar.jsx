@@ -5,7 +5,6 @@ import axios from 'axios'
 import { LucideChevronDown, LucideChevronUp } from 'lucide-react'
 import logo from '../../assets/gains-trust-logo-final.png'
 
-
 const Navbar = () => {
     const navigate = useNavigate()
     const { user, accessToken, logout } = useContext(AuthContext)
@@ -39,39 +38,56 @@ const Navbar = () => {
 
     return (
         <nav className="bg-[#222] text-white p-4 flex justify-between items-center fixed top-0 left-0 w-full z-50 shadow-lg border-b border-yellow-600">
-
             {/* Logo / Home Link */}
             <div className="flex items-center space-x-3 pl-6">
                 <img src={logo} alt="Gains Trust Logo" className="w-16 h-16" />
-                <Link to="/" className="text-2xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700
-                text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] gains-font">
+                <Link
+                    to="/"
+                    className="text-2xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700
+                text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] gains-font"
+                >
                     Gains Trust
                 </Link>
             </div>
 
-
             {/* Navigation Links */}
             <div className="space-x-6 pr-6 flex items-center">
-                <Link to="/" className="hover:text-yellow-300 transition duration-200">
+                <Link
+                    to="/"
+                    className="hover:text-yellow-300 transition duration-200"
+                >
                     Home
                 </Link>
 
                 {user ? (
                     <>
-                        <Link to="/dashboard" className="hover:text-yellow-300 transition duration-200">
+                        <Link
+                            to="/dashboard"
+                            className="hover:text-yellow-300 transition duration-200"
+                        >
                             Dashboard
                         </Link>
-                        <Link to="/workouts" className="hover:text-yellow-300 transition duration-200">
+                        <Link
+                            to="/workouts"
+                            className="hover:text-yellow-300 transition duration-200"
+                        >
                             My Workouts
                         </Link>
 
                         {/* Live Workout Tracker Dropdown */}
                         <div className="relative">
                             <button
-                                onClick={() => setTrackerDropdownOpen(!trackerDropdownOpen)}
+                                onClick={() =>
+                                    setTrackerDropdownOpen(!trackerDropdownOpen)
+                                }
                                 className="flex items-center hover:text-yellow-300 transition duration-200"
                             >
-                                Live Tracker {trackerDropdownOpen ? <LucideChevronUp className="ml-1 w-4 h-4" /> : <LucideChevronDown className="ml-1 w-4 h-4" />}
+                                Live Tracker{' '}
+                                {trackerDropdownOpen ? (
+                                    <LucideChevronUp className="ml-1 w-4 h-4" />
+                                ) : (
+                                    <LucideChevronDown className="ml-1 w-4 h-4" />
+                                )}
                             </button>
 
                             {/* Scrollable Dropdown */}
@@ -79,12 +95,18 @@ const Navbar = () => {
                                 <div className="absolute left-0 mt-2 bg-[#333] text-white border border-red-800 rounded shadow-lg w-56 max-h-[250px] overflow-y-auto">
                                     {workouts?.length > 0 ? (
                                         workouts.map((workout) => (
-                                            <Link key={workout.id} to={`/livetracking/${workout.id}`} className="block px-4 py-2 hover:bg-red-800 transition">
+                                            <Link
+                                                key={workout.id}
+                                                to={`/livetracking/${workout.id}`}
+                                                className="block px-4 py-2 hover:bg-red-800 transition"
+                                            >
                                                 {workout.workout_name}
                                             </Link>
                                         ))
                                     ) : (
-                                        <p className="text-gray-400 text-center px-4 py-2">No active workouts</p>
+                                        <p className="text-gray-400 text-center px-4 py-2">
+                                            No active workouts
+                                        </p>
                                     )}
                                 </div>
                             )}
@@ -92,17 +114,26 @@ const Navbar = () => {
                     </>
                 ) : (
                     <>
-                        <Link to="/login" className="hover:text-yellow-300 transition duration-200">
+                        <Link
+                            to="/login"
+                            className="hover:text-yellow-300 transition duration-200"
+                        >
                             Login
                         </Link>
-                        <Link to="/register" className="hover:text-yellow-300 transition duration-200">
+                        <Link
+                            to="/register"
+                            className="hover:text-yellow-300 transition duration-200"
+                        >
                             Register
                         </Link>
                     </>
                 )}
 
                 {user && (
-                    <button onClick={handleLogout} className="hover:text-yellow-300 transition duration-200">
+                    <button
+                        onClick={handleLogout}
+                        className="hover:text-yellow-300 transition duration-200"
+                    >
                         Logout
                     </button>
                 )}

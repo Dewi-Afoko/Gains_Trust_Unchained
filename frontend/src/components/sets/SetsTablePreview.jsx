@@ -1,11 +1,14 @@
-import { formatLoading } from "../lib/utils"
-import { useState } from "react";
-import { Root as PopoverRoot, Trigger as PopoverTrigger, Content as PopoverContent } from "@radix-ui/react-popover";
-import RadialMenuPopover from "./ui/RadialMenuPopover";
-
+import { formatLoading } from '../lib/utils'
+import { useState } from 'react'
+import {
+    Root as PopoverRoot,
+    Trigger as PopoverTrigger,
+    Content as PopoverContent,
+} from '@radix-ui/react-popover'
+import RadialMenuPopover from './ui/RadialMenuPopover'
 
 const SetsTablePreview = ({ sets }) => {
-    const [selectedSetId, setSelectedSetId] = useState(null);
+    const [selectedSetId, setSelectedSetId] = useState(null)
 
     if (!sets || sets.length === 0) {
         return <p className="text-white mt-4">No sets available.</p>
@@ -39,19 +42,39 @@ const SetsTablePreview = ({ sets }) => {
                 </thead>
                 <tbody>
                     {sets.map((set, index) => {
-                        console.log(`set ${index}:`, { setId: set.id, workoutId: set.workout });
+                        console.log(`set ${index}:`, {
+                            setId: set.id,
+                            workoutId: set.workout,
+                        })
 
                         return (
                             <tr key={index} className="text-white">
                                 <td className="border border-yellow-400 p-2">
-                                    <PopoverRoot open={selectedSetId === set.id} onOpenChange={(open) => setSelectedSetId(open ? set.id : null)}>
+                                    <PopoverRoot
+                                        open={selectedSetId === set.id}
+                                        onOpenChange={(open) =>
+                                            setSelectedSetId(
+                                                open ? set.id : null
+                                            )
+                                        }
+                                    >
                                         <PopoverTrigger asChild>
                                             <div className="cursor-pointer hover:bg-gray-700 transition w-full h-full">
                                                 {set.exercise_name}
                                             </div>
                                         </PopoverTrigger>
-                                        <PopoverContent sideOffset={10} align="start" className="z-50">
-                                            <RadialMenuPopover setId={set.id} workoutId={set.workout} closeMenu={() => setSelectedSetId(null)} />
+                                        <PopoverContent
+                                            sideOffset={10}
+                                            align="start"
+                                            className="z-50"
+                                        >
+                                            <RadialMenuPopover
+                                                setId={set.id}
+                                                workoutId={set.workout}
+                                                closeMenu={() =>
+                                                    setSelectedSetId(null)
+                                                }
+                                            />
                                         </PopoverContent>
                                     </PopoverRoot>
                                 </td>
@@ -78,10 +101,9 @@ const SetsTablePreview = ({ sets }) => {
                                     {set.notes || 'N/A'}
                                 </td>
                             </tr>
-                        );
+                        )
                     })}
                 </tbody>
-
             </table>
         </div>
     )

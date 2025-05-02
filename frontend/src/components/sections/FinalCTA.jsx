@@ -21,8 +21,9 @@ export function FinalCTA() {
                     transition={{ duration: 0.9, ease: 'easeOut', delay: 0.2 }}
                     className="mt-4 text-lg text-gray-300 max-w-xl mx-auto"
                 >
-                        Create your first workout, track every set, and analyze your progress. We&apos;ll keep your training structured — you focus on GAINS!
-
+                    Create your first workout, track every set, and analyze your
+                    progress. We&apos;ll keep your training structured — you
+                    focus on GAINS!
                 </motion.p>
 
                 <motion.div
@@ -31,7 +32,9 @@ export function FinalCTA() {
                     transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
                     className="mt-6"
                 >
-                    <Button variant="primary" size="lg">Get Started</Button>
+                    <Button variant="primary" size="lg">
+                        Get Started
+                    </Button>
                 </motion.div>
             </div>
         </section>

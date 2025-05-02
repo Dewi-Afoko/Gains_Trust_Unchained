@@ -7,8 +7,16 @@ import LoadingSpinner from '../ui/LoadingSpinner'
 import { useNavigate } from 'react-router-dom'
 
 const WorkoutDetailsFull = () => {
-    const { workout, sets, loading, error, setWorkout, updateSingleSet, toggleComplete, deleteWorkout } =
-        useWorkoutContext()
+    const {
+        workout,
+        sets,
+        loading,
+        error,
+        setWorkout,
+        updateSingleSet,
+        toggleComplete,
+        deleteWorkout,
+    } = useWorkoutContext()
     const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
     const [isSetModalOpen, setIsSetModalOpen] = useState(false)
     const navigate = useNavigate()
@@ -23,21 +31,19 @@ const WorkoutDetailsFull = () => {
     }
 
     const handleDeleteWorkout = async () => {
-        if (!workout?.id) return;
-    
+        if (!workout?.id) return
+
         try {
-            await deleteWorkout(workout.id);
-            navigate("/workouts"); // ✅ Redirect after deletion
+            await deleteWorkout(workout.id)
+            navigate('/workouts') // ✅ Redirect after deletion
         } catch (error) {
-            console.error("❌ Error deleting workout:", error);
+            console.error('❌ Error deleting workout:', error)
         }
-    };
+    }
 
-
-    if (loading) return <LoadingSpinner />;
-    if (error) return <p className="text-red-500">Error: {error}</p>;
-    if (!workout) return <p className="text-yellow-400">Workout not found.</p>; // ✅ Prevents crash
-
+    if (loading) return <LoadingSpinner />
+    if (error) return <p className="text-red-500">Error: {error}</p>
+    if (!workout) return <p className="text-yellow-400">Workout not found.</p> // ✅ Prevents crash
 
     return (
         <div className="w-full max-w-6xl mx-auto text-white">
@@ -46,21 +52,25 @@ const WorkoutDetailsFull = () => {
                 <h2 className="text-xl font-bold text-yellow-400">
                     {workout?.workout_name}
                 </h2>
-    
+
                 {/* ✅ Show Completed Duration if workout is complete */}
                 {workout?.duration && (
                     <p className="text-yellow-300 text-lg font-bold">
-                        Completed In: {new Date(workout.duration * 1000).toISOString().substr(11, 8)}
+                        Completed In:{' '}
+                        {new Date(workout.duration * 1000)
+                            .toISOString()
+                            .substr(11, 8)}
                     </p>
                 )}
-    
+
                 <p>
-                    <strong>Date:</strong> {new Date(workout?.date).toLocaleDateString()}
+                    <strong>Date:</strong>{' '}
+                    {new Date(workout?.date).toLocaleDateString()}
                 </p>
                 <p>
                     <strong>Notes:</strong> {workout?.notes || 'N/A'}
                 </p>
-    
+
                 {/* 🔘 Action Buttons */}
                 <div className="flex flex-wrap gap-4 mt-4">
                     {/* ✏️ Edit Workout */}
@@ -70,7 +80,7 @@ const WorkoutDetailsFull = () => {
                     >
                         Edit Workout
                     </button>
-    
+
                     {/* ➕ Add Set */}
                     <button
                         onClick={() => setIsSetModalOpen(true)}
@@ -78,7 +88,7 @@ const WorkoutDetailsFull = () => {
                     >
                         Add Set
                     </button>
-    
+
                     {/* 🚀 Start Live Tracking */}
                     <button
                         onClick={() => navigate(`/livetracking/${workout.id}`)}
@@ -86,7 +96,7 @@ const WorkoutDetailsFull = () => {
                     >
                         🚀 Start Live Tracking
                     </button>
-    
+
                     {/* ❌ Delete Workout */}
                     <button
                         onClick={() => handleDeleteWorkout()}
@@ -95,7 +105,6 @@ const WorkoutDetailsFull = () => {
                         Delete Workout
                     </button>
 
-    
                     {/* 🏁 Mark Complete - Only Shows If Workout is In Progress */}
                     {workout.start_time !== null && !workout.complete && (
                         <button
@@ -107,10 +116,10 @@ const WorkoutDetailsFull = () => {
                     )}
                 </div>
             </div>
-    
+
             {/* 🏋🏾‍♂️ Sets Table (No Complete Button) */}
             <SetsTableFull hideCompleteButton={true} />
-    
+
             {/* 🔄 Modals */}
             {isWorkoutModalOpen && (
                 <WorkoutEditForm
@@ -119,7 +128,7 @@ const WorkoutDetailsFull = () => {
                     onUpdate={handleWorkoutUpdate}
                 />
             )}
-    
+
             {isSetModalOpen && (
                 <SetCreationForm
                     onSetCreated={handleSetUpdated}
@@ -127,8 +136,7 @@ const WorkoutDetailsFull = () => {
                 />
             )}
         </div>
-    );
-    
+    )
 }
 
 export default WorkoutDetailsFull

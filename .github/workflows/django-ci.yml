@@ -18,7 +18,7 @@ jobs:
           POSTGRES_USER: dewi
           POSTGRES_PASSWORD: ""
           POSTGRES_DB: gains_trust
-          POSTGRES_HOST_AUTH_METHOD: trust  # 🚀 Allows connections without a password
+          POSTGRES_HOST_AUTH_METHOD: trust # 🚀 Allows connections without a password
         ports:
           - 5432:5432
         options: --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5

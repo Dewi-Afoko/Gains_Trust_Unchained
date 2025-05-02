@@ -15,6 +15,6 @@ export function formatDateTime(isoString) {
 }
 
 export const formatLoading = (loading) => {
-    if (!loading || loading === 0) return "Bodyweight"; // ✅ Replace blank with "Bodyweight"
-    return `${loading}kg`; // ✅ Append kg only if loading is set
-};
+    if (!loading || loading === 0) return 'Bodyweight' // ✅ Replace blank with "Bodyweight"
+    return `${loading}kg` // ✅ Append kg only if loading is set
+}

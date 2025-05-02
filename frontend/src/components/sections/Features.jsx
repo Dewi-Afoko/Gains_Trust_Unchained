@@ -28,7 +28,8 @@ export function Features() {
                     Features Built for Strength
                 </h2>
                 <p className="text-gray-400 text-center mt-2">
-                    A workout tracker designed for those who take training seriously.
+                    A workout tracker designed for those who take training
+                    seriously.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
@@ -42,9 +43,15 @@ export function Features() {
                             {/* Riveted Metal Border Effect */}
                             <div className="absolute inset-0 border border-gray-800 shadow-inner opacity-50"></div>
 
-                            <div className="flex justify-center mb-4">{feature.icon}</div>
-                            <h3 className="text-xl font-semibold uppercase">{feature.title}</h3>
-                            <p className="text-gray-400 mt-2">{feature.description}</p>
+                            <div className="flex justify-center mb-4">
+                                {feature.icon}
+                            </div>
+                            <h3 className="text-xl font-semibold uppercase">
+                                {feature.title}
+                            </h3>
+                            <p className="text-gray-400 mt-2">
+                                {feature.description}
+                            </p>
                         </motion.div>
                     ))}
                 </div>

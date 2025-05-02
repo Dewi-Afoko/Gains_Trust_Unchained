@@ -19,30 +19,31 @@ export const AuthProvider = ({ children }) => {
             logout() // No refresh token available → Force logout
             return null
         }
-    
+
         try {
-            const response = await axios.post(`${API_BASE_URL}/token/refresh/`, {
-                refresh: refreshToken,
-            })
-    
+            const response = await axios.post(
+                `${API_BASE_URL}/token/refresh/`,
+                {
+                    refresh: refreshToken,
+                }
+            )
+
             const newAccessToken = response.data.access
             setAccessToken(newAccessToken)
             localStorage.setItem('accessToken', newAccessToken)
-    
+
             // 🛠️ Store new refresh token if API provides it
             if (response.data.refresh) {
                 setRefreshToken(response.data.refresh)
                 localStorage.setItem('refreshToken', response.data.refresh)
             }
-    
+
             return newAccessToken
         } catch (error) {
             logout() // Refresh failed → Force logout
             return null
         }
     }
-    
-    
 
     const login = (userData, access, refresh) => {
         setUser(userData)
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }) => {
         setRefreshToken(refresh)
         localStorage.setItem('accessToken', access)
         localStorage.setItem('refreshToken', refresh)
-    }    
+    }
 
     const logout = () => {
         setUser(null)
@@ -58,19 +59,20 @@ export const AuthProvider = ({ children }) => {
         setRefreshToken(null)
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
-    }    
+    }
 
     const fetchUser = async () => {
         if (!accessToken) return
-    
+
         try {
             const response = await axios.get(`${API_BASE_URL}/users/me/`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
             })
-    
+
             setUser(response.data.user)
         } catch (error) {
-            if (error.response?.status === 401) { // 401 = Unauthorized (Token likely expired)
+            if (error.response?.status === 401) {
+                // 401 = Unauthorized (Token likely expired)
                 const newAccessToken = await refreshAccessToken()
                 if (newAccessToken) {
                     fetchUser() // Retry fetching user with new token
@@ -78,12 +80,10 @@ export const AuthProvider = ({ children }) => {
             }
         }
     }
-    
 
     useEffect(() => {
         fetchUser()
     }, [accessToken])
-
 
     return (
         <AuthContext.Provider
