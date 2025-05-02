@@ -79,7 +79,10 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
                                 )}
                                 {set.set_duration !== null && (
                                     <p className="text-sm text-gray-300">
-                                        ⏱️ Set Duration: {new Date(set.set_duration * 1000).toISOString().substr(14, 5)}
+                                        ⏱️ Set Duration:{' '}
+                                        {new Date(set.set_duration * 1000)
+                                            .toISOString()
+                                            .substr(14, 5)}
                                     </p>
                                 )}
 

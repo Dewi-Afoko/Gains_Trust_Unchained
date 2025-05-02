@@ -11,8 +11,7 @@ const button = tv({
 
             secondary:
                 'bg-gray-800 text-gray-200 border border-gray-600 hover:bg-gray-700 active:bg-gray-900',
-            ghost:
-                'bg-transparent text-gray-300 border border-gray-600 hover:bg-gray-800 active:bg-gray-900',
+            ghost: 'bg-transparent text-gray-300 border border-gray-600 hover:bg-gray-800 active:bg-gray-900',
         },
         size: {
             sm: 'text-sm px-3 py-1',

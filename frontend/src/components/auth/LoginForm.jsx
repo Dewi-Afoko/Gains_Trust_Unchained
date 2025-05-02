@@ -1,8 +1,7 @@
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { useContext } from 'react'
-import AuthContext from '../../context/AuthContext'
+import { useAuthContext } from '../../providers/AuthContext'
 import toast from 'react-hot-toast' // ✅ Import toast notifications
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
@@ -14,7 +13,7 @@ const LoginForm = () => {
         formState: { errors },
     } = useForm()
     const navigate = useNavigate()
-    const { login } = useContext(AuthContext)
+    const { login } = useAuthContext()
 
     const onSubmit = async (data) => {
         try {
@@ -37,54 +36,54 @@ const LoginForm = () => {
     }
 
     return (
-        <div className="min-h-screen flex justify-center items-center bg-[#8B0000]">
-            <div className="w-full max-w-md">
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="flex flex-col space-y-4 bg-[#8B0000] text-white p-6 rounded-lg shadow-md"
-                >
-                    <h2 className="text-xl font-bold">Login</h2>
-
-                    <label className="flex flex-col">
-                        Username
-                        <input
-                            {...register('username', {
-                                required: 'Username is required',
-                            })}
-                            className="p-2 rounded text-black"
-                        />
-                        {errors.username && (
-                            <p className="text-yellow-400">
-                                {errors.username.message}
-                            </p>
-                        )}
-                    </label>
-
-                    <label className="flex flex-col">
-                        Password
-                        <input
-                            type="password"
-                            {...register('password', {
-                                required: 'Password is required',
-                            })}
-                            className="p-2 rounded text-black"
-                        />
-                        {errors.password && (
-                            <p className="text-yellow-400">
-                                {errors.password.message}
-                            </p>
-                        )}
-                    </label>
-
-                    <button
-                        type="submit"
-                        className="bg-yellow-400 text-black font-bold p-2 rounded hover:bg-yellow-300"
-                    >
-                        Login
-                    </button>
-                </form>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="text-center">
+                <p className="text-gray-300">Enter your credentials to continue</p>
             </div>
-        </div>
+            <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-brand-gold mb-1">
+                        Username
+                    </label>
+                    <input
+                        {...register('username', {
+                            required: 'Username is required',
+                        })}
+                        className="w-full px-4 py-2 bg-brand-dark-2 border border-brand-gold rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent text-white placeholder-gray-400"
+                        placeholder="Enter your username"
+                    />
+                    {errors.username && (
+                        <p className="mt-1 text-sm text-red-400">
+                            {errors.username.message}
+                        </p>
+                    )}
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-brand-gold mb-1">
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        {...register('password', {
+                            required: 'Password is required',
+                        })}
+                        className="w-full px-4 py-2 bg-brand-dark-2 border border-brand-gold rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent text-white placeholder-gray-400"
+                        placeholder="Enter your password"
+                    />
+                    {errors.password && (
+                        <p className="mt-1 text-sm text-red-400">
+                            {errors.password.message}
+                        </p>
+                    )}
+                </div>
+            </div>
+            <button
+                type="submit"
+                className="w-full bg-brand-red text-white font-semibold py-3 rounded-lg hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 transition-colors gains-font"
+            >
+                Sign In
+            </button>
+        </form>
     )
 }
 

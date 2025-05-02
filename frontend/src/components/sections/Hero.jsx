@@ -12,12 +12,11 @@ export function Hero() {
         '> Welcome to GAINS TRUST!',
         '> Track workouts with precision.',
         '> Analyse progress.',
-        '> Build unstoppable strength.'
+        '> Build unstoppable strength.',
     ]
 
     const [typedLines, setTypedLines] = useState([]) // Stores all completed & active lines
     const [isTypingComplete, setIsTypingComplete] = useState(false) // Track overall completion
-
 
     useEffect(() => {
         let index = 0
@@ -25,21 +24,26 @@ export function Hero() {
 
         const typeNextChar = () => {
             if (index >= terminalLines.length) return // Prevent accessing undefined index
-        
+
             setTypedLines((prev) => {
                 const newLines = [...prev]
                 const currentLine = newLines[index] || '' // Get current line being typed
-        
+
                 // Append next character
-                if (terminalLines[index]) {  // ✅ Ensure the line exists before accessing substring
-                    newLines[index] = terminalLines[index].substring(0, charIndex + 1)
+                if (terminalLines[index]) {
+                    // ✅ Ensure the line exists before accessing substring
+                    newLines[index] = terminalLines[index].substring(
+                        0,
+                        charIndex + 1
+                    )
                 }
                 return newLines
             })
-        
+
             charIndex++
-        
-            if (charIndex < terminalLines[index]?.length) {  // ✅ Ensure index is valid before accessing length
+
+            if (charIndex < terminalLines[index]?.length) {
+                // ✅ Ensure index is valid before accessing length
                 setTimeout(typeNextChar, 50) // Continue typing current line
             } else {
                 index++ // Move to next line
@@ -63,7 +67,11 @@ export function Hero() {
             <br />
             <div
                 className="absolute inset-0 opacity-20"
-                style={{ backgroundImage: `url(${industrialTexture})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                style={{
+                    backgroundImage: `url(${industrialTexture})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
             />
             {/* Hero Text */}
             <div className="relative flex items-center justify-center">
@@ -78,10 +86,10 @@ export function Hero() {
                     transition={{
                         duration: 2,
                         repeat: Infinity,
-                        ease: "easeInOut",
+                        ease: 'easeInOut',
                     }}
                 />
-                
+
                 {/* Logo Image */}
                 <motion.img
                     src={logo}
@@ -89,7 +97,7 @@ export function Hero() {
                     className="relative w-24 h-24 mb-4"
                     initial={{ opacity: 0, scale: 1 }}
                     animate={{ opacity: 1, scale: 2.8 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
                 />
             </div>
 
@@ -106,7 +114,6 @@ export function Hero() {
             >
                 Gains Trust
             </motion.h1>
-
 
             <motion.div
                 initial={{ opacity: 0 }}
@@ -129,14 +136,15 @@ export function Hero() {
                             transition={{ duration: 0.3, delay: idx * 0.5 }}
                         >
                             {line}
-                            {idx === typedLines.length - 1 && !isTypingComplete && (
+                            {idx === typedLines.length - 1 &&
+                                !isTypingComplete && (
                                 <motion.span
                                     className="text-yellow-400"
                                     animate={{ opacity: [0, 1, 0] }}
                                     transition={{
                                         duration: 0.8,
                                         repeat: Infinity,
-                                        ease: 'easeInOut'
+                                        ease: 'easeInOut',
                                     }}
                                 >
                                     █
@@ -144,8 +152,6 @@ export function Hero() {
                             )}
                         </motion.p>
                     ))}
-
-
                 </Terminal>
             </motion.div>
 
@@ -153,12 +159,13 @@ export function Hero() {
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
                 className="mt-6 relative z-20" //  Ensure it's above everything else
             >
-                <Button variant="primary" size="lg" className="relative z-30">Get Started</Button>
+                <Button variant="primary" size="lg" className="relative z-30">
+                    Get Started
+                </Button>
             </motion.div>
-
 
             {/* Scroll Indicator */}
             <motion.div
@@ -171,7 +178,9 @@ export function Hero() {
                 }}
                 className="absolute bottom-10 flex flex-col items-center"
             >
-                <span className="text-gray-400 text-sm uppercase">Features</span>
+                <span className="text-gray-400 text-sm uppercase">
+                    Features
+                </span>
                 <LucideArrowDown className="w-6 h-6 text-gray-400 animate-bounce" />
             </motion.div>
         </section>

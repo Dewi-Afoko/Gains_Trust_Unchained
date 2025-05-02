@@ -16,9 +16,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     const [error, setError] = useState(null)
     const [completeSets, setCompleteSets] = useState([])
     const [incompleteSets, setIncompleteSets] = useState([])
-    const [timeElapsed, setTimeElapsed] = useState(0); // ⏳ Track elapsed time
-    const [pagination, setPagination] = useState([]);
-
+    const [timeElapsed, setTimeElapsed] = useState(0) // ⏳ Track elapsed time
+    const [pagination, setPagination] = useState([])
 
     // ✅ Centralized API request helper function
     const apiRequest = async (method, url, data = {}) => {
@@ -45,75 +44,72 @@ export const WorkoutProvider = ({ workoutId, children }) => {
 
     useEffect(() => {
         if (workout?.start_time) {
-            const startTime = new Date(workout.start_time);
-            setTimeElapsed(differenceInSeconds(new Date(), startTime));
-    
+            const startTime = new Date(workout.start_time)
+            setTimeElapsed(differenceInSeconds(new Date(), startTime))
+
             const interval = setInterval(() => {
-                setTimeElapsed(differenceInSeconds(new Date(), startTime));
-            }, 1000);
-    
-            return () => clearInterval(interval); // ✅ Cleanup on unmount
+                setTimeElapsed(differenceInSeconds(new Date(), startTime))
+            }, 1000)
+
+            return () => clearInterval(interval) // ✅ Cleanup on unmount
         } else {
-            setTimeElapsed(0); // ✅ Reset when no `start_time`
+            setTimeElapsed(0) // ✅ Reset when no `start_time`
         }
-    }, [workout?.start_time, workout?.id]); // ✅ Runs when `start_time` updates
-    
+    }, [workout?.start_time, workout?.id]) // ✅ Runs when `start_time` updates
 
     // 📌 WORKOUT FUNCTIONS
 
     const fetchAllWorkouts = async (page = 1) => {
-        setLoading(true);
+        setLoading(true)
         try {
             const data = await apiRequest(
                 'get',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/?page=${page}`
-            );
-    
-            setWorkouts(data.results || []);  // ✅ Extracts workouts from `results`
-            
+            )
+
+            setWorkouts(data.results || []) // ✅ Extracts workouts from `results`
+
             // Store pagination metadata for future use (if needed)
-            setPagination({ count: data.count, next: data.next, previous: data.previous });
-    
+            setPagination({
+                count: data.count,
+                next: data.next,
+                previous: data.previous,
+            })
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
-    
+    }
 
     const fetchWorkoutDetails = async (workoutId) => {
-        setLoading(true);
+        setLoading(true)
         try {
             // ✅ Fetch workout data
             const workoutData = await apiRequest(
                 'get',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`
-            );
-            console.log("Fetched workout details:", workoutData);  
-            setWorkout(workoutData);
-    
+            )
+            console.log('Fetched workout details:', workoutData)
+            setWorkout(workoutData)
+
             // ✅ Fetch sets separately
             const setsData = await apiRequest(
                 'get',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`
-            );
-            console.log("Fetched sets:", setsData);
-    
-            const allSets = setsData.results || [];
-            setSets(allSets);
+            )
+            console.log('Fetched sets:', setsData)
+
+            const allSets = setsData.results || []
+            setSets(allSets)
             setWorkoutSets((prev) => ({
                 ...prev,
                 [workoutId]: allSets,
-            }));
-    
+            }))
         } catch (error) {
-            console.error("Error fetching workout details:", error);
+            console.error('Error fetching workout details:', error)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
-    
-    
-    
+    }
 
     const updateWorkout = async (workoutId, updatedFields) => {
         await apiRequest(
@@ -126,52 +122,46 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     }
 
     const startWorkout = async (workoutId) => {
-        if (!accessToken) return;
+        if (!accessToken) return
         try {
-            setTimeElapsed(0); // ✅ Reset immediately for UI update
+            setTimeElapsed(0) // ✅ Reset immediately for UI update
 
             await apiRequest(
                 'patch',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/start_workout/`,
                 {}
-            );
-    
-            console.log(`🔄 Fetching updated workout details after starting workout ${workoutId}...`);
-            await fetchWorkoutDetails(workoutId); // ✅ Ensure UI updates
-    
-            toast.success('Workout started!');
+            )
+
+            console.log(
+                `🔄 Fetching updated workout details after starting workout ${workoutId}...`
+            )
+            await fetchWorkoutDetails(workoutId) // ✅ Ensure UI updates
+
+            toast.success('Workout started!')
         } catch (err) {
-            console.error('❌ Error starting workout:', err);
-            toast.error('Failed to start workout.');
+            console.error('❌ Error starting workout:', err)
+            toast.error('Failed to start workout.')
         }
-    };
-    
-    
-    
-
-
+    }
 
     const toggleComplete = async (workoutId) => {
-        if (!accessToken) return;
+        if (!accessToken) return
         try {
             await apiRequest(
                 'patch',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/complete_workout/`,
                 {}
-            );
+            )
 
-            await fetchWorkoutDetails(workoutId); // ✅ Force re-fetch of workout details
-            await fetchAllWorkouts(); // ✅ Force UI re-render by fetching fresh data
+            await fetchWorkoutDetails(workoutId) // ✅ Force re-fetch of workout details
+            await fetchAllWorkouts() // ✅ Force UI re-render by fetching fresh data
 
-    
-            toast.success('Workout completion status updated!');
+            toast.success('Workout completion status updated!')
         } catch (err) {
-            console.error('❌ Error updating workout completion:', err);
-            toast.error('Failed to mark workout complete.');
+            console.error('❌ Error updating workout completion:', err)
+            toast.error('Failed to mark workout complete.')
         }
-    };
-    
-    
+    }
 
     const deleteWorkout = async (workoutId) => {
         await apiRequest(
@@ -190,28 +180,29 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     }
 
     const duplicateWorkout = async (workoutId) => {
-        if (!accessToken) return;
-    
+        if (!accessToken) return
+
         try {
-            const response = await apiRequest("post", `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/duplicate/`);
-            const newWorkout = response.workout;
-    
+            const response = await apiRequest(
+                'post',
+                `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/duplicate/`
+            )
+            const newWorkout = response.workout
+
             if (!newWorkout || !newWorkout.id) {
-                throw new Error("Invalid response: Workout data missing.");
+                throw new Error('Invalid response: Workout data missing.')
             }
-    
+
             // ✅ Update state with the duplicated workout immediately
-            setWorkouts((prev) => [...prev, newWorkout]);
-    
-            toast.success("Workout duplicated successfully!");
-            return newWorkout; // ✅ Return the new workout for immediate UI updates
+            setWorkouts((prev) => [...prev, newWorkout])
+
+            toast.success('Workout duplicated successfully!')
+            return newWorkout // ✅ Return the new workout for immediate UI updates
         } catch (err) {
-            console.error("❌ Error duplicating workout:", err);
-            toast.error("Failed to duplicate workout.");
+            console.error('❌ Error duplicating workout:', err)
+            toast.error('Failed to duplicate workout.')
         }
-    };
-    
-    
+    }
 
     // 📌 SET FUNCTIONS
 
@@ -358,30 +349,27 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     }
 
     const moveSet = async (setId, newPosition) => {
-        if (!accessToken || !workout?.id) return;
-    
+        if (!accessToken || !workout?.id) return
+
         // Prevent invalid moves
-        if (newPosition < 1 || newPosition > sets.length) return;
-    
+        if (newPosition < 1 || newPosition > sets.length) return
+
         try {
             const response = await apiRequest(
                 'patch',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workout.id}/sets/${setId}/move/`,
                 { new_position: newPosition }
-            );
-    
-            console.log("🔍 API Response:", response);
-    
-            await fetchWorkoutDetails(workout.id); // ✅ Ensure UI updates correctly
-            toast.success('Set reordered successfully!');
+            )
+
+            console.log('🔍 API Response:', response)
+
+            await fetchWorkoutDetails(workout.id) // ✅ Ensure UI updates correctly
+            toast.success('Set reordered successfully!')
         } catch (err) {
-            console.error('❌ Error moving set:', err);
-            toast.error('Failed to move set.');
+            console.error('❌ Error moving set:', err)
+            toast.error('Failed to move set.')
         }
-    };
-    
-    
-    
+    }
 
     return (
         <WorkoutContext.Provider
@@ -411,7 +399,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 duplicateWorkout,
                 startWorkout,
                 timeElapsed,
-                moveSet
+                moveSet,
             }}
         >
             {children}

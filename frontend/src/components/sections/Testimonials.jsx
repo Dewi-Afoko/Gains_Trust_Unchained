@@ -27,7 +27,8 @@ export function Testimonials() {
                     Strength in Numbers
                 </h2>
                 <p className="text-gray-400 text-center mt-2">
-                    Elite athletes and comrades trust Gains Trust for their training.
+                    Elite athletes and comrades trust Gains Trust for their
+                    training.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
@@ -35,14 +36,19 @@ export function Testimonials() {
                         <motion.div
                             key={index}
                             className="p-6 bg-[#222] border-l-4 border-yellow-600 shadow-lg"
-                    
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: index * 0.3 }}
                         >
-                            <p className="text-xl italic text-gray-300">&ldquo;{testimonial.quote}&rdquo;</p>
-                            <p className="text-yellow-600 font-bold mt-4">{testimonial.name}</p>
-                            <p className="text-gray-500 text-sm">{testimonial.role}</p>
+                            <p className="text-xl italic text-gray-300">
+                                &ldquo;{testimonial.quote}&rdquo;
+                            </p>
+                            <p className="text-yellow-600 font-bold mt-4">
+                                {testimonial.name}
+                            </p>
+                            <p className="text-gray-500 text-sm">
+                                {testimonial.role}
+                            </p>
                         </motion.div>
                     ))}
                 </div>
