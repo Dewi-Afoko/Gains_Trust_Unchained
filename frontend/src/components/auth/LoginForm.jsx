@@ -23,9 +23,9 @@ const LoginForm = () => {
             )
 
             login(
-                { username: data.username },
-                response.data.access,
-                response.data.refresh
+                response.data.user,
+                response.data.access_token,
+                response.data.refresh_token
             )
 
             toast.success(`Welcome, Comrade ${data.username}! Redirecting...`)

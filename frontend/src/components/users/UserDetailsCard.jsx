@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card'
 import { Dialog, DialogTrigger, DialogContent } from '@radix-ui/react-dialog'
 import AuthContext from '../../providers/AuthContext'
 import UserDetailsEditForm from './UserDetailsEditForm'
-import { formatDateTime } from '../lib/utils'
+import { formatDateTime } from '../../utils/formatters'
 
 const UserDetailsCard = ({ user }) => {
     const { accessToken, setUser } = useContext(AuthContext) // ✅ Added setUser from AuthContext

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use WorkoutContext
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import SetActions from './SetActions'
-import { formatLoading } from '../../lib/utils'
+import { formatLoading } from '../../utils/formatters'
 
 const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
     // ✅ Use context functions and state

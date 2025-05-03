@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import SetActionsLive from './SetActionsLive'
 import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Get context
-import { formatLoading } from '../../lib/utils'
+import { formatLoading } from '../../utils/formatters'
 
 const TimerLive = ({
     nextSet,

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useWorkoutContext } from '../../context/WorkoutContext'
+import { useWorkoutContext } from '../../providers/WorkoutContext'
 
 const SetCreationForm = ({ onClose }) => {
     const { workout, createSets } = useWorkoutContext() // ✅ Use createSets from context
