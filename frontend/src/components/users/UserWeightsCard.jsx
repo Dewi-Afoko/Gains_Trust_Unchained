@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardContent } from './ui/Card'
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card'
 import {
     LineChart,
     Line,

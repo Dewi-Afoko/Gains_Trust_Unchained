@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use context
-import WorkoutEditForm from '../forms/WorkoutEditForm'
-import SetsTablePreview from '../components/SetsTablePreview'
+import { useWorkoutContext, WorkoutProvider } from '../../providers/WorkoutContext' // ✅ Use context
+import WorkoutEditForm from '../workouts/WorkoutEditForm'
+import SetsTablePreview from '../sets/SetsTablePreview'
 import SetCreationForm from '../sets/SetCreationForm'
-import { WorkoutProvider } from '../../context/WorkoutContext'
 
 const WorkoutDetailsPreview = ({ workoutId }) => {
     const { workout, sets, loading, updateWorkout, fetchAllWorkouts } =

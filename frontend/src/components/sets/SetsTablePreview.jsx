@@ -1,11 +1,10 @@
-import { formatLoading } from '../lib/utils'
+import { formatLoading } from '../../utils/formatters'
 import { useState } from 'react'
 import {
     Root as PopoverRoot,
     Trigger as PopoverTrigger,
     Content as PopoverContent,
 } from '@radix-ui/react-popover'
-import RadialMenuPopover from './ui/RadialMenuPopover'
 
 const SetsTablePreview = ({ sets }) => {
     const [selectedSetId, setSelectedSetId] = useState(null)
@@ -50,35 +49,8 @@ const SetsTablePreview = ({ sets }) => {
                         return (
                             <tr key={index} className="text-white">
                                 <td className="border border-yellow-400 p-2">
-                                    <PopoverRoot
-                                        open={selectedSetId === set.id}
-                                        onOpenChange={(open) =>
-                                            setSelectedSetId(
-                                                open ? set.id : null
-                                            )
-                                        }
-                                    >
-                                        <PopoverTrigger asChild>
-                                            <div className="cursor-pointer hover:bg-gray-700 transition w-full h-full">
-                                                {set.exercise_name}
-                                            </div>
-                                        </PopoverTrigger>
-                                        <PopoverContent
-                                            sideOffset={10}
-                                            align="start"
-                                            className="z-50"
-                                        >
-                                            <RadialMenuPopover
-                                                setId={set.id}
-                                                workoutId={set.workout}
-                                                closeMenu={() =>
-                                                    setSelectedSetId(null)
-                                                }
-                                            />
-                                        </PopoverContent>
-                                    </PopoverRoot>
+                                    {set.exercise_name}
                                 </td>
-
                                 <td className="border border-yellow-400 p-2 text-center">
                                     {set.set_number}
                                 </td>

@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import LandingPage from './pages/LandingPage'
 import Register from './pages/Register'
 import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
 import { AuthProvider } from './providers/AuthContext'
 import { ToastProvider } from './providers/ToastContext'
 
@@ -52,6 +53,7 @@ function App() {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                 </Routes>
                 <Footer />
             </ToastProvider>

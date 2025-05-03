@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useWorkoutContext } from '../../context/WorkoutContext'
+import { useWorkoutContext } from '../../providers/WorkoutContext'
 import WorkoutTimerDisplay from './WorkoutTimerDisplay'
 import { motion, AnimatePresence } from 'framer-motion'
 

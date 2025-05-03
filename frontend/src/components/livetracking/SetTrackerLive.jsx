@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use context
 import SetEditForm from '../forms/SetEditForm'
-import { formatLoading } from '../../lib/utils'
+import { formatLoading } from '../../utils/formatters'
 
 const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
     const { sets } = useWorkoutContext() // ✅ Get sets from context
