@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
                 headers: { Authorization: `Bearer ${accessToken}` },
             })
 
-            setUser(response.data.user)
+            setUser(response.data)
         } catch (error) {
             if (error.response?.status === 401) {
                 // 401 = Unauthorized (Token likely expired)

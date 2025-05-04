@@ -66,7 +66,8 @@ export const WorkoutProvider = ({ workoutId, children }) => {
                 'get',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/?page=${page}`
             )
-
+            // DRF ViewSet returns paginated response: { count, next, previous, results }
+            console.log('Fetched workouts:', data)
             setWorkouts(data.results || []) // ✅ Extracts workouts from `results`
 
             // Store pagination metadata for future use (if needed)
@@ -83,7 +84,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
     const fetchWorkoutDetails = async (workoutId) => {
         setLoading(true)
         try {
-            // ✅ Fetch workout data
+            // ✅ Fetch workout data (detail endpoint returns object)
             const workoutData = await apiRequest(
                 'get',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/`
@@ -91,7 +92,7 @@ export const WorkoutProvider = ({ workoutId, children }) => {
             console.log('Fetched workout details:', workoutData)
             setWorkout(workoutData)
 
-            // ✅ Fetch sets separately
+            // ✅ Fetch sets separately (list endpoint returns paginated)
             const setsData = await apiRequest(
                 'get',
                 `${process.env.REACT_APP_API_BASE_URL}/workouts/${workoutId}/sets/`

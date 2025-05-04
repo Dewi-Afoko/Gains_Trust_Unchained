@@ -1,13 +1,13 @@
-import { useState, useContext } from 'react'
+import { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card'
 import { Dialog, DialogTrigger, DialogContent } from '@radix-ui/react-dialog'
-import AuthContext from '../../providers/AuthContext'
+import { useAuthContext } from '../../providers/AuthContext'
 import UserDetailsEditForm from './UserDetailsEditForm'
 import { formatDateTime } from '../../utils/formatters'
 
-const UserDetailsCard = ({ user }) => {
-    const { accessToken, setUser } = useContext(AuthContext) // ✅ Added setUser from AuthContext
-    const [updatedUser, setUpdatedUser] = useState(user) // ✅ Track updates
+const UserDetailsCard = () => {
+    const { user, accessToken, setUser } = useAuthContext()
+    const [updatedUser, setUpdatedUser] = useState(user)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const handleUserUpdate = (newUserData) => {

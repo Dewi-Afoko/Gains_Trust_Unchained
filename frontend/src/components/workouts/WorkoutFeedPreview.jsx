@@ -1,39 +1,7 @@
-import { useState, useEffect, useContext } from 'react'
-import AuthContext from '../../providers/AuthContext'
+import { useWorkoutContext } from '../../providers/WorkoutContext'
 
 const WorkoutFeed = ({ setWorkoutId }) => {
-    const { accessToken } = useContext(AuthContext)
-    const [workouts, setWorkouts] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
-
-    useEffect(() => {
-        const fetchWorkouts = async () => {
-            try {
-                const response = await fetch(
-                    `${process.env.REACT_APP_API_BASE_URL}/workouts/`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    }
-                )
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch workouts')
-                }
-
-                const data = await response.json()
-                setWorkouts(data.workouts)
-            } catch (error) {
-                setError(error.message)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchWorkouts()
-    }, [accessToken])
+    const { workouts, loading, error } = useWorkoutContext()
 
     if (loading) return <p className="text-white">Loading workouts...</p>
     if (error) return <p className="text-red-500">Error: {error}</p>
@@ -47,7 +15,7 @@ const WorkoutFeed = ({ setWorkoutId }) => {
                         <li
                             key={workout.id}
                             className="bg-[#400000] p-3 rounded-lg cursor-pointer hover:bg-[#500000] transition"
-                            onClick={() => setWorkoutId(workout.id)} // Clicking sets the workoutId
+                            onClick={() => setWorkoutId(workout.id)}
                         >
                             <strong>{workout.workout_name}</strong> -{' '}
                             {new Date(workout.date).toLocaleDateString()}
