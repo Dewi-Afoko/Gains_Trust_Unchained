@@ -1,8 +1,17 @@
 import { useState } from 'react'
-import { useWorkoutContext, WorkoutProvider } from '../../providers/WorkoutContext' // ✅ Use context
+import {
+    useWorkoutContext,
+    WorkoutProvider,
+} from '../../providers/WorkoutContext' // ✅ Use context
 import WorkoutEditForm from '../workouts/WorkoutEditForm'
 import SetsTablePreview from '../sets/SetsTablePreview'
 import SetCreationForm from '../sets/SetCreationForm'
+
+const Spinner = () => (
+    <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-50">
+        <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+)
 
 const WorkoutDetailsPreview = ({ workoutId }) => {
     const { workout, sets, loading, updateWorkout, fetchAllWorkouts } =
@@ -21,61 +30,71 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
         setIsSetModalOpen(false)
     }
 
-    if (loading) return <p className="text-white">Loading workout...</p>
-    if (!workout) return <p className="text-red-500">Workout not found.</p>
+    // If no workout at all (first load or invalid), show not found
+    if (!workout && !loading) {
+        return (
+            <div className="flex flex-1 items-center justify-center w-full h-full">
+                <span className="text-brand-red">Workout not found.</span>
+            </div>
+        )
+    }
 
     return (
-        <div className="w-full max-w-4xl bg-[#600000] border border-yellow-400 shadow-lg p-6 text-white rounded-lg">
-            <h2 className="text-xl font-bold text-yellow-400">
-                {workout?.workout_name}
-            </h2>
-            <p>
-                <strong>Date:</strong>{' '}
-                {new Date(workout?.date).toLocaleDateString()}
-            </p>
-            <p>
-                <strong>Notes:</strong> {workout?.notes || 'N/A'}
-            </p>
+        <div className="flex flex-col w-full h-full relative">
+            {/* Spinner overlay while loading, but keep previous data visible */}
+            {loading && <Spinner />}
+            {workout && (
+                <>
+                    <h2 className="text-xl font-bold text-brand-gold mb-4">
+                        {workout?.workout_name}
+                    </h2>
+                    <p>
+                        <strong>Date:</strong>{' '}
+                        {new Date(workout?.date).toLocaleDateString()}
+                    </p>
+                    <p>
+                        <strong>Notes:</strong> {workout?.notes || 'N/A'}
+                    </p>
 
-            {/* Buttons for Editing Workout & Adding Set */}
-            <div className="flex space-x-4 mt-4">
-                <button
-                    onClick={() => setIsEditModalOpen(true)}
-                    className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition"
-                >
-                    Edit Workout
-                </button>
-                <button
-                    onClick={() => setIsSetModalOpen(true)}
-                    className="bg-green-500 text-black px-4 py-2 rounded hover:bg-green-400 transition"
-                >
-                    Add Set
-                </button>
-            </div>
+                    {/* Buttons for Editing Workout & Adding Set */}
+                    <div className="flex space-x-4 mt-4">
+                        <button
+                            onClick={() => setIsEditModalOpen(true)}
+                            className="bg-brand-gold text-black px-4 py-2 rounded hover:bg-yellow-300 transition"
+                        >
+                            Edit Workout
+                        </button>
+                        <button
+                            onClick={() => setIsSetModalOpen(true)}
+                            className="bg-brand-green text-black px-4 py-2 rounded hover:bg-green-400 transition"
+                        >
+                            Add Set
+                        </button>
+                    </div>
 
-            {/* Edit Workout Modal */}
-            {isEditModalOpen && (
-                <WorkoutEditForm
-                    workout={workout}
-                    workoutId={workoutId}
-                    onClose={() => setIsEditModalOpen(false)}
-                    onUpdate={handleWorkoutUpdate}
-                />
+                    {/* Edit Workout Modal */}
+                    {isEditModalOpen && (
+                        <WorkoutEditForm
+                            workout={workout}
+                            workoutId={workoutId}
+                            onClose={() => setIsEditModalOpen(false)}
+                            onUpdate={handleWorkoutUpdate}
+                        />
+                    )}
+
+                    {/* Add Set Modal */}
+                    {isSetModalOpen && (
+                        <SetCreationForm
+                            workoutId={workoutId}
+                            onClose={() => setIsSetModalOpen(false)}
+                            onSetCreated={handleSetAdded}
+                        />
+                    )}
+
+                    {/* ✅ Sets Table Preview Component ✅ */}
+                    <SetsTablePreview sets={sets} />
+                </>
             )}
-
-            {/* Add Set Modal */}
-            {isSetModalOpen && (
-                <SetCreationForm
-                    workoutId={workoutId}
-                    onClose={() => setIsSetModalOpen(false)}
-                    onSetCreated={handleSetAdded}
-                />
-            )}
-
-            {/* ✅ Sets Table Preview Component ✅ */}
-            <WorkoutProvider workoutId={workoutId}>
-                <SetsTablePreview sets={sets} />
-            </WorkoutProvider>
         </div>
     )
 }

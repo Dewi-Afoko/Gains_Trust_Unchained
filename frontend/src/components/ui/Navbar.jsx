@@ -21,7 +21,11 @@ const Navbar = () => {
             <nav className="bg-[#222] text-white p-4 flex justify-between items-center fixed top-0 left-0 w-full z-50 shadow-lg border-b border-yellow-600">
                 {/* Logo / Home Link */}
                 <div className="flex items-center space-x-3 pl-6">
-                    <img src={logo} alt="Gains Trust Logo" className="w-16 h-16" />
+                    <img
+                        src={logo}
+                        alt="Gains Trust Logo"
+                        className="w-16 h-16"
+                    />
                     <Link
                         to="/"
                         className="text-2xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700
@@ -59,7 +63,9 @@ const Navbar = () => {
                             <div className="relative">
                                 <button
                                     onClick={() =>
-                                        setTrackerDropdownOpen(!trackerDropdownOpen)
+                                        setTrackerDropdownOpen(
+                                            !trackerDropdownOpen
+                                        )
                                     }
                                     className="flex items-center hover:text-yellow-300 transition duration-200"
                                 >

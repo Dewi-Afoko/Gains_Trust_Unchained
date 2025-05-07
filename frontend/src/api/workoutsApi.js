@@ -1,8 +1,8 @@
 import apiClient from './apiClient'
 
 // Workouts CRUD
-export const getWorkouts = async () => {
-    const response = await apiClient.get('/workouts/')
+export const getWorkouts = async (params = {}) => {
+    const response = await apiClient.get('/workouts/', { params })
     return response.data
 }
 

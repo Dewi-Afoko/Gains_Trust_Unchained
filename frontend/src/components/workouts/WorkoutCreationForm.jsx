@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useAuthContext } from '../../providers/AuthContext'
+import { createWorkout } from '../../api/workoutsApi'
 
 const WorkoutCreationForm = ({ onClose, setIsCreating, setIsSubmitted }) => {
     const { accessToken } = useAuthContext()
@@ -25,23 +26,8 @@ const WorkoutCreationForm = ({ onClose, setIsCreating, setIsSubmitted }) => {
                 requestData.sleep_quality = data.sleep_quality
             if (data.notes) requestData.notes = data.notes
 
-            const response = await fetch(
-                `${process.env.REACT_APP_API_BASE_URL}/workouts/`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    body: JSON.stringify(requestData),
-                }
-            )
-
-            if (!response.ok) {
-                throw new Error('Failed to create workout')
-            }
-
-            const createdWorkout = await response.json()
+            // Use centralized API function
+            const createdWorkout = await createWorkout(requestData)
             console.log('Workout Created:', createdWorkout)
 
             setIsSubmitted(true) // Mark submission as successful

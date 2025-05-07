@@ -147,7 +147,7 @@ export function Hero() {
                                         ease: 'easeInOut',
                                     }}
                                 >
-                                    █
+                                        █
                                 </motion.span>
                             )}
                         </motion.p>

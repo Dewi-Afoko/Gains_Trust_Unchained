@@ -20,3 +20,13 @@
 .gains-font {
     font-family: 'GainsTrustFont', sans-serif;
 }
+
+/* Remove the react-hot-toast override block, as Sonner is now used. */
+
+/* Remove Sonner's default toast container styling for custom toasts */
+.sonner-toast {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}

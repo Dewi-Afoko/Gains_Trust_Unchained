@@ -40,3 +40,9 @@ export const deleteWeight = async (id) => {
     const response = await apiClient.delete(`/weights/${id}/`)
     return response.data
 }
+
+export const deleteUser = async () => {
+    // If backend supports /users/me/ DELETE, use that; otherwise, require id
+    const response = await apiClient.delete('/users/me/')
+    return response.data
+}
