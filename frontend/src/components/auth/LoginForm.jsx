@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../../providers/AuthContext'
-import toast from 'react-hot-toast' // ✅ Import toast notifications
+import { showToast } from '../../utils/toast'
+import { login as loginApi } from '../../api/authApi'
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 
@@ -17,28 +17,30 @@ const LoginForm = () => {
 
     const onSubmit = async (data) => {
         try {
-            const response = await axios.post(
-                `${API_BASE_URL}/users/login/`,
-                data
-            )
+            const response = await loginApi(data.username, data.password)
 
             login(
-                response.data.user,
-                response.data.access_token,
-                response.data.refresh_token
+                response.user,
+                response.access_token,
+                response.refresh_token
             )
 
-            toast.success(`Welcome, Comrade ${data.username}! Redirecting...`)
-            setTimeout(() => navigate('/dashboard'), 1500) // ✅ Faster transition
+            showToast(
+                `Welcome, Comrade ${data.username}! Redirecting...`,
+                'success'
+            )
+            setTimeout(() => navigate('/dashboard'), 1500)
         } catch (error) {
-            toast.error('Invalid credentials. Try again, comrade!')
+            showToast('Invalid credentials. Try again, comrade!', 'error')
         }
     }
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="text-center">
-                <p className="text-gray-300">Enter your credentials to continue</p>
+                <p className="text-gray-300">
+                    Enter your credentials to continue
+                </p>
             </div>
             <div className="space-y-4">
                 <div>

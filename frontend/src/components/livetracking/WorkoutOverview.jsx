@@ -57,10 +57,10 @@ const WorkoutOverview = () => {
               : 'text-red-400'
 
     return (
-        <div className="relative flex flex-col bg-[#400000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg">
+        <div className="relative flex flex-col bg-brand-dark-1 text-white p-4 rounded-xl border border-brand-gold shadow-lg">
             <button
                 onClick={() => navigate('/workouts')}
-                className="absolute top-4 right-4 bg-[#8B0000] hover:bg-[#600000] text-white font-bold px-4 py-2 rounded-xl transition text-stroke"
+                className="absolute top-4 right-4 bg-brand-red hover:bg-brand-dark-2 text-white font-bold px-4 py-2 rounded-xl transition text-stroke"
             >
                 ❌ Exit Workout
             </button>
@@ -75,14 +75,14 @@ const WorkoutOverview = () => {
                         transition={{ duration: 0.5 }}
                         className="flex flex-col items-center mb-2"
                     >
-                        <h2 className="text-yellow-400 text-3xl font-extrabold text-stroke text-center">
+                        <h2 className="text-brand-gold text-3xl font-extrabold text-stroke text-center">
                             🏋🏾‍♂️ {workout?.workout_name || 'Live Workout'}
                         </h2>
 
                         {lastCompletedSet &&
                             lastCompletedSet.set_duration !== null && (
                                 <motion.div
-                                    className="text-2xl text-center text-green-400 font-bold mt-2"
+                                    className="text-2xl text-center text-brand-green font-bold mt-2"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.3 }}
@@ -108,12 +108,12 @@ const WorkoutOverview = () => {
                             timeElapsed={timeElapsed}
                             workout={workout}
                         />
-                        <div className="relative w-full bg-gray-700 rounded-full h-6 mt-4">
+                        <div className="relative w-full bg-brand-dark-2 rounded-full h-6 mt-4 border border-brand-gold">
                             <div
-                                className="bg-green-700 h-full rounded-full transition-all"
+                                className="bg-brand-green h-full rounded-full transition-all"
                                 style={{ width: `${progress}%` }}
                             ></div>
-                            <span className="absolute inset-0 flex justify-center items-center text-sm font-bold text-black-400">
+                            <span className="absolute inset-0 flex justify-center items-center text-sm font-bold text-white">
                                 {Math.round(progress)}% Complete
                             </span>
                         </div>
@@ -127,7 +127,7 @@ const WorkoutOverview = () => {
                         transition={{ duration: 0.5 }}
                         className="flex flex-col items-center mt-4"
                     >
-                        <h2 className="text-yellow-400 text-3xl font-extrabold text-center animate-pulse">
+                        <h2 className="text-brand-gold text-3xl font-extrabold text-center animate-pulse">
                             🎉 Workout Complete!
                         </h2>
                         <motion.div
@@ -166,7 +166,7 @@ const WorkoutOverview = () => {
                                 ([exercise, stats]) => (
                                     <span
                                         key={exercise}
-                                        className="text-yellow-300 text-xl font-bold mx-6"
+                                        className="text-brand-gold text-xl font-bold mx-6"
                                     >
                                         🔄 Set Times For - {exercise}: Avg{' '}
                                         {Math.round(

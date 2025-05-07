@@ -3,7 +3,9 @@ import axios from 'axios'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import debounce from 'lodash.debounce'
-import toast from 'react-hot-toast'
+import { showToast } from '../../utils/toast'
+import { register as registerApi } from '../../api/authApi'
+import { checkAvailability } from '../../api/usersApi'
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 
@@ -17,16 +19,11 @@ const RegisterForm = () => {
         trigger,
     } = useForm()
 
-    const checkAvailability = debounce(async (value, type) => {
+    const checkAvailabilityDebounced = debounce(async (value, type) => {
         if (!value) return
         try {
-            const response = await axios.get(
-                `${API_BASE_URL}/users/check_availability/`,
-                {
-                    params: { [type]: value },
-                }
-            )
-            if (response.status === 200) trigger(type)
+            await checkAvailability({ [type]: value })
+            trigger(type)
         } catch (error) {
             if (error.response?.status === 400) {
                 setError(type, {
@@ -42,18 +39,23 @@ const RegisterForm = () => {
 
     const onSubmit = async (data) => {
         try {
-            await axios.post(`${API_BASE_URL}/users/register/`, data)
-            toast.success('Registration successful! Redirecting...')
+            await registerApi(data)
+            showToast('Registration successful! Redirecting...', 'success')
             setTimeout(() => navigate('/login'), 1500)
         } catch (error) {
-            toast.error(error.response?.data?.detail || 'Registration failed')
+            showToast(
+                error.response?.data?.detail || 'Registration failed',
+                'error'
+            )
         }
     }
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="text-center">
-                <p className="text-gray-300">Create your account to get started</p>
+                <p className="text-gray-300">
+                    Create your account to get started
+                </p>
             </div>
             <div className="space-y-4">
                 <div>
@@ -64,10 +66,7 @@ const RegisterForm = () => {
                         {...register('username', {
                             required: 'Username is required',
                             onBlur: (e) =>
-                                checkAvailability(
-                                    e.target.value,
-                                    'username'
-                                ),
+                                checkAvailabilityDebounced(e.target.value, 'username'),
                         })}
                         className="w-full px-4 py-2 bg-brand-dark-2 border border-brand-gold rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent text-white placeholder-gray-400"
                         placeholder="Choose a username"
@@ -86,14 +85,11 @@ const RegisterForm = () => {
                         {...register('email', {
                             required: 'Email is required',
                             pattern: {
-                                value: /\S+@\S+\.\S+/, 
+                                value: /\S+@\S+\.\S+/,
                                 message: 'Invalid email',
                             },
                             onBlur: (e) =>
-                                checkAvailability(
-                                    e.target.value,
-                                    'email'
-                                ),
+                                checkAvailabilityDebounced(e.target.value, 'email'),
                         })}
                         className="w-full px-4 py-2 bg-brand-dark-2 border border-brand-gold rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent text-white placeholder-gray-400"
                         placeholder="Enter your email"

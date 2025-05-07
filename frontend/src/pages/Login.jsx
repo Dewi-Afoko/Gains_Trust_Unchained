@@ -35,8 +35,8 @@ export default function Login() {
                         Welcome Back
                     </h1>
                     <p className="mt-2 text-lg text-gray-300 max-w-md text-center">
-                        Log in to track your workouts, analyze your progress, and
-                        keep building strength.
+                        Log in to track your workouts, analyze your progress,
+                        and keep building strength.
                     </p>
                 </motion.div>
 

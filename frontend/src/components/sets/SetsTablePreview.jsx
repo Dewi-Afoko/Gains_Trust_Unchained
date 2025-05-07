@@ -12,8 +12,6 @@ const SetsTablePreview = ({ sets }) => {
     if (!sets || sets.length === 0) {
         return <p className="text-white mt-4">No sets available.</p>
     }
-    console.log('sets', sets)
-
     return (
         <div className="overflow-x-auto mt-4">
             <table className="w-full border-collapse border border-yellow-400">
@@ -41,11 +39,6 @@ const SetsTablePreview = ({ sets }) => {
                 </thead>
                 <tbody>
                     {sets.map((set, index) => {
-                        console.log(`set ${index}:`, {
-                            setId: set.id,
-                            workoutId: set.workout,
-                        })
-
                         return (
                             <tr key={index} className="text-white">
                                 <td className="border border-yellow-400 p-2">

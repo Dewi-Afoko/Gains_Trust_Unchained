@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import axios from 'axios'
+import { showToast } from '../../utils/toast'
+import { updateUser } from '../../api/usersApi'
 import { useAuthContext } from '../../providers/AuthContext'
-import { Toaster, toast } from 'react-hot-toast'
 
 const UserDetailsEditForm = ({ user, accessToken, onClose, onUpdate }) => {
     const { setUser } = useAuthContext()
     const { register, handleSubmit, setValue } = useForm()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    // ✅ Auto-populate form fields
+    // When the user prop changes, we pre-fill the form fields with the latest user data.
     useEffect(() => {
         if (user) {
             setValue('first_name', user.first_name || '')
@@ -22,68 +22,70 @@ const UserDetailsEditForm = ({ user, accessToken, onClose, onUpdate }) => {
     const onSubmit = async (data) => {
         setIsSubmitting(true)
         try {
-            const response = await axios.patch(
-                `${process.env.REACT_APP_API_BASE_URL}/users/update_user/`,
-                data,
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            )
+            // Use centralized API function
+            const updatedUser = await updateUser(data)
+            setUser(updatedUser) // Update the global user context
+            onUpdate(updatedUser) // Notify the parent to re-render with the new user
 
-            const updatedUser = response.data.user
-            setUser(updatedUser) // ✅ Update user globally in AuthContext
-            onUpdate(updatedUser) // ✅ Trigger re-render in UserDetailsCard
-
-            toast.success('User details updated successfully!') // ✅ Show success toast
+            showToast('User details updated successfully!', 'success')
             setTimeout(() => {
                 onClose()
             }, 1500)
         } catch (error) {
-            toast.error('Error updating details. Please try again.') // ✅ Show error toast
+            showToast('Error updating details. Please try again.', 'error')
         } finally {
             setIsSubmitting(false)
         }
     }
 
     return (
-        <div className="bg-[#600000] text-white p-6 rounded-lg shadow-lg max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000]">
-            <Toaster />
-            <h3 className="text-lg font-semibold text-yellow-400">
+        <div className="bg-brand-dark-2 text-white p-8 rounded-xl shadow-2xl border border-brand-gold max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000]">
+            <h3 className="text-2xl font-bold text-brand-gold mb-6 text-center">
                 Edit User Details
             </h3>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <label className="block">
-                    First Name:
+                    <span className="text-brand-gold font-semibold">
+                        First Name:
+                    </span>
                     <input
                         {...register('first_name')}
-                        className="w-full p-2 mt-1 rounded text-black"
+                        className="w-full p-2 mt-1 rounded bg-brand-dark-1 border border-brand-gold text-white focus:ring-2 focus:ring-brand-red focus:border-brand-red transition"
                     />
                 </label>
                 <label className="block">
-                    Last Name:
+                    <span className="text-brand-gold font-semibold">
+                        Last Name:
+                    </span>
                     <input
                         {...register('last_name')}
-                        className="w-full p-2 mt-1 rounded text-black"
+                        className="w-full p-2 mt-1 rounded bg-brand-dark-1 border border-brand-gold text-white focus:ring-2 focus:ring-brand-red focus:border-brand-red transition"
                     />
                 </label>
                 <label className="block">
-                    Height (cm):
+                    <span className="text-brand-gold font-semibold">
+                        Height (cm):
+                    </span>
                     <input
                         type="number"
                         {...register('height')}
-                        className="w-full p-2 mt-1 rounded text-black"
+                        className="w-full p-2 mt-1 rounded bg-brand-dark-1 border border-brand-gold text-white focus:ring-2 focus:ring-brand-red focus:border-brand-red transition"
                     />
                 </label>
                 <label className="block">
-                    Date of Birth:
+                    <span className="text-brand-gold font-semibold">
+                        Date of Birth:
+                    </span>
                     <input
                         type="date"
                         {...register('dob')}
-                        className="w-full p-2 mt-1 rounded text-black"
+                        className="w-full p-2 mt-1 rounded bg-brand-dark-1 border border-brand-gold text-white focus:ring-2 focus:ring-brand-red focus:border-brand-red transition"
                     />
                 </label>
 
                 <button
                     type="submit"
-                    className="w-full bg-yellow-400 text-black font-bold p-2 rounded hover:bg-yellow-300"
+                    className="w-full bg-brand-gold text-black font-bold p-3 rounded-lg hover:bg-brand-red hover:text-white focus:ring-2 focus:ring-brand-red transition text-lg mt-4"
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
