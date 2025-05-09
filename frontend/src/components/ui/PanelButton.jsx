@@ -21,15 +21,16 @@ const VARIANT_STYLES = {
     },
 }
 
-const PanelButton = ({
+const PanelButton = React.forwardRef(({
     children,
     className = '',
     variant = 'gold',
     ...props
-}) => {
+}, ref) => {
     const variantStyles = VARIANT_STYLES[variant] || VARIANT_STYLES.gold
     return (
         <button
+            ref={ref}
             className={`
                 group
                 relative
@@ -93,6 +94,9 @@ const PanelButton = ({
             <span className="absolute right-2 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
         </button>
     )
-}
+})
+
+// Add display name for better debugging
+PanelButton.displayName = 'PanelButton'
 
 export default PanelButton 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import useWorkoutStore from '../../stores/workoutStore'
 import PanelButton from '../ui/PanelButton'
+import { showToast } from '../../utils/toast'
 
 const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
     const { createSets } = useWorkoutStore()
@@ -11,9 +12,15 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
     const addMultipleSets = watch('addMultipleSets')
 
     const onSubmit = async (data) => {
+        if (!workoutId) {
+            showToast('Cannot create set: No active workout', 'error')
+            return
+        }
+
         setIsSubmitting(true)
         try {
             const formattedData = {
+                workout: workoutId,
                 exercise_name: data.exercise_name,
                 set_type: data.set_type || '',
                 loading: data.loading ? parseFloat(data.loading) : null,
@@ -24,7 +31,7 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
             }
 
             const numberOfSets = addMultipleSets
-                ? parseInt(data.set_count, 10)
+                ? Math.max(1, parseInt(data.set_count, 10) || 1)
                 : 1
 
             await createSets(workoutId, formattedData, numberOfSets)
@@ -48,8 +55,9 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                 <label className="block">
                     Exercise Name:
                     <input
-                        {...register('exercise_name', { required: true })}
+                        {...register('exercise_name', { required: 'Exercise name is required' })}
                         className="w-full p-2 mt-1 rounded text-black"
+                        placeholder="e.g., Bench Press"
                     />
                 </label>
                 <label className="block">
@@ -57,6 +65,7 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                     <input
                         {...register('set_type')}
                         className="w-full p-2 mt-1 rounded text-black"
+                        placeholder="e.g., Warm-up, Working Set"
                     />
                 </label>
                 <label className="block">
@@ -64,24 +73,30 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                     <input
                         type="number"
                         step="0.1"
+                        min="0"
                         {...register('loading')}
                         className="w-full p-2 mt-1 rounded text-black"
+                        placeholder="0.0"
                     />
                 </label>
                 <label className="block">
                     Reps:
                     <input
                         type="number"
+                        min="0"
                         {...register('reps')}
                         className="w-full p-2 mt-1 rounded text-black"
+                        placeholder="0"
                     />
                 </label>
                 <label className="block">
                     Rest (seconds):
                     <input
                         type="number"
+                        min="0"
                         {...register('rest')}
                         className="w-full p-2 mt-1 rounded text-black"
+                        placeholder="60"
                     />
                 </label>
                 <label className="block">
@@ -89,6 +104,7 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                     <input
                         {...register('focus')}
                         className="w-full p-2 mt-1 rounded text-black"
+                        placeholder="e.g., Form, Speed"
                     />
                 </label>
                 <label className="block">
@@ -96,6 +112,7 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                     <textarea
                         {...register('notes')}
                         className="w-full p-2 mt-1 rounded text-black"
+                        placeholder="Any additional notes..."
                     />
                 </label>
 

@@ -1,182 +1,141 @@
-import { useWorkoutContext } from '../../providers/WorkoutContext'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import useWorkoutStore from '../../stores/workoutStore'
+import WorkoutCreationForm from './WorkoutCreationForm'
 import PanelButton from '../ui/PanelButton'
+import { useNavigate } from 'react-router-dom'
 
 const WorkoutFeedFull = () => {
+    const navigate = useNavigate()
     const {
         workouts,
-        workoutSets,
         loading,
+        error,
         fetchAllWorkouts,
-        toggleComplete,
         deleteWorkout,
-        duplicateWorkout, // ✅ Added duplicateWorkout from context
-    } = useWorkoutContext()
+        duplicateWorkout,
+    } = useWorkoutStore()
 
-    const navigate = useNavigate()
-    const [deleteModal, setDeleteModal] = useState({
-        isOpen: false,
-        workoutId: null,
-    })
+    const [isCreating, setIsCreating] = useState(false)
+    const [isSubmitted, setIsSubmitted] = useState(false)
 
     useEffect(() => {
-        fetchAllWorkouts() // ✅ Load all workouts when component mounts
+        fetchAllWorkouts()
     }, [])
 
-    const handleDelete = (workoutId) => {
-        setDeleteModal({ isOpen: true, workoutId })
-    }
-
-    const confirmDelete = () => {
-        if (deleteModal.workoutId) {
-            deleteWorkout(deleteModal.workoutId)
-        }
-        setDeleteModal({ isOpen: false, workoutId: null })
-    }
-
     const handleDuplicate = async (workoutId) => {
-        const newWorkout = await duplicateWorkout(workoutId)
-        if (newWorkout) {
-            fetchAllWorkouts()
+        try {
+            const newWorkout = await duplicateWorkout(workoutId)
+            if (newWorkout?.id) {
+                navigate(`/workouts/${newWorkout.id}`)
+            }
+        } catch (error) {
+            console.error('Error duplicating workout:', error)
         }
     }
 
-    if (loading)
+    const handleDelete = async (workoutId) => {
+        if (window.confirm('Are you sure you want to delete this workout?')) {
+            try {
+                await deleteWorkout(workoutId)
+            } catch (error) {
+                console.error('Error deleting workout:', error)
+            }
+        }
+    }
+
+    if (loading) {
         return (
-            <p className="text-yellow-400 text-center">Loading workouts...</p>
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
+            </div>
         )
+    }
+
+    if (error) {
+        return (
+            <div className="text-center text-red-500 p-4">
+                <h2>Error loading workouts</h2>
+                <p>{error}</p>
+            </div>
+        )
+    }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-            {workouts?.length > 0 ? (
-                workouts.map((workout) => {
-                    const sets = workoutSets[workout.id] || []
-                    const totalSets = sets.length
-                    const exerciseCounts = sets.reduce((acc, set) => {
-                        acc[set.exercise_name] =
-                            (acc[set.exercise_name] || 0) + 1
-                        return acc
-                    }, {})
+        <div className="container mx-auto p-4">
+            {/* Header with Create Button */}
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-brand-gold">Your Workouts</h2>
+                <PanelButton
+                    onClick={() => setIsCreating(true)}
+                    className="w-auto"
+                >
+                    Create Workout
+                </PanelButton>
+            </div>
 
-                    return (
-                        <div
-                            key={workout.id}
-                            className="bg-[#400000] text-white p-6 rounded-xl shadow-xl border border-yellow-400"
-                        >
-                            <h3
-                                className="text-yellow-400 text-2xl font-extrabold cursor-pointer hover:text-yellow-200"
-                                onClick={() =>
-                                    navigate(`/workouts/${workout.id}/full`)
-                                }
-                            >
-                                🏋🏾‍♂️ {workout.workout_name}
-                            </h3>
-
-                            <p className="text-md text-gray-300">
-                                📅 {new Date(workout.date).toLocaleDateString()}
-                            </p>
-                            <p className="text-md text-gray-400">
-                                📝 {workout.notes || 'No notes'}
-                            </p>
-                            <p className="text-md text-yellow-300">
-                                💪🏾 Exercises:
-                            </p>
-                            <ul className="text-yellow-300">
-                                {Object.entries(exerciseCounts).map(
-                                    ([exercise, count]) => (
-                                        <li key={exercise} className="ml-4">
-                                            {count}x {exercise}
-                                        </li>
-                                    )
-                                )}
-                            </ul>
-                            <p className="text-md text-yellow-400">
-                                🔥 Total Sets: {totalSets}
-                            </p>
-                            <br />
-                            <p className="text-yellow-400 text-2xl font-extrabold">
-                                Status:{' '}
-                                {workout.start_time === null
-                                    ? '⏳ Not Started'
-                                    : workout.duration
-                                      ? `✅ Completed in ${new Date(workout.duration * 1000).toISOString().substr(11, 8)}`
-                                      : '🔥 In Progress'}
-                            </p>
-                            <div className="flex justify-between mt-4">
-                                {/* Mark Complete Button - Only Visible if Workout is In Progress */}
-                                {workout.start_time !== null &&
-                                    !workout.complete && (
-                                        <PanelButton
-                                            onClick={() =>
-                                                toggleComplete(workout.id)
-                                            }
-                                            className="text-white font-bold bg-[#B22222] hover:bg-red-800 w-auto"
-                                        >
-                                            🏁 Mark Complete
-                                        </PanelButton>
-                                    )}
-
-                                <PanelButton
-                                    onClick={() =>
-                                        navigate(`/livetracking/${workout.id}`)
-                                    }
-                                    className="text-white font-bold bg-gradient-to-r from-[#8B0000] via-[#D35400] to-[#FFD700] hover:from-[#B22222] hover:to-[#FFC107] w-auto"
-                                >
-                                    🚀 Start Live Tracking
-                                </PanelButton>
-                                <PanelButton
-                                    onClick={() => handleDelete(workout.id)}
-                                    className="text-white font-bold bg-[#8B0000] hover:bg-red-800 w-auto"
-                                >
-                                    💀 Delete
-                                </PanelButton>
-                                <PanelButton
-                                    onClick={() => handleDuplicate(workout.id)}
-                                    className="text-black font-bold bg-yellow-500 hover:bg-yellow-600 w-auto"
-                                >
-                                    📝 Duplicate
-                                </PanelButton>
-                            </div>
-                        </div>
-                    )
-                })
-            ) : (
-                <p className="text-yellow-400 text-center col-span-full text-lg">
-                    No workouts found.
-                </p>
-            )}
-
-            {/* ✅ Delete Confirmation Modal */}
-            {deleteModal.isOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-                    <div className="bg-[#600000] p-6 rounded-lg shadow-lg text-white max-w-sm">
-                        <h3 className="text-lg font-bold text-yellow-400">
-                            Confirm Deletion
+            {/* Workouts Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {workouts.map((workout) => (
+                    <div
+                        key={workout.id}
+                        className="bg-brand-dark-2 rounded-xl border border-brand-gold/30 p-6 shadow-lg"
+                    >
+                        <h3 className="text-xl font-bold text-brand-gold mb-4">
+                            {workout.workout_name}
                         </h3>
-                        <p className="mt-2">
-                            Are you sure you want to delete this workout? This
-                            action cannot be undone.
-                        </p>
-                        <div className="flex justify-end mt-4 space-x-3">
-                            <button
-                                className="bg-gray-500 px-4 py-2 rounded hover:bg-gray-400 transition"
-                                onClick={() =>
-                                    setDeleteModal({
-                                        isOpen: false,
-                                        workoutId: null,
-                                    })
-                                }
+                        <div className="space-y-2 mb-6">
+                            <p className="text-gray-300">
+                                <span className="font-semibold">Date:</span>{' '}
+                                {new Date(workout.date).toLocaleDateString()}
+                            </p>
+                            <p className="text-gray-300">
+                                <span className="font-semibold">Status:</span>{' '}
+                                {workout.complete ? '✅ Completed' : '⏳ In Progress'}
+                            </p>
+                            {workout.notes && (
+                                <p className="text-gray-300">
+                                    <span className="font-semibold">Notes:</span>{' '}
+                                    {workout.notes}
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex gap-3">
+                            <PanelButton
+                                onClick={() => navigate(`/workouts/${workout.id}`)}
+                                className="flex-1"
                             >
-                                Cancel
-                            </button>
-                            <button
-                                className="bg-red-500 px-4 py-2 rounded hover:bg-red-400 transition"
-                                onClick={confirmDelete}
+                                View
+                            </PanelButton>
+                            <PanelButton
+                                onClick={() => handleDuplicate(workout.id)}
+                                className="flex-1"
+                            >
+                                Duplicate
+                            </PanelButton>
+                            <PanelButton
+                                onClick={() => handleDelete(workout.id)}
+                                variant="danger"
+                                className="flex-1"
                             >
                                 Delete
-                            </button>
+                            </PanelButton>
                         </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Create Workout Modal */}
+            {isCreating && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-brand-dark-2 p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4">
+                        <WorkoutCreationForm
+                            onClose={() => {
+                                setIsCreating(false)
+                                setIsSubmitted(false)
+                            }}
+                            setIsCreating={setIsCreating}
+                            setIsSubmitted={setIsSubmitted}
+                        />
                     </div>
                 </div>
             )}

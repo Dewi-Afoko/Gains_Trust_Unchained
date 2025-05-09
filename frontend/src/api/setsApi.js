@@ -87,3 +87,8 @@ export const moveSet = async (id, newPosition) => {
     })
     return response.data
 }
+
+export const duplicateSet = async (setId) => {
+    const response = await apiClient.post(`/sets/${setId}/duplicate/`)
+    return response.data
+}

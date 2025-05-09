@@ -1,112 +1,129 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use WorkoutContext
-import WorkoutEditForm from '../forms/WorkoutEditForm'
+import React, { useState, useEffect } from 'react'
+import useWorkoutStore from '../../stores/workoutStore'
+import WorkoutEditForm from './WorkoutEditForm'
 import SetsTableFull from '../sets/SetsTableFull'
-import SetCreationForm from '../forms/SetCreationForm'
+import SetCreationForm from '../sets/SetCreationForm'
 import LoadingSpinner from '../ui/LoadingSpinner'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-import workoutsApi from '../../api/workoutsApi' 
 import PanelHeader from '../ui/PanelHeader'
 import PanelButton from '../ui/PanelButton'
 
 // Helper function to determine workout status
 const getWorkoutStatus = (workout) => {
-    if (!workout) return 'N/A';
+    if (!workout) return 'N/A'
     if (workout.duration) {
-        return `✅ Completed in ${new Date(workout.duration * 1000).toISOString().substr(11, 8)}`;
+        return `✅ Completed in ${new Date(workout.duration * 1000).toISOString().substr(11, 8)}`
     }
     if (workout.start_time) {
-        return '🔥 In Progress';
+        return '🔥 In Progress'
     }
-    return '⏳ Not Started';
-};
+    return '⏳ Not Started'
+}
 
 const WorkoutDetailsFull = () => {
+    const { workoutId } = useParams()
+    const navigate = useNavigate()
     const {
         workout,
-        sets,
         loading,
         error,
-        setWorkout,
-        updateSingleSet,
+        fetchWorkoutDetails,
+        updateWorkout,
         toggleComplete,
-        deleteWorkout,
-    } = useWorkoutContext()
+        startWorkout,
+    } = useWorkoutStore()
+
     const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false)
     const [isSetModalOpen, setIsSetModalOpen] = useState(false)
-    const navigate = useNavigate()
 
-    const handleWorkoutUpdate = (updatedWorkout) => {
-        setWorkout(updatedWorkout) // ✅ Update workout in context
+    useEffect(() => {
+        if (workoutId) {
+            fetchWorkoutDetails(workoutId)
+        }
+    }, [workoutId])
+
+    const handleWorkoutUpdate = async (updatedWorkout) => {
+        await updateWorkout(workoutId, updatedWorkout)
         setIsWorkoutModalOpen(false)
     }
 
-    const handleSetUpdated = (updatedSet) => {
-        updateSingleSet(updatedSet) // ✅ Update only the modified set
+    const handleSetUpdated = () => {
+        setIsSetModalOpen(false)
+        fetchWorkoutDetails(workoutId)
     }
 
-    const handleDeleteWorkout = async () => {
-        if (!workout?.id) return
-
-        try {
-            await deleteWorkout(workout.id)
-            navigate('/workouts') // ✅ Redirect after deletion
-        } catch (error) {
-            console.error('❌ Error deleting workout:', error)
-        }
+    if (error) {
+        return (
+            <div className="text-center text-red-500 p-4">
+                <h2>Error loading workout</h2>
+                <p>{error}</p>
+            </div>
+        )
     }
 
-    if (loading) return <LoadingSpinner />
-    if (error) return <p className="text-red-500">Error: {error}</p>
-    if (!workout) return <p className="text-yellow-400">Workout not found.</p> // ✅ Prevents crash
+    if (!workout && !loading) {
+        return (
+            <div className="text-center text-yellow-400 p-4">
+                <h2>Workout not found</h2>
+            </div>
+        )
+    }
 
     return (
-        <div className="relative w-full h-full flex flex-col p-4 md:p-6 bg-brand-dark-2 rounded-xl shadow-2xl border border-brand-gold overflow-y-auto">
-            <PanelHeader title={workout?.workout_name || 'Loading Workout...'} />
-            <div className="space-y-2 mb-6">
-                <p><strong>Date:</strong> {workout ? new Date(workout.date).toLocaleDateString() : 'N/A'}</p>
-                <p><strong>Notes:</strong> {workout?.notes || 'N/A'}</p>
-                <p><strong>Status:</strong> {getWorkoutStatus(workout)}</p>
+        <div className="container mx-auto p-4">
+            {loading && <LoadingSpinner />}
+
+            {/* Header */}
+            <PanelHeader
+                title={workout?.workout_name || 'Loading...'}
+                className="mb-6"
+            />
+
+            {/* Workout Details */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-[#500000] p-4 rounded-lg border border-yellow-400">
+                    <h3 className="text-yellow-400 font-bold">Date</h3>
+                    <p className="text-white">
+                        {workout?.date
+                            ? new Date(workout.date).toLocaleDateString()
+                            : 'N/A'}
+                    </p>
+                </div>
+                <div className="bg-[#500000] p-4 rounded-lg border border-yellow-400">
+                    <h3 className="text-yellow-400 font-bold">Status</h3>
+                    <p className="text-white">{getWorkoutStatus(workout)}</p>
+                </div>
+                <div className="bg-[#500000] p-4 rounded-lg border border-yellow-400">
+                    <h3 className="text-yellow-400 font-bold">Notes</h3>
+                    <p className="text-white">{workout?.notes || 'No notes'}</p>
+                </div>
             </div>
 
-            <div className="flex flex-wrap gap-4 mt-4 mb-6">
-                {/* ✏️ Edit Workout */}
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-4 mb-6">
                 <PanelButton
                     onClick={() => setIsWorkoutModalOpen(true)}
-                    className="text-black w-auto hover:bg-yellow-600"
+                    className="bg-yellow-600 hover:bg-yellow-700 text-white w-auto"
                 >
-                    Edit Workout
+                    ✏️ Edit Workout
                 </PanelButton>
-
-                {/* ➕ Add Set */}
                 <PanelButton
                     onClick={() => setIsSetModalOpen(true)}
-                    className="bg-blue-500 hover:bg-blue-600 text-black w-auto"
+                    className="bg-green-600 hover:bg-green-700 text-white w-auto"
                 >
-                    Add Set
+                    ➕ Add Set
                 </PanelButton>
-
-                {/* 🚀 Start Live Tracking */}
-                <PanelButton
-                    onClick={() => navigate(`/livetracking/${workout.id}`)}
-                    className="text-white font-bold w-auto bg-gradient-to-r from-[#8B0000] via-[#D35400] to-[#FFD700] hover:from-[#B22222] hover:to-[#FFC107]"
-                >
-                    🚀 Start Live Tracking
-                </PanelButton>
-
-                {/* ❌ Delete Workout */}
-                <PanelButton
-                    onClick={() => handleDeleteWorkout()}
-                    className="bg-red-700 hover:bg-red-800 text-white w-auto"
-                >
-                    Delete Workout
-                </PanelButton>
-
-                {/* 🏁 Mark Complete - Only Shows If Workout is In Progress */}
+                {!workout?.start_time && (
+                    <PanelButton
+                        onClick={() => startWorkout(workoutId)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white w-auto"
+                    >
+                        🏃 Start Workout
+                    </PanelButton>
+                )}
                 {workout?.start_time !== null && !workout?.complete && (
                     <PanelButton
-                        onClick={() => toggleComplete(workout.id)}
+                        onClick={() => toggleComplete(workoutId)}
                         className="bg-green-700 hover:bg-green-800 text-white w-auto"
                     >
                         🏁 Mark Complete
@@ -114,23 +131,32 @@ const WorkoutDetailsFull = () => {
                 )}
             </div>
 
-            {/* 🏋🏾‍♂️ Sets Table (No Complete Button) */}
+            {/* Sets Table */}
             <SetsTableFull hideCompleteButton={true} />
 
-            {/* 🔄 Modals */}
+            {/* Modals */}
             {isWorkoutModalOpen && (
-                <WorkoutEditForm
-                    workout={workout}
-                    onClose={() => setIsWorkoutModalOpen(false)}
-                    onUpdate={handleWorkoutUpdate}
-                />
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-brand-dark-2 p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4">
+                        <WorkoutEditForm
+                            workout={workout}
+                            onClose={() => setIsWorkoutModalOpen(false)}
+                            onUpdate={handleWorkoutUpdate}
+                        />
+                    </div>
+                </div>
             )}
 
             {isSetModalOpen && (
-                <SetCreationForm
-                    onSetCreated={handleSetUpdated}
-                    onClose={() => setIsSetModalOpen(false)}
-                />
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-brand-dark-2 p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4">
+                        <SetCreationForm
+                            workoutId={workoutId}
+                            onClose={() => setIsSetModalOpen(false)}
+                            onSetCreated={handleSetUpdated}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     )

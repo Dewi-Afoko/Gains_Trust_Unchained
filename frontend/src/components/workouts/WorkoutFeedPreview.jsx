@@ -3,8 +3,6 @@ import useWorkoutStore from '../../stores/workoutStore'
 import PanelHeader from '../ui/PanelHeader'
 import { Dumbbell, Calendar, Timer } from 'lucide-react'
 
-const PAGE_SIZE = 5
-
 const WorkoutItem = ({ workout, onClick }) => {
     const duration = workout.duration 
         ? new Date(workout.duration * 1000).toISOString().substr(11, 8)
@@ -47,10 +45,10 @@ const WorkoutItem = ({ workout, onClick }) => {
 }
 
 const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
-    const { workouts, loading, error, pagination, fetchAllWorkouts } = useWorkoutStore()
+    const { workouts, loading, error, fetchAllWorkouts } = useWorkoutStore()
 
     useEffect(() => {
-        fetchAllWorkouts(1)
+        fetchAllWorkouts()
     }, [])
 
     return (
@@ -60,7 +58,11 @@ const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
                 className="space-y-3 pr-2 overflow-y-auto scrollbar-thin scrollbar-thumb-brand-gold/20 scrollbar-track-transparent hover:scrollbar-thumb-brand-gold/40 animate-fadeIn"
                 style={{ minHeight: 180, maxHeight }}
             >
-                {workouts.length > 0 ? (
+                {loading && workouts.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                        <div className="w-8 h-8 border-2 border-brand-gold border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                ) : workouts.length > 0 ? (
                     <ul>
                         {workouts.map((workout) => (
                             <WorkoutItem
@@ -70,10 +72,6 @@ const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
                             />
                         ))}
                     </ul>
-                ) : loading ? (
-                    <div className="flex items-center justify-center h-full">
-                        <div className="w-8 h-8 border-2 border-brand-gold border-t-transparent rounded-full animate-spin"></div>
-                    </div>
                 ) : (
                     <div className="flex items-center justify-center h-full">
                         <p className="text-brand-gold/70 uppercase tracking-wider font-medium">No workouts found.</p>
@@ -89,9 +87,9 @@ const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
                         <div className="w-6 h-6 border-2 border-brand-gold border-t-transparent rounded-full animate-spin mx-auto"></div>
                     </div>
                 )}
-                {!pagination.next && workouts.length > 0 && (
+                {workouts.length > 0 && (
                     <p className="text-brand-gold/40 text-center text-sm border-t border-brand-gold/20 pt-2 uppercase tracking-wider">
-                        End of Workouts List
+                        All Workouts Loaded
                     </p>
                 )}
             </div>
