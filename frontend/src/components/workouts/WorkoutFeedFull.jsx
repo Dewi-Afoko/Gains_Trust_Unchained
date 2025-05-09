@@ -1,6 +1,7 @@
 import { useWorkoutContext } from '../../providers/WorkoutContext'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import PanelButton from '../ui/PanelButton'
 
 const WorkoutFeedFull = () => {
     const {
@@ -106,36 +107,36 @@ const WorkoutFeedFull = () => {
                                 {/* Mark Complete Button - Only Visible if Workout is In Progress */}
                                 {workout.start_time !== null &&
                                     !workout.complete && (
-                                        <button
+                                        <PanelButton
                                             onClick={() =>
                                                 toggleComplete(workout.id)
                                             }
-                                            className="px-4 py-2 rounded-xl text-white font-bold bg-[#B22222] hover:bg-[#8B0000] transition"
+                                            className="text-white font-bold bg-[#B22222] hover:bg-red-800 w-auto"
                                         >
                                             🏁 Mark Complete
-                                        </button>
+                                        </PanelButton>
                                     )}
 
-                                <button
+                                <PanelButton
                                     onClick={() =>
                                         navigate(`/livetracking/${workout.id}`)
                                     }
-                                    className="bg-gradient-to-r from-[#8B0000] via-[#D35400] to-[#FFD700] text-white font-bold px-4 py-2 rounded-xl hover:from-[#B22222] hover:to-[#FFC107] transition"
+                                    className="text-white font-bold bg-gradient-to-r from-[#8B0000] via-[#D35400] to-[#FFD700] hover:from-[#B22222] hover:to-[#FFC107] w-auto"
                                 >
                                     🚀 Start Live Tracking
-                                </button>
-                                <button
+                                </PanelButton>
+                                <PanelButton
                                     onClick={() => handleDelete(workout.id)}
-                                    className="bg-[#8B0000] text-white font-bold px-4 py-2 rounded-xl hover:bg-[#600000] transition"
+                                    className="text-white font-bold bg-[#8B0000] hover:bg-red-800 w-auto"
                                 >
                                     💀 Delete
-                                </button>
-                                <button
+                                </PanelButton>
+                                <PanelButton
                                     onClick={() => handleDuplicate(workout.id)}
-                                    className="bg-yellow-500 text-black font-bold px-4 py-2 rounded-xl hover:bg-yellow-400 transition"
+                                    className="text-black font-bold bg-yellow-500 hover:bg-yellow-600 w-auto"
                                 >
                                     📝 Duplicate
-                                </button>
+                                </PanelButton>
                             </div>
                         </div>
                     )

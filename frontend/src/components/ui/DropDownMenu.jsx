@@ -1,14 +1,15 @@
 import React from 'react'
 import { useState } from 'react'
 import * as Dropdown from '@radix-ui/react-dropdown-menu'
+import PanelButton from './PanelButton'
 
 export function DropdownMenu({ triggerLabel, items }) {
     return (
         <Dropdown.Root>
             <Dropdown.Trigger asChild>
-                <button className="bg-gray-700 text-white font-bold px-4 py-2 rounded hover:bg-gray-600">
+                <PanelButton className="bg-gray-800 hover:bg-gray-700 border-gray-900/80 text-white font-bold px-4 py-2 w-auto">
                     {triggerLabel}
-                </button>
+                </PanelButton>
             </Dropdown.Trigger>
 
             <Dropdown.Content

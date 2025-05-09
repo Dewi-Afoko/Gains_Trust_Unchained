@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { useAuthContext } from '../../providers/AuthContext'
+import useAuthStore from '../../stores/authStore'
 import { showToast } from '../../utils/toast'
 import { login as loginApi } from '../../api/authApi'
 
@@ -13,7 +13,7 @@ const LoginForm = () => {
         formState: { errors },
     } = useForm()
     const navigate = useNavigate()
-    const { login } = useAuthContext()
+    const { login } = useAuthStore()
 
     const onSubmit = async (data) => {
         try {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use context
 import SetEditForm from '../forms/SetEditForm'
 import { formatLoading } from '../../utils/formatters'
+import PanelButton from '../ui/PanelButton'
 
 const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
     const { sets } = useWorkoutContext() // ✅ Get sets from context
@@ -86,12 +87,12 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
                                     </p>
                                 )}
 
-                                <button
+                                <PanelButton
                                     onClick={() => setEditingSetId(set.id)}
-                                    className="mt-2 bg-yellow-500 text-black font-bold px-3 py-1 rounded hover:bg-yellow-400 transition w-full"
+                                    className="mt-2 bg-yellow-600 hover:bg-yellow-700 border-yellow-800/80 text-black font-bold px-3 py-1"
                                 >
                                     ✏️ Edit
-                                </button>
+                                </PanelButton>
                             </li>
                         ))}
                     </ul>

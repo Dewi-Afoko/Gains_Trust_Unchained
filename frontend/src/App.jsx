@@ -1,29 +1,39 @@
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import Navbar from './components/ui/Navbar'
-import Footer from './components/ui/Footer'
 import { Toaster } from 'sonner'
-import LandingPage from './pages/LandingPage'
-import Register from './pages/Register'
-import Login from './pages/Login'
+import Navbar from './components/ui/Navbar'
 import Dashboard from './pages/Dashboard'
-import { AuthProvider } from './providers/AuthContext'
-import { WorkoutProvider } from './providers/WorkoutContext'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import LandingPage from './pages/LandingPage'
+import PrivateRoute from './components/auth/PrivateRoute'
+import useAuthStore from './stores/authStore'
 
 function App() {
+    const { fetchUser } = useAuthStore()
+
+    useEffect(() => {
+        fetchUser()
+    }, [fetchUser])
+
     return (
-        <AuthProvider>
-            <WorkoutProvider>
-                <Toaster unstyled position="top-right" />
-                <Navbar />
-                <Routes>
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                </Routes>
-                <Footer />
-            </WorkoutProvider>
-        </AuthProvider>
+        <div className="min-h-screen bg-brand-dark">
+            <Toaster richColors />
+            <Navbar />
+            <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <PrivateRoute>
+                            <Dashboard />
+                        </PrivateRoute>
+                    }
+                />
+            </Routes>
+        </div>
     )
 }
 

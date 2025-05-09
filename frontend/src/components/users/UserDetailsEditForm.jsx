@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { showToast } from '../../utils/toast'
 import { updateUser } from '../../api/usersApi'
-import { useAuthContext } from '../../providers/AuthContext'
+import useAuthStore from '../../stores/authStore'
 
-const UserDetailsEditForm = ({ user, accessToken, onClose, onUpdate }) => {
-    const { setUser } = useAuthContext()
+const UserDetailsEditForm = ({ user, onClose, onUpdate }) => {
     const { register, handleSubmit, setValue } = useForm()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -22,9 +21,7 @@ const UserDetailsEditForm = ({ user, accessToken, onClose, onUpdate }) => {
     const onSubmit = async (data) => {
         setIsSubmitting(true)
         try {
-            // Use centralized API function
             const updatedUser = await updateUser(data)
-            setUser(updatedUser) // Update the global user context
             onUpdate(updatedUser) // Notify the parent to re-render with the new user
 
             showToast('User details updated successfully!', 'success')

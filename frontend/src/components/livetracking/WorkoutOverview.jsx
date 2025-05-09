@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useWorkoutContext } from '../../providers/WorkoutContext'
 import WorkoutTimerDisplay from './WorkoutTimerDisplay'
 import { motion, AnimatePresence } from 'framer-motion'
+import PanelButton from '../ui/PanelButton'
 
 const WorkoutOverview = () => {
     const { workout, completeSets, workoutSets, timeElapsed } =
@@ -58,12 +59,12 @@ const WorkoutOverview = () => {
 
     return (
         <div className="relative flex flex-col bg-brand-dark-1 text-white p-4 rounded-xl border border-brand-gold shadow-lg">
-            <button
+            <PanelButton
                 onClick={() => navigate('/workouts')}
-                className="absolute top-4 right-4 bg-brand-red hover:bg-brand-dark-2 text-white font-bold px-4 py-2 rounded-xl transition text-stroke"
+                className="absolute top-4 right-4 bg-brand-red hover:bg-brand-dark-2 text-white font-bold px-4 py-2 w-auto"
             >
                 ❌ Exit Workout
-            </button>
+            </PanelButton>
 
             <AnimatePresence>
                 {!isWorkoutComplete ? (

@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Button } from '../ui/Button'
+import PanelButton from '../ui/PanelButton'
 import { LucideArrowDown } from 'lucide-react'
 import logo from '../../assets/gains-trust-logo-final.png'
 import industrialTexture from '../../assets/industrial-texture.png'
@@ -162,9 +162,9 @@ export function Hero() {
                 transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
                 className="mt-6 relative z-20" //  Ensure it's above everything else
             >
-                <Button variant="primary" size="lg" className="relative z-30">
+                <PanelButton className="relative z-30 mx-auto max-w-xs">
                     Get Started
-                </Button>
+                </PanelButton>
             </motion.div>
 
             {/* Scroll Indicator */}

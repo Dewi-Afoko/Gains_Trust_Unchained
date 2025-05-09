@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useWorkoutContext } from '../../providers/WorkoutContext'
+import useWorkoutStore from '../../stores/workoutStore'
+import PanelButton from '../ui/PanelButton'
 
-const SetCreationForm = ({ onClose }) => {
-    const { workout, createSets } = useWorkoutContext() // ✅ Use createSets from context
+const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
+    const { createSets } = useWorkoutStore()
     const { register, handleSubmit, reset, watch } = useForm()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const addMultipleSets = watch('addMultipleSets') // ✅ Track checkbox state
+    const addMultipleSets = watch('addMultipleSets')
 
     const onSubmit = async (data) => {
         setIsSubmitting(true)
@@ -24,12 +25,15 @@ const SetCreationForm = ({ onClose }) => {
 
             const numberOfSets = addMultipleSets
                 ? parseInt(data.set_count, 10)
-                : 1 // ✅ Default to 1 if unchecked
+                : 1
 
-            await createSets(workout.id, formattedData, numberOfSets) // ✅ Use the function from context
+            await createSets(workoutId, formattedData, numberOfSets)
 
             reset()
-            setTimeout(onClose, 10)
+            if (onSetCreated) {
+                onSetCreated()
+            }
+            onClose()
         } catch (error) {
             console.error('❌ Error adding sets:', error)
         } finally {
@@ -95,7 +99,6 @@ const SetCreationForm = ({ onClose }) => {
                     />
                 </label>
 
-                {/* ✅ New Checkbox for Adding Multiple Sets */}
                 <label className="flex items-center space-x-2">
                     <input
                         type="checkbox"
@@ -105,7 +108,6 @@ const SetCreationForm = ({ onClose }) => {
                     <span>Add multiple sets?</span>
                 </label>
 
-                {/* ✅ If checkbox is checked, show the number input */}
                 {addMultipleSets && (
                     <label className="block">
                         Number of Sets:
@@ -119,19 +121,12 @@ const SetCreationForm = ({ onClose }) => {
                     </label>
                 )}
 
-                <button
-                    type="submit"
-                    className="w-full bg-yellow-400 text-black font-bold p-2 rounded hover:bg-yellow-300"
-                >
+                <PanelButton type="submit" disabled={isSubmitting} variant="gold" className="">
                     {isSubmitting ? 'Saving...' : 'Add Set(s)'}
-                </button>
-                <button
-                    type="button"
-                    className="w-full bg-gray-500 text-white font-bold p-2 rounded hover:bg-gray-400 mt-2"
-                    onClick={onClose}
-                >
+                </PanelButton>
+                <PanelButton type="button" onClick={onClose} variant="danger" className="mt-2">
                     Cancel
-                </button>
+                </PanelButton>
             </form>
         </div>
     )
