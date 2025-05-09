@@ -2,7 +2,7 @@ import React from 'react'
 import texture2 from '../../assets/texture2.png'
 
 // Call like this: <PanelHeader title="User Details" icon={BarChart2} useGainsFont={false} size="normal" />
-const PanelHeader = ({ title, icon: Icon, useGainsFont = true, size = 'normal' }) => {
+const PanelHeader = React.forwardRef(({ title, icon: Icon, useGainsFont = true, size = 'normal' }, ref) => {
     const sizeClasses = {
         normal: 'text-sm sm:text-base py-1.5',
         large: 'text-xl sm:text-2xl py-3'
@@ -18,6 +18,7 @@ const PanelHeader = ({ title, icon: Icon, useGainsFont = true, size = 'normal' }
 
     return (
         <div
+            ref={ref}
             className={`relative w-full flex items-center justify-between border border-brand-gold/80 bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e] rounded-t-lg shadow-inner px-4 mb-6 ${selectedSize}`}
             style={{
                 backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
@@ -48,6 +49,9 @@ const PanelHeader = ({ title, icon: Icon, useGainsFont = true, size = 'normal' }
             <span className="w-2 h-2 bg-yellow-700 rounded-full shadow-inner opacity-70 ml-3 flex-shrink-0" />
         </div>
     )
-}
+})
+
+// Add display name for better debugging
+PanelHeader.displayName = 'PanelHeader'
 
 export default PanelHeader

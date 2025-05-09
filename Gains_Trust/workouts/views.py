@@ -223,6 +223,41 @@ class SetDictViewSet(ModelViewSet):
 
         return queryset
 
+    @action(detail=True, methods=["POST"])
+    def duplicate(self, request, pk=None):
+        """Duplicates a set within the same workout."""
+        original_set = self.get_object()
+        workout = original_set.workout
+
+        # Get the maximum set_order for this workout
+        max_set_order = SetDict.objects.filter(workout=workout).count()
+
+        # Create new set with incremented set_order
+        new_set = SetDict.objects.create(
+            workout=workout,
+            exercise_name=original_set.exercise_name,
+            set_type=original_set.set_type,
+            reps=original_set.reps,
+            loading=original_set.loading,
+            rest=original_set.rest,
+            focus=original_set.focus,
+            notes=original_set.notes,
+            set_order=max_set_order + 1,  # Place at the end
+            set_number=max_set_order + 1,  # New set number
+            complete=False,  # Always start as incomplete
+            set_duration=None,
+            set_start_time=None,
+            is_active_set=False
+        )
+
+        return Response(
+            {
+                "message": f"Set {original_set.id} duplicated",
+                "set": SetDictSerializer(new_set).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
     @action(detail=True, methods=["PATCH"])
     def complete_set(self, request, pk=None):
         """Mark a SetDict as Complete or Undo Completion"""
@@ -267,7 +302,7 @@ class SetDictViewSet(ModelViewSet):
         we escape race conditions of indexing conflicts."""
         set_dict.set_order = max_set_order + 1  # Moves set beyond last position
 
-        set_dict.is_active_set = False  # 🔥 Ensure skipped sets aren’t active
+        set_dict.is_active_set = False  # 🔥 Ensure skipped sets aren't active
         set_dict.set_start_time = None
         set_dict.save()
 

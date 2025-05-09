@@ -1,32 +1,26 @@
 import { useEffect, useState } from 'react'
-import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use WorkoutContext
+import useWorkoutStore from '../../stores/workoutStore'
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import SetActions from './SetActions'
 import { formatLoading } from '../../utils/formatters'
 import PanelButton from '../ui/PanelButton'
 
 const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
-    // ✅ Use context functions and state
     const {
-        sets: contextSets,
+        sets: storeSets,
         toggleSetComplete,
         moveSet,
-    } = useWorkoutContext()
-    const [tableData, setTableData] = useState(propSets || contextSets)
+    } = useWorkoutStore()
+    const [tableData, setTableData] = useState(propSets || storeSets)
     const [editingSetId, setEditingSetId] = useState(null)
     const [hoveredRowId, setHoveredRowId] = useState(null)
 
-    // ✅ Ensure table data updates dynamically when `sets` change
     useEffect(() => {
-        setTableData([...(propSets || contextSets)]) // ✅ Forces re-render
-        console.log(
-            '📊 Context sets updated:',
-            contextSets.map((s) => ({ id: s.id, order: s.set_order }))
-        )
-    }, [propSets, contextSets])
+        setTableData([...(propSets || storeSets)])
+    }, [propSets, storeSets])
 
     const openEditModal = (setId) => {
-        setEditingSetId(setId) // ✅ Ensure `setId` is set before opening modal
+        setEditingSetId(setId)
     }
 
     const columns = [
@@ -50,7 +44,7 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
 
                         <PanelButton
                             onClick={() => moveSet(set.id, set.set_order + 1)}
-                            disabled={set.set_order === contextSets.length}
+                            disabled={set.set_order === storeSets.length}
                             className="bg-gray-700 hover:bg-gray-800 disabled:opacity-50 w-auto px-2 py-1 text-sm"
                         >
                             ⬇
@@ -95,7 +89,6 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                     <SetActions
                         set={row.original}
                         hideCompleteButton={hideCompleteButton}
-                        onEdit={() => openEditModal(row.original.id)}
                         hoveredRowId={hoveredRowId}
                     />
                 </div>

@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Import context
+import useWorkoutStore from '../../stores/workoutStore'
 import SetsTableFull from '../sets/SetsTableFull'
 
 const WorkoutControlsLive = () => {
-    const [showIncomplete, setShowIncomplete] = useState(false) // ✅ Default to collapsed
-    const [showCompleted, setShowCompleted] = useState(false) // ✅ Default to collapsed
-    const { completeSets, incompleteSets } = useWorkoutContext() // ✅ Get complete/incomplete sets
+    const [showIncomplete, setShowIncomplete] = useState(false)
+    const [showCompleted, setShowCompleted] = useState(false)
+    const { completeSets, incompleteSets } = useWorkoutStore()
 
-    // ✅ Reverse completed sets so most recent appear first
-    const sortedCompleteSets = [...completeSets].sort(
+    // Get and sort completed sets
+    const sortedCompleteSets = [...completeSets()].sort(
         (a, b) => b.set_order - a.set_order
     )
 
@@ -18,7 +18,7 @@ const WorkoutControlsLive = () => {
                 📊 Workout Overview
             </h3>
 
-            {/* ✅ Collapsible Buttons Side-by-Side */}
+            {/* Collapsible Buttons Side-by-Side */}
             <div className="flex justify-center space-x-6 mb-4">
                 <h4
                     onClick={() => setShowIncomplete(!showIncomplete)}
@@ -34,7 +34,7 @@ const WorkoutControlsLive = () => {
                 </h4>
             </div>
 
-            {/* ✅ Tables: Side by Side if Both Open, Full Width if One Open */}
+            {/* Tables: Side by Side if Both Open, Full Width if One Open */}
             <div
                 className={`flex gap-6 transition-all ${showIncomplete && showCompleted ? 'flex-row' : 'flex-col'}`}
             >
@@ -44,10 +44,9 @@ const WorkoutControlsLive = () => {
                     >
                         <div className="overflow-y-auto max-h-[400px]">
                             <SetsTableFull
-                                sets={incompleteSets}
+                                sets={incompleteSets()}
                                 hideCompleteColumn={true}
-                            />{' '}
-                            {/* ✅ Use incompleteSets */}
+                            />
                         </div>
                     </div>
                 )}
@@ -60,8 +59,7 @@ const WorkoutControlsLive = () => {
                             <SetsTableFull
                                 sets={sortedCompleteSets}
                                 hideCompleteColumn={true}
-                            />{' '}
-                            {/* ✅ Sorted completed sets */}
+                            />
                         </div>
                     </div>
                 )}

@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { useWorkoutContext } from '../../context/WorkoutContext'
-import SetEditForm from '../forms/SetEditForm'
+import useWorkoutStore from '../../stores/workoutStore'
+import SetEditForm from './SetEditForm'
 import PanelButton from '../ui/PanelButton'
+import { showToast } from '../../utils/toast'
 
 const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
-    const { workout, toggleSetComplete, duplicateSet, deleteSet } =
-        useWorkoutContext()
+    const { workout, toggleSetComplete, duplicateSet, deleteSet } = useWorkoutStore()
     const [editingSetId, setEditingSetId] = useState(null)
     const [deleteModal, setDeleteModal] = useState(false)
 
@@ -17,10 +17,25 @@ const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
         setEditingSetId(null)
     }
 
-    const confirmDelete = async () => {
-        if (workout?.id) {
-            await deleteSet(workout.id, set.id)
+    const handleDuplicate = async () => {
+        if (!workout?.id) {
+            showToast('Cannot duplicate set: No active workout', 'error')
+            return
         }
+        try {
+            await duplicateSet(workout.id, set)
+            showToast('Set duplicated successfully!', 'success')
+        } catch (error) {
+            // Error toast is already shown in the store
+        }
+    }
+
+    const confirmDelete = async () => {
+        if (!workout?.id) {
+            showToast('Cannot delete set: No active workout', 'error')
+            return
+        }
+        await deleteSet(workout.id, set.id)
         setDeleteModal(false)
     }
 
@@ -31,7 +46,7 @@ const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
                     <PanelButton onClick={() => openEditModal(set.id)} variant="gold" className="px-3 py-1 w-auto">
                         Edit
                     </PanelButton>
-                    <PanelButton onClick={() => duplicateSet(workout.id, set)} variant="gold" className="px-3 py-1 w-auto">
+                    <PanelButton onClick={handleDuplicate} variant="gold" className="px-3 py-1 w-auto">
                         Duplicate
                     </PanelButton>
                     <PanelButton onClick={() => setDeleteModal(true)} variant="danger" className="px-3 py-1 w-auto">
@@ -46,11 +61,16 @@ const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
             )}
 
             {editingSetId !== null && (
-                <SetEditForm setId={editingSetId} onClose={closeEditModal} />
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-brand-dark-2 p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4">
+                        <SetEditForm setId={editingSetId} onClose={closeEditModal} />
+                    </div>
+                </div>
             )}
+
             {deleteModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-                    <div className="bg-[#600000] p-6 rounded-lg shadow-lg text-white max-w-sm">
+                <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
+                    <div className="bg-[#600000] p-6 rounded-xl border border-yellow-400 shadow-lg text-white max-w-sm">
                         <h3 className="text-lg font-bold text-yellow-400">
                             Confirm Deletion
                         </h3>

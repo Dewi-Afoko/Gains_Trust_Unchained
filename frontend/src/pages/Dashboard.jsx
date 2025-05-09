@@ -73,11 +73,11 @@ export default function Dashboard() {
 
                 {/* Full-width: Workout Details Preview */}
                 <div className="mt-10 w-full bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl h-[700px] overflow-hidden p-6 sm:p-10 text-white">
-                    <div className="w-full h-full">
+                    <div className="w-full h-full flex items-center justify-center">
                         {selectedWorkoutId ? (
                             <WorkoutDetailsPreview workoutId={selectedWorkoutId} />
                         ) : (
-                            <span className="text-center">Select a workout to see details</span>
+                            <span className="text-gray-400 text-lg">Select a workout to see details</span>
                         )}
                     </div>
                 </div>

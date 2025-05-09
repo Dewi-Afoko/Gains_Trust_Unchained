@@ -1,24 +1,22 @@
 import { useState, useEffect } from 'react'
-import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use context
-import SetEditForm from '../forms/SetEditForm'
+import useWorkoutStore from '../../stores/workoutStore'
+import SetEditForm from '../sets/SetEditForm'
 import { formatLoading } from '../../utils/formatters'
 import PanelButton from '../ui/PanelButton'
 
 const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
-    const { sets } = useWorkoutContext() // ✅ Get sets from context
+    const { sets } = useWorkoutStore()
     const [editingSetId, setEditingSetId] = useState(null)
-    const [isExpanded, setIsExpanded] = useState(true) // ✅ Open by default
+    const [isExpanded, setIsExpanded] = useState(true)
     const [filteredSets, setFilteredSets] = useState([])
 
     useEffect(() => {
-        console.log('🔄 Updating filtered sets. New sets:', sets)
-
         if (!sets || sets.length === 0) {
             setFilteredSets([])
             return
         }
 
-        let newFilteredSets = [...sets] // ✅ Ensure React detects the change
+        let newFilteredSets = [...sets]
 
         if (showNextOnly) {
             newFilteredSets = sets.filter((set) => !set.complete).slice(0, 3)
@@ -29,8 +27,7 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
                 .reverse()
         }
 
-        console.log('✅ Filtered sets:', newFilteredSets)
-        setFilteredSets([...newFilteredSets]) // ✅ Ensure new reference is created
+        setFilteredSets([...newFilteredSets])
     }, [sets, showNextOnly, showCompletedOnly])
 
     return (
@@ -43,7 +40,6 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
                 {isExpanded ? '🔽' : '▶️'}
             </h3>
 
-            {/* ✅ Collapsible Content */}
             <div
                 className={`overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-[1000px]' : 'max-h-0'}`}
             >
@@ -51,7 +47,7 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
                     <ul className="space-y-3 text-center">
                         {filteredSets.map((set, index) => (
                             <li
-                                key={`${set.id}-${set.set_order}-${index}`} // ✅ Guarantees uniqueness
+                                key={`${set.id}-${set.set_order}-${index}`}
                                 className="p-3 bg-[#600000] border border-yellow-400 rounded-lg shadow-md min-w-[250px] max-w-full group hover:scale-105 transition-transform duration-200"
                             >
                                 <p className="text-lg text-yellow-300 font-bold">
@@ -63,11 +59,9 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
                                         🧠 Focus: {set.focus}
                                     </p>
                                 )}
-                                {
-                                    <p className="text-sm text-gray-300">
-                                        🔥 Loading: {formatLoading(set.loading)}
-                                    </p>
-                                }
+                                <p className="text-sm text-gray-300">
+                                    🔥 Loading: {formatLoading(set.loading)}
+                                </p>
                                 {set.reps && (
                                     <p className="text-sm text-gray-300">
                                         💪🏾 Reps: {set.reps}

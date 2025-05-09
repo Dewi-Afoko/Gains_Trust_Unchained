@@ -1,6 +1,8 @@
 import { formatLoading } from '../../utils/formatters'
 import { useState } from 'react'
 import texture2 from '../../assets/texture2.png'
+import * as Popover from '@radix-ui/react-popover'
+import RadialMenuPopover from '../ui/RadialMenuPopover'
 
 const TableHeader = ({ children }) => (
     <th className="border-b border-r border-brand-gold/30 p-3 first:border-l text-center">
@@ -18,7 +20,9 @@ const TableCell = ({ children }) => (
     </td>
 )
 
-const SetsTablePreview = ({ sets }) => {
+const SetsTablePreview = ({ sets, workoutId }) => {
+    const [activeSetId, setActiveSetId] = useState(null)
+
     if (!sets || sets.length === 0) {
         return (
             <div className="flex justify-center items-center p-6 bg-black/20 rounded-lg border border-brand-gold/30">
@@ -60,26 +64,36 @@ const SetsTablePreview = ({ sets }) => {
                     </thead>
                     <tbody>
                         {sets.map((set, index) => (
-                            <tr 
-                                key={index} 
-                                className={`
-                                    transition-colors duration-150
-                                    hover:bg-black/40
-                                    ${index % 2 === 0 ? 'bg-black/20' : 'bg-black/10'}
-                                `}
-                                style={{
-                                    height: '48px' // Ensure consistent row height
-                                }}
-                            >
-                                <TableCell>{set.exercise_name}</TableCell>
-                                <TableCell>{set.set_number}</TableCell>
-                                <TableCell>{set.set_type || 'N/A'}</TableCell>
-                                <TableCell>{formatLoading(set.loading)}</TableCell>
-                                <TableCell>{set.reps || 'N/A'}</TableCell>
-                                <TableCell>{set.rest || 'N/A'}</TableCell>
-                                <TableCell>{set.focus || 'N/A'}</TableCell>
-                                <TableCell>{set.notes || 'N/A'}</TableCell>
-                            </tr>
+                            <Popover.Root key={set.id} open={activeSetId === set.id} onOpenChange={(open) => setActiveSetId(open ? set.id : null)}>
+                                <Popover.Trigger asChild>
+                                    <tr 
+                                        className={`
+                                            relative
+                                            transition-colors duration-150
+                                            hover:bg-black/40
+                                            cursor-pointer
+                                            ${index % 2 === 0 ? 'bg-black/20' : 'bg-black/10'}
+                                        `}
+                                        style={{
+                                            height: '48px' // Ensure consistent row height
+                                        }}
+                                    >
+                                        <TableCell>{set.exercise_name}</TableCell>
+                                        <TableCell>{set.set_number}</TableCell>
+                                        <TableCell>{set.set_type || 'N/A'}</TableCell>
+                                        <TableCell>{formatLoading(set.loading)}</TableCell>
+                                        <TableCell>{set.reps || 'N/A'}</TableCell>
+                                        <TableCell>{set.rest || 'N/A'}</TableCell>
+                                        <TableCell>{set.focus || 'N/A'}</TableCell>
+                                        <TableCell>{set.notes || 'N/A'}</TableCell>
+                                    </tr>
+                                </Popover.Trigger>
+                                <RadialMenuPopover 
+                                    setId={set.id} 
+                                    workoutId={workoutId} 
+                                    closeMenu={() => setActiveSetId(null)}
+                                />
+                            </Popover.Root>
                         ))}
                     </tbody>
                 </table>

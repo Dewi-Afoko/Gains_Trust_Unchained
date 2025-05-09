@@ -118,7 +118,7 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
 
                         {/* Sets Table */}
                         <div className="w-full px-4 pb-4">
-                            <SetsTablePreview sets={sets} />
+                            <SetsTablePreview sets={sets} workoutId={workoutId} />
                         </div>
                     </div>
 

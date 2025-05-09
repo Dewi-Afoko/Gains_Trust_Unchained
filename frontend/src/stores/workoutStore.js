@@ -17,6 +17,7 @@ import {
     completeSet,
     skipSet as apiSkipSet,
     moveSet as apiMoveSet,
+    duplicateSet,
 } from '../api/setsApi'
 import { showToast } from '../utils/toast'
 
@@ -30,32 +31,71 @@ const useWorkoutStore = create(
             loading: false,
             error: null,
             pagination: { count: 0, next: null, previous: null },
+            timeElapsed: 0,
+            timerInterval: null,
+
+            // Computed properties
+            completeSets: () => get().sets.filter(set => set.complete),
+            incompleteSets: () => get().sets.filter(set => !set.complete),
 
             setLoading: (loading) => set({ loading }),
             setError: (error) => set({ error }),
 
+            // Timer functions
+            startTimer: () => {
+                if (!get().timerInterval) {
+                    const interval = setInterval(() => {
+                        set(state => ({ timeElapsed: state.timeElapsed + 1 }))
+                    }, 1000)
+                    set({ timerInterval: interval })
+                }
+            },
+
+            stopTimer: () => {
+                if (get().timerInterval) {
+                    clearInterval(get().timerInterval)
+                    set({ timerInterval: null })
+                }
+            },
+
+            resetTimer: () => {
+                get().stopTimer()
+                set({ timeElapsed: 0 })
+            },
+
             fetchAllWorkouts: async (page = 1) => {
                 set({ loading: true })
                 try {
-                    const data = await getWorkouts({ page })
-                    if (data && Array.isArray(data.results)) {
-                        set({ 
-                            workouts: data.results,
-                            pagination: {
-                                count: data.count,
-                                next: data.next,
-                                previous: data.previous,
-                            }
-                        })
-                    } else {
-                        set({ 
-                            workouts: [],
-                            pagination: { count: 0, next: null, previous: null },
-                            error: 'Failed to load workouts. Please try again.'
-                        })
+                    let allWorkouts = []
+                    let currentPage = page
+                    let hasNextPage = true
+
+                    while (hasNextPage) {
+                        const data = await getWorkouts({ page: currentPage })
+                        if (data && Array.isArray(data.results)) {
+                            allWorkouts = [...allWorkouts, ...data.results]
+                            hasNextPage = data.next !== null
+                            currentPage += 1
+                        } else {
+                            hasNextPage = false
+                        }
                     }
+
+                    set({ 
+                        workouts: allWorkouts,
+                        pagination: {
+                            count: allWorkouts.length,
+                            next: null,
+                            previous: null,
+                        },
+                        error: null
+                    })
                 } catch (err) {
-                    set({ error: 'Failed to load workouts. Please try again.' })
+                    set({ 
+                        error: 'Failed to load workouts. Please try again.',
+                        workouts: [],
+                        pagination: { count: 0, next: null, previous: null }
+                    })
                 } finally {
                     set({ loading: false })
                 }
@@ -104,6 +144,7 @@ const useWorkoutStore = create(
                 try {
                     await apiStartWorkout(workoutId)
                     await get().fetchWorkoutDetails(workoutId)
+                    get().startTimer()
                     showToast('Workout started!', 'success')
                 } catch (err) {
                     showToast('Failed to start workout.', 'error')
@@ -113,6 +154,7 @@ const useWorkoutStore = create(
             toggleComplete: async (workoutId) => {
                 try {
                     await apiCompleteWorkout(workoutId)
+                    get().stopTimer()
                     await get().fetchWorkoutDetails(workoutId)
                     await get().fetchAllWorkouts()
                     showToast('Workout completion status updated!', 'success')
@@ -185,25 +227,38 @@ const useWorkoutStore = create(
 
             createSets: async (workoutId, setData, numberOfSets = 1) => {
                 try {
-                    await Promise.all(
-                        Array.from({ length: numberOfSets }, () =>
-                            createSet({ ...setData, workout: workoutId, complete: false })
-                        )
-                    )
+                    const promises = Array.from({ length: numberOfSets }, () => {
+                        const newSetData = {
+                            ...setData,
+                            workout: workoutId,
+                            complete: false,
+                            set_duration: null,
+                            set_start_time: null,
+                            is_active_set: false
+                        }
+                        return createSet(newSetData)
+                    })
+                    
+                    await Promise.all(promises)
                     await get().fetchWorkoutDetails(workoutId)
                     showToast(`Added ${numberOfSets} set(s) successfully!`, 'success')
                 } catch (error) {
                     showToast('Failed to create sets.', 'error')
+                    throw error
                 }
             },
 
             duplicateSet: async (workoutId, setData) => {
+                if (!workoutId || !setData?.id) {
+                    showToast('Cannot duplicate set: Missing required data', 'error')
+                    throw new Error('Missing required data for set duplication')
+                }
                 try {
-                    await createSet({ ...setData, workout: workoutId, complete: false })
+                    await duplicateSet(setData.id)
                     await get().fetchWorkoutDetails(workoutId)
-                    showToast('Set duplicated successfully!', 'success')
                 } catch (error) {
                     showToast('Failed to duplicate set.', 'error')
+                    throw error
                 }
             },
 
@@ -225,7 +280,7 @@ const useWorkoutStore = create(
                     await apiSkipSet(setId)
                     await get().fetchWorkoutDetails(workoutId)
                     showToast('Set skipped!', 'success')
-                } catch (error) {
+                } catch (err) {
                     showToast('Failed to skip set.', 'error')
                 }
             },
@@ -237,7 +292,7 @@ const useWorkoutStore = create(
                 try {
                     await apiMoveSet(setId, newPosition)
                     await get().fetchWorkoutDetails(workoutId)
-                    showToast('Set reordered successfully!', 'success')
+                    showToast('Set order updated!', 'success')
                 } catch (err) {
                     showToast('Failed to move set.', 'error')
                 }
@@ -245,22 +300,19 @@ const useWorkoutStore = create(
 
             updateSetsFromAPI: async (workoutId) => {
                 if (!workoutId) return
-
                 try {
                     const setsData = await getSetsByWorkoutId(workoutId)
-                    if (!setsData || !setsData.results) return
-
-                    set({
-                        sets: setsData.results,
+                    set(state => ({
+                        sets: setsData.results || [],
                         workoutSets: {
-                            ...get().workoutSets,
-                            [workoutId]: setsData.results
+                            ...state.workoutSets,
+                            [workoutId]: setsData.results || []
                         }
-                    })
-                } catch (error) {
+                    }))
+                } catch (err) {
                     showToast('Failed to update sets.', 'error')
                 }
-            }
+            },
         }),
         {
             name: 'workout-store',

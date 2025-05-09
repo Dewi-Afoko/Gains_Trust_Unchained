@@ -9,9 +9,13 @@ import PanelHeader from '../ui/PanelHeader'
 import PanelButton from '../ui/PanelButton'
 import texture2 from '../../assets/texture2.png'
 import { User, Calendar, Clock, Ruler, Cake } from 'lucide-react'
+import React from 'react'
 
-const InfoRow = ({ label, value, icon: Icon }) => (
-    <div className="relative flex items-center p-3 bg-black/30 rounded-lg border border-brand-gold/30 group hover:border-brand-gold/50 transition-all hover:bg-black/40 w-full">
+const InfoRow = React.forwardRef(({ label, value, icon: Icon }, ref) => (
+    <div
+        ref={ref}
+        className="relative flex items-center p-3 bg-black/30 rounded-lg border border-brand-gold/30 group hover:border-brand-gold/50 transition-all hover:bg-black/40 w-full"
+    >
         <div className="bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 rounded-full p-1.5 mr-3 group-hover:scale-110 transition-transform">
             <Icon className="w-4 h-4 text-black stroke-[2.5px]" />
         </div>
@@ -25,7 +29,9 @@ const InfoRow = ({ label, value, icon: Icon }) => (
         <div className="absolute left-1 bottom-1 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70 group-hover:bg-brand-gold group-hover:opacity-100 transition-all" />
         <div className="absolute right-1 bottom-1 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70 group-hover:bg-brand-gold group-hover:opacity-100 transition-all" />
     </div>
-)
+))
+
+InfoRow.displayName = 'InfoRow'
 
 const UserDetailsCard = () => {
     const { user, logout } = useAuthStore()
