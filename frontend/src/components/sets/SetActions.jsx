@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useWorkoutContext } from '../../context/WorkoutContext'
 import SetEditForm from '../forms/SetEditForm'
+import PanelButton from '../ui/PanelButton'
 
 const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
     const { workout, toggleSetComplete, duplicateSet, deleteSet } =
@@ -27,31 +28,19 @@ const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
         <div className="flex space-x-2 min-w-[200px]">
             {hoveredRowId === set.id && (
                 <div className="flex space-x-2 min-w-[200px] transition-opacity duration-200 opacity-100">
-                    <button
-                        onClick={() => openEditModal(set.id)}
-                        className="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-300 transition"
-                    >
+                    <PanelButton onClick={() => openEditModal(set.id)} variant="gold" className="px-3 py-1 w-auto">
                         Edit
-                    </button>
-                    <button
-                        onClick={() => duplicateSet(workout.id, set)}
-                        className="bg-blue-500 text-black px-3 py-1 rounded hover:bg-blue-400 transition"
-                    >
+                    </PanelButton>
+                    <PanelButton onClick={() => duplicateSet(workout.id, set)} variant="gold" className="px-3 py-1 w-auto">
                         Duplicate
-                    </button>
-                    <button
-                        onClick={() => setDeleteModal(true)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-400 transition"
-                    >
+                    </PanelButton>
+                    <PanelButton onClick={() => setDeleteModal(true)} variant="danger" className="px-3 py-1 w-auto">
                         Delete
-                    </button>
+                    </PanelButton>
                     {!hideCompleteButton && (
-                        <button
-                            onClick={() => toggleSetComplete(set.id)}
-                            className={`px-3 py-1 rounded ${set.complete ? 'bg-green-500 hover:bg-green-400' : 'bg-red-500 hover:bg-red-400'} transition text-black`}
-                        >
+                        <PanelButton onClick={() => toggleSetComplete(set.id)} variant={set.complete ? 'gold' : 'danger'} className="px-3 py-1 w-auto">
                             {set.complete ? '💪🏾' : '⏳'}
-                        </button>
+                        </PanelButton>
                     )}
                 </div>
             )}
@@ -70,18 +59,20 @@ const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
                             action cannot be undone.
                         </p>
                         <div className="flex justify-end mt-4 space-x-3">
-                            <button
-                                className="bg-gray-500 px-4 py-2 rounded hover:bg-gray-400 transition"
+                            <PanelButton
+                                variant="gold"
+                                className="w-auto px-4 py-2"
                                 onClick={() => setDeleteModal(false)}
                             >
                                 Cancel
-                            </button>
-                            <button
-                                className="bg-red-500 px-4 py-2 rounded hover:bg-red-400 transition"
+                            </PanelButton>
+                            <PanelButton
+                                variant="danger"
+                                className="w-auto px-4 py-2"
                                 onClick={confirmDelete}
                             >
                                 Delete
-                            </button>
+                            </PanelButton>
                         </div>
                     </div>
                 </div>

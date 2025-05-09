@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Keep context
+import PanelButton from '../ui/PanelButton'
 
 const SetActionsLive = ({
     setId,
@@ -108,55 +109,30 @@ const SetActionsLive = ({
         <div className="relative flex flex-col items-center mt-6 w-full">
             {/* ▶ Start Workout Button (Shown if Workout Hasn't Started) */}
             {!isRunning && (
-                <button
-                    onClick={handleStartWorkout}
-                    className="px-6 py-3 rounded-xl font-bold text-white bg-green-700 hover:bg-green-700 transition text-stroke"
-                >
+                <PanelButton onClick={handleStartWorkout} variant="gold">
                     ▶ Start Workout
-                </button>
+                </PanelButton>
             )}
 
             {/* 🏁 Complete Final Set & Workout Button (Shown on Final Set) */}
             {isRunning && isFinalSet && (
-                <button
-                    onClick={handleCompleteFinalSetAndWorkout}
-                    disabled={!isNextSet || loading}
-                    className="px-6 py-3 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 transition text-stroke animate-pulse"
-                >
-                    {loading
-                        ? '⏳ Processing...'
-                        : '🏁 Complete Final Set & Workout!'}
-                </button>
+                <PanelButton onClick={handleCompleteFinalSetAndWorkout} disabled={!isNextSet || loading} variant="gold" className="animate-pulse">
+                    {loading ? '⏳ Processing...' : '🏁 Complete Final Set & Workout!'}
+                </PanelButton>
             )}
 
             {/* 🔥 Complete Set Button (Shown on All Other Sets) */}
             {isRunning && !isFinalSet && (
-                <button
-                    onClick={handleComplete}
-                    disabled={!isNextSet || loading}
-                    className={`px-6 py-3 rounded-xl font-bold text-white transition text-stroke ${
-                        isNextSet
-                            ? 'bg-[#600000] hover:bg-[#8B0000]' // ✅ Dark red complete button (theme-matching)
-                            : 'bg-gray-700 cursor-not-allowed'
-                    }`}
-                >
+                <PanelButton onClick={handleComplete} disabled={!isNextSet || loading} variant="gold">
                     {loading ? '⏳ Processing...' : '🔥 Complete'}
-                </button>
+                </PanelButton>
             )}
 
             {/* ⏭ Skip Button - Bottom Right */}
             <div className="absolute bottom-0 right-0">
-                <button
-                    onClick={handleSkip}
-                    disabled={!isNextSet || !isRunning || loading}
-                    className={`px-4 py-2 rounded-xl font-bold text-white transition text-stroke ${
-                        isNextSet && isRunning
-                            ? 'bg-[#B22222] hover:bg-[#8B0000]' // ✅ Deep red skip button (theme-matching)
-                            : 'bg-gray-700 cursor-not-allowed'
-                    }`}
-                >
+                <PanelButton onClick={handleSkip} disabled={!isNextSet || !isRunning || loading} variant="danger" className="px-4 py-2 w-auto">
                     {loading ? '⏳ Processing...' : '⏭ Skip'}
-                </button>
+                </PanelButton>
             </div>
         </div>
     )

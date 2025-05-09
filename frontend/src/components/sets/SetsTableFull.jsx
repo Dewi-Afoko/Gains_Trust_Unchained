@@ -3,6 +3,7 @@ import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use Work
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import SetActions from './SetActions'
 import { formatLoading } from '../../utils/formatters'
+import PanelButton from '../ui/PanelButton'
 
 const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
     // ✅ Use context functions and state
@@ -37,23 +38,23 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                 const set = row.original
                 return (
                     <div className="flex items-center gap-2">
-                        <button
+                        <PanelButton
                             onClick={() => moveSet(set.id, set.set_order - 1)}
                             disabled={set.set_order === 1}
-                            className="bg-gray-700 px-2 py-1 rounded hover:bg-gray-500 disabled:opacity-50"
+                            className="bg-gray-700 hover:bg-gray-800 disabled:opacity-50 w-auto px-2 py-1 text-sm"
                         >
                             ⬆
-                        </button>
+                        </PanelButton>
 
                         <span>{set.set_order}</span>
 
-                        <button
+                        <PanelButton
                             onClick={() => moveSet(set.id, set.set_order + 1)}
                             disabled={set.set_order === contextSets.length}
-                            className="bg-gray-700 px-2 py-1 rounded hover:bg-gray-500 disabled:opacity-50"
+                            className="bg-gray-700 hover:bg-gray-800 disabled:opacity-50 w-auto px-2 py-1 text-sm"
                         >
                             ⬇
-                        </button>
+                        </PanelButton>
                     </div>
                 )
             },
@@ -73,21 +74,17 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
             accessorKey: 'complete',
             header: 'Complete',
             cell: ({ row }) => (
-                <button
+                <PanelButton
                     onClick={() =>
                         toggleSetComplete(
                             row.original.id,
                             row.original.complete
                         )
                     }
-                    className={`px-3 py-1 rounded ${
-                        row.original.complete
-                            ? 'bg-green-500 hover:bg-green-400'
-                            : 'bg-red-500 hover:bg-red-400'
-                    } transition text-black`}
+                    className={`w-auto px-3 py-1 text-sm ${row.original.complete ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-red-600 hover:bg-red-700 text-white'}`}
                 >
                     {row.original.complete ? '💪🏾' : '⏳'}
-                </button>
+                </PanelButton>
             ),
         },
         {

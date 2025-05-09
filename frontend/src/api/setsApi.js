@@ -6,6 +6,50 @@ export const getSets = async (params = {}) => {
     return response.data
 }
 
+export const getSetsByWorkoutId = async (workoutId, params = {}) => {
+    // First request to get initial data and total count
+    const initialResponse = await apiClient.get('/sets/', { 
+        params: {
+            ...params,
+            workout: workoutId,
+            page: 1
+        }
+    })
+
+    const { count, results } = initialResponse.data
+    let allSets = [...results]
+
+    // Calculate number of additional pages needed based on the actual page size we received
+    const actualPageSize = results.length
+    const totalPages = Math.ceil(count / actualPageSize)
+
+    // Fetch remaining pages if any
+    if (totalPages > 1) {
+        const remainingPages = Array.from({ length: totalPages - 1 }, (_, i) => i + 2)
+        
+        // Fetch each page sequentially to ensure order
+        for (const page of remainingPages) {
+            const response = await apiClient.get('/sets/', {
+                params: {
+                    ...params,
+                    workout: workoutId,
+                    page
+                }
+            })
+            const pageResults = response.data.results
+            allSets = [...allSets, ...pageResults]
+        }
+    }
+
+    // Return in the same format as the API, but with all results
+    return {
+        ...initialResponse.data,
+        results: allSets,
+        next: null, // Since we've fetched everything
+        previous: null
+    }
+}
+
 export const getSetById = async (id) => {
     const response = await apiClient.get(`/sets/${id}/`)
     return response.data

@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useWorkoutContext } from '../../providers/WorkoutContext'
+import useWorkoutStore from '../../stores/workoutStore'
 
-const WorkoutEditForm = ({ onClose }) => {
-    const { workout, updateWorkout } = useWorkoutContext() // ✅ Use updateWorkout from context
+const WorkoutEditForm = ({ workout, workoutId, onClose, onUpdate }) => {
+    const { updateWorkout } = useWorkoutStore()
     const { register, handleSubmit, setValue } = useForm()
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [alert, setAlert] = useState(null)
 
     useEffect(() => {
         if (workout) {
@@ -15,7 +14,7 @@ const WorkoutEditForm = ({ onClose }) => {
             setValue('sleep_score', workout.sleep_score || '')
             setValue('sleep_quality', workout.sleep_quality || '')
             setValue('notes', workout.notes || '')
-            setValue('date', workout.date ? workout.date.split('T')[0] : '') // ✅ Prefill date input
+            setValue('date', workout.date ? workout.date.split('T')[0] : '')
         }
     }, [workout, setValue])
 
@@ -32,21 +31,16 @@ const WorkoutEditForm = ({ onClose }) => {
                     data.sleep_score !== '' ? parseInt(data.sleep_score) : null,
                 sleep_quality: data.sleep_quality.trim() || '',
                 notes: data.notes.trim() || '',
-                date: data.date || null, // ✅ Ensure date is sent properly
+                date: data.date || null,
             }
 
-            await updateWorkout(workout.id, updatedFields) // ✅ Use the function from context
-
-            setAlert({
-                type: 'success',
-                message: 'Workout updated successfully!',
-            })
-            setTimeout(() => {
-                setAlert(null)
-                onClose()
-            }, 10)
+            await updateWorkout(workoutId, updatedFields)
+            if (onUpdate) {
+                onUpdate(updatedFields)
+            }
+            setTimeout(() => onClose(), 1500)
         } catch (error) {
-            setAlert({ type: 'error', message: 'Error updating workout.' }) // ✅ Show error only if truly failed
+            // Error toast is already handled by the store
         } finally {
             setIsSubmitting(false)
         }
@@ -57,13 +51,6 @@ const WorkoutEditForm = ({ onClose }) => {
             <h3 className="text-lg font-semibold text-yellow-400">
                 Edit Workout
             </h3>
-            {alert && (
-                <div
-                    className={`p-3 mb-4 rounded ${alert.type === 'success' ? 'bg-green-500' : 'bg-red-600'}`}
-                >
-                    {alert.message}
-                </div>
-            )}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <label className="block">
                     Workout Name:

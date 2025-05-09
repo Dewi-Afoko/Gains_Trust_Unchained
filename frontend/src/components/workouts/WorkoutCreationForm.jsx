@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useAuthContext } from '../../providers/AuthContext'
 import { createWorkout } from '../../api/workoutsApi'
+import PanelButton from '../ui/PanelButton'
 
 const WorkoutCreationForm = ({ onClose, setIsCreating, setIsSubmitted }) => {
     const { accessToken } = useAuthContext()
@@ -102,20 +103,20 @@ const WorkoutCreationForm = ({ onClose, setIsCreating, setIsSubmitted }) => {
                 </div>
 
                 <div className="mt-4 flex justify-between">
-                    <button
+                    <PanelButton
                         type="submit"
-                        className="bg-yellow-400 text-black font-bold p-2 rounded hover:bg-yellow-300"
+                        className="text-black font-bold w-auto px-4 py-2"
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? 'Creating...' : 'Create Workout'}
-                    </button>
-                    <button
+                    </PanelButton>
+                    <PanelButton
                         type="button"
                         onClick={onClose}
-                        className="bg-red-400 text-black font-bold p-2 rounded hover:bg-red-300"
+                        className="bg-red-600 hover:bg-red-700 border-red-800/80 text-black font-bold w-auto px-4 py-2"
                     >
                         Cancel
-                    </button>
+                    </PanelButton>
                 </div>
             </form>
         </div>

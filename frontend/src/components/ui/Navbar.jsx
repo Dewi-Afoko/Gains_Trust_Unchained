@@ -1,14 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { useAuthContext } from '../../providers/AuthContext'
-import { useWorkoutContext } from '../../providers/WorkoutContext'
+import useAuthStore from '../../stores/authStore'
+import useWorkoutStore from '../../stores/workoutStore'
 import { LucideChevronDown, LucideChevronUp } from 'lucide-react'
 import logo from '../../assets/gains-trust-logo-final.png'
 
 const Navbar = () => {
     const navigate = useNavigate()
-    const { user, accessToken, logout } = useAuthContext()
-    const { workouts } = useWorkoutContext()
+    const { user, logout } = useAuthStore()
+    const { workouts } = useWorkoutStore()
     const [trackerDropdownOpen, setTrackerDropdownOpen] = useState(false)
 
     const handleLogout = () => {
@@ -67,7 +67,8 @@ const Navbar = () => {
                                             !trackerDropdownOpen
                                         )
                                     }
-                                    className="flex items-center hover:text-yellow-300 transition duration-200"
+                                    className="flex items-center bg-transparent border-none outline-none hover:text-yellow-300 transition duration-200 px-0 py-0"
+                                    style={{ font: 'inherit' }}
                                 >
                                     Live Tracker{' '}
                                     {trackerDropdownOpen ? (
@@ -98,6 +99,13 @@ const Navbar = () => {
                                     </div>
                                 )}
                             </div>
+                            <button
+                                onClick={handleLogout}
+                                className="bg-transparent border-none outline-none hover:text-yellow-300 transition duration-200 px-0 py-0"
+                                style={{ font: 'inherit' }}
+                            >
+                                Logout
+                            </button>
                         </>
                     ) : (
                         <>
@@ -114,15 +122,6 @@ const Navbar = () => {
                                 Register
                             </Link>
                         </>
-                    )}
-
-                    {user && (
-                        <button
-                            onClick={handleLogout}
-                            className="hover:text-yellow-300 transition duration-200"
-                        >
-                            Logout
-                        </button>
                     )}
                 </div>
             </nav>

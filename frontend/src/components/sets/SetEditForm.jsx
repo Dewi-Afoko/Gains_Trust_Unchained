@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useWorkoutContext } from '../../providers/WorkoutContext'
+import PanelButton from '../ui/PanelButton'
 
 const SetEditForm = ({ setId, onClose }) => {
     const { fetchSetDetails, updateSet } = useWorkoutContext()
@@ -100,20 +101,12 @@ const SetEditForm = ({ setId, onClose }) => {
                     />
                 </label>
 
-                <button
-                    type="submit"
-                    className="w-full bg-yellow-400 text-black font-bold p-2 rounded hover:bg-yellow-300"
-                    disabled={isSubmitting}
-                >
+                <PanelButton type="submit" disabled={isSubmitting} variant="gold" className="">
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                    type="button"
-                    className="w-full bg-gray-500 text-white font-bold p-2 rounded hover:bg-gray-400"
-                    onClick={onClose}
-                >
+                </PanelButton>
+                <PanelButton type="button" onClick={onClose} variant="danger" className="">
                     Cancel
-                </button>
+                </PanelButton>
             </form>
         </div>
     )

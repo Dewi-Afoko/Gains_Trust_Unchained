@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Button } from '../ui/Button'
+// import { Button } from '../ui/Button' // Old import removed
+import PanelButton from '../ui/PanelButton' // New import added
 
 export function FinalCTA() {
     return (
@@ -32,9 +33,9 @@ export function FinalCTA() {
                     transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
                     className="mt-6"
                 >
-                    <Button variant="primary" size="lg">
+                    <PanelButton className="mx-auto max-w-xs">
                         Get Started
-                    </Button>
+                    </PanelButton>
                 </motion.div>
             </div>
         </section>
