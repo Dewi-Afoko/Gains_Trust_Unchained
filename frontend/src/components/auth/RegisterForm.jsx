@@ -6,6 +6,7 @@ import debounce from 'lodash.debounce'
 import { showToast } from '../../utils/toast'
 import { register as registerApi } from '../../api/authApi'
 import { checkAvailability } from '../../api/usersApi'
+import PanelButton from '../ui/PanelButton'
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 
@@ -51,24 +52,22 @@ const RegisterForm = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="text-center">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full max-w-md mx-auto bg-brand-dark-2 p-8 rounded-xl border-2 border-brand-gold shadow-2xl animate-fadeIn">
+            <div className="text-center mb-4">
                 <p className="text-gray-300">
                     Create your account to get started
                 </p>
             </div>
-            <div className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-brand-gold mb-1">
-                        Username
-                    </label>
+            <div className="space-y-5">
+                <label className="block text-brand-gold font-semibold mb-1">
+                    Username
                     <input
                         {...register('username', {
                             required: 'Username is required',
                             onBlur: (e) =>
                                 checkAvailabilityDebounced(e.target.value, 'username'),
                         })}
-                        className="w-full px-4 py-2 bg-brand-dark-2 border border-brand-gold rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent text-white placeholder-gray-400"
+                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         placeholder="Choose a username"
                     />
                     {errors.username && (
@@ -76,22 +75,20 @@ const RegisterForm = () => {
                             {errors.username.message}
                         </p>
                     )}
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-brand-gold mb-1">
-                        Email
-                    </label>
+                </label>
+                <label className="block text-brand-gold font-semibold mb-1">
+                    Email
                     <input
                         {...register('email', {
                             required: 'Email is required',
                             pattern: {
-                                value: /\S+@\S+\.\S+/,
+                                value: /\S+@\S+\.\S+/, // eslint-disable-line
                                 message: 'Invalid email',
                             },
                             onBlur: (e) =>
                                 checkAvailabilityDebounced(e.target.value, 'email'),
                         })}
-                        className="w-full px-4 py-2 bg-brand-dark-2 border border-brand-gold rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent text-white placeholder-gray-400"
+                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         placeholder="Enter your email"
                     />
                     {errors.email && (
@@ -99,11 +96,9 @@ const RegisterForm = () => {
                             {errors.email.message}
                         </p>
                     )}
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-brand-gold mb-1">
-                        Password
-                    </label>
+                </label>
+                <label className="block text-brand-gold font-semibold mb-1">
+                    Password
                     <input
                         type="password"
                         {...register('password', {
@@ -113,7 +108,7 @@ const RegisterForm = () => {
                                 message: 'Minimum 6 characters',
                             },
                         })}
-                        className="w-full px-4 py-2 bg-brand-dark-2 border border-brand-gold rounded-lg focus:ring-2 focus:ring-brand-gold focus:border-transparent text-white placeholder-gray-400"
+                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         placeholder="Create a password"
                     />
                     {errors.password && (
@@ -121,14 +116,16 @@ const RegisterForm = () => {
                             {errors.password.message}
                         </p>
                     )}
-                </div>
+                </label>
             </div>
-            <button
+            <PanelButton
                 type="submit"
-                className="w-full bg-brand-red text-white font-semibold py-3 rounded-lg hover:bg-brand-red-dark focus:outline-none focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 transition-colors gains-font"
+                variant="gold"
+                className="w-full px-6 py-3 text-lg mt-6"
+                disabled={false}
             >
                 Register
-            </button>
+            </PanelButton>
         </form>
     )
 }
