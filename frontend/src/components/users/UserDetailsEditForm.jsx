@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { showToast } from '../../utils/toast'
 import { updateUser } from '../../api/usersApi'
 import useAuthStore from '../../stores/authStore'
+import PanelButton from '../ui/PanelButton'
 
 const UserDetailsEditForm = ({ user, onClose, onUpdate }) => {
     const { register, handleSubmit, setValue } = useForm()
@@ -36,57 +37,63 @@ const UserDetailsEditForm = ({ user, onClose, onUpdate }) => {
     }
 
     return (
-        <div className="bg-brand-dark-2 text-white p-8 rounded-xl shadow-2xl border border-brand-gold max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000]">
-            <h3 className="text-2xl font-bold text-brand-gold mb-6 text-center">
+        <div className="bg-brand-dark-2 text-white p-8 rounded-xl border-2 border-brand-gold shadow-2xl max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000] animate-fadeIn">
+            <h3 className="text-2xl font-bold text-brand-gold mb-6 text-center tracking-wide">
                 Edit User Details
             </h3>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                <label className="block">
-                    <span className="text-brand-gold font-semibold">
-                        First Name:
-                    </span>
+                <label className="block text-brand-gold font-semibold mb-1">
+                    First Name:
                     <input
                         {...register('first_name')}
-                        className="w-full p-2 mt-1 rounded bg-brand-dark-1 border border-brand-gold text-white focus:ring-2 focus:ring-brand-red focus:border-brand-red transition"
+                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                        placeholder="Enter your first name"
                     />
                 </label>
-                <label className="block">
-                    <span className="text-brand-gold font-semibold">
-                        Last Name:
-                    </span>
+                <label className="block text-brand-gold font-semibold mb-1">
+                    Last Name:
                     <input
                         {...register('last_name')}
-                        className="w-full p-2 mt-1 rounded bg-brand-dark-1 border border-brand-gold text-white focus:ring-2 focus:ring-brand-red focus:border-brand-red transition"
+                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                        placeholder="Enter your last name"
                     />
                 </label>
-                <label className="block">
-                    <span className="text-brand-gold font-semibold">
-                        Height (cm):
-                    </span>
+                <label className="block text-brand-gold font-semibold mb-1">
+                    Height (cm):
                     <input
                         type="number"
                         {...register('height')}
-                        className="w-full p-2 mt-1 rounded bg-brand-dark-1 border border-brand-gold text-white focus:ring-2 focus:ring-brand-red focus:border-brand-red transition"
+                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                        placeholder="Enter your height in cm"
                     />
                 </label>
-                <label className="block">
-                    <span className="text-brand-gold font-semibold">
-                        Date of Birth:
-                    </span>
+                <label className="block text-brand-gold font-semibold mb-1">
+                    Date of Birth:
                     <input
                         type="date"
                         {...register('dob')}
-                        className="w-full p-2 mt-1 rounded bg-brand-dark-1 border border-brand-gold text-white focus:ring-2 focus:ring-brand-red focus:border-brand-red transition"
+                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                     />
                 </label>
 
-                <button
-                    type="submit"
-                    className="w-full bg-brand-gold text-black font-bold p-3 rounded-lg hover:bg-brand-red hover:text-white focus:ring-2 focus:ring-brand-red transition text-lg mt-4"
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? 'Saving...' : 'Save Changes'}
-                </button>
+                <div className="flex gap-4 pt-4">
+                    <PanelButton
+                        type="submit"
+                        variant="gold"
+                        className="flex-1"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Saving...' : 'Save Changes'}
+                    </PanelButton>
+                    <PanelButton
+                        type="button"
+                        variant="danger"
+                        className="flex-1"
+                        onClick={onClose}
+                    >
+                        Cancel
+                    </PanelButton>
+                </div>
             </form>
         </div>
     )
