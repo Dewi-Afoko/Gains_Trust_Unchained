@@ -2,14 +2,14 @@ import * as React from 'react'
 import { useState } from 'react'
 import * as Popover from '@radix-ui/react-popover'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Edit, Copy, Trash2, X } from 'lucide-react'
-import SetEditForm from '../sets/SetEditForm'
+import { Edit, Copy, Trash2 } from 'lucide-react'
+import { SetEditModal } from '../sets/SetEditForm'
 import useWorkoutStore from '../../stores/workoutStore'
 import { showToast } from '../../utils/toast'
 import PanelButton from './PanelButton'
 
-// Function to generate SVG path for a 120-degree pie slice
-const createPieSlicePath = (index, cx, cy, r, innerRadius = 20) => {
+// Function to generate SVG path for a 120-degree pie slice (adjusted for r=25)
+const createPieSlicePath = (index, cx, cy, r, innerRadius = 10) => {
     const startAngle = index * 120 - 90 // Offset so first slice starts at top
     const endAngle = startAngle + 120
 
@@ -34,7 +34,7 @@ const createPieSlicePath = (index, cx, cy, r, innerRadius = 20) => {
     `
 }
 
-// Function to calculate icon position
+// Function to calculate icon position (adjusted for r=25)
 const calculateIconPosition = (index, cx, cy, r) => {
     const angle = (index * 120 + 60 - 90) * (Math.PI / 180) // Center of each segment
     const iconRadius = r * 0.6 // Position icons at 60% of radius
@@ -44,15 +44,22 @@ const calculateIconPosition = (index, cx, cy, r) => {
     }
 }
 
-const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu }, ref) => {
+// Accepts: setId, workoutId, closeMenu, onEdit
+const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdit }, ref) => {
     const { deleteSet, duplicateSet, sets } = useWorkoutStore()
-    const [isEditing, setIsEditing] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
     const [loading, setLoading] = useState(false)
     const [activeAction, setActiveAction] = useState(null)
 
     // Get the full set data
     const set = sets.find(s => s.id === setId)
+
+    // Menu sizing (75x75)
+    const menuSize = 75
+    const cx = 37.5 // Center X
+    const cy = 37.5 // Center Y
+    const r = 37.5 // Radius
+    const iconSize = 18 // 0.75x of 24px
 
     const handleDelete = async () => {
         setIsDeleting(true)
@@ -92,10 +99,16 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu }, ref
         }
     }
 
+    // Edit action: call onEdit and close popover
+    const handleEdit = () => {
+        onEdit(setId)
+        closeMenu()
+    }
+
     const menuItems = [
         { 
             label: 'Edit', 
-            action: () => setIsEditing(true), 
+            action: handleEdit, 
             color: '#FFD700',
             hoverColor: '#FFC107',
             icon: Edit,
@@ -119,160 +132,111 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu }, ref
         },
     ]
 
-    const cx = 50 // Center X
-    const cy = 50 // Center Y
-    const r = 50 // Radius
-
     return (
-        <>
-            <Popover.Content
-                ref={ref}
-                sideOffset={10}
-                align="center"
-                className="relative bg-transparent overflow-visible z-50"
-                style={{
-                    width: 'auto',
-                    height: 'auto',
-                    border: 'none',
-                    boxShadow: 'none',
-                    outline: 'none',
-                    minWidth: '300px',
-                    maxWidth: '400px',
-                }}
-            >
-                <AnimatePresence mode="wait">
-                    {isEditing ? (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            className="bg-brand-dark-2 p-6 rounded-xl border border-brand-gold shadow-lg"
-                        >
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="absolute top-2 right-2 text-gray-400 hover:text-white transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                            <SetEditForm
-                                setId={setId}
-                                onClose={() => {
-                                    setIsEditing(false)
-                                    closeMenu()
-                                }}
-                            />
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8, rotate: -30 }}
-                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                            exit={{ opacity: 0, scale: 0.8, rotate: 30 }}
-                            className="relative"
-                        >
-                            <svg viewBox="-10 -10 120 120" className="w-full h-full drop-shadow-lg">
-                                {/* Center circle */}
-                                <circle
-                                    cx={cx}
-                                    cy={cy}
-                                    r="18"
-                                    fill="#1a1a1a"
-                                    className="stroke-brand-gold"
-                                    strokeWidth="2"
-                                />
-                                {menuItems.map((item, index) => {
-                                    const iconPos = calculateIconPosition(index, cx, cy, r)
-                                    return (
-                                        <g key={item.id}>
-                                            <motion.path
-                                                d={createPieSlicePath(index, cx, cy, r)}
-                                                fill={item.color}
-                                                initial={{ opacity: 0.8 }}
-                                                whileHover={{ 
-                                                    opacity: 1,
-                                                    fill: item.hoverColor,
-                                                    transition: { duration: 0.2 }
-                                                }}
-                                                className={`cursor-pointer transition-all duration-200 ${
-                                                    loading && activeAction === item.id ? 'opacity-50' : ''
-                                                }`}
-                                                onClick={!loading ? item.action : undefined}
-                                            />
-                                            <motion.g
-                                                initial={{ scale: 0 }}
-                                                animate={{ scale: 1 }}
-                                                transition={{ delay: index * 0.1 }}
-                                                className="pointer-events-none"
-                                                style={{
-                                                    transformOrigin: `${iconPos.x}px ${iconPos.y}px`,
-                                                }}
-                                            >
-                                                <item.icon
-                                                    x={iconPos.x - 12}
-                                                    y={iconPos.y - 12}
-                                                    className="w-6 h-6 text-white drop-shadow"
-                                                />
-                                            </motion.g>
-                                        </g>
-                                    )
-                                })}
-                                {loading && (
-                                    <circle
-                                        cx={cx}
-                                        cy={cy}
-                                        r="15"
-                                        fill="none"
-                                        stroke="#FFD700"
-                                        strokeWidth="2"
-                                        strokeDasharray="30 30"
-                                        className="animate-spin"
+        <Popover.Content
+            ref={ref}
+            side="bottom"
+            align="center"
+            sideOffset={8}
+            className="z-[1000] p-0 bg-[#1a1a1a] border-2 border-yellow-400 rounded-full shadow-2xl drop-shadow-xl ring-2 ring-yellow-400/30 ring-offset-2 ring-offset-[#1a1a1a] animate-fadeIn"
+            style={{
+                width: menuSize,
+                height: menuSize,
+                minWidth: menuSize,
+                minHeight: menuSize,
+                boxShadow: '0 4px 32px 0 rgba(255, 215, 0, 0.10), 0 2px 8px 0 rgba(0,0,0,0.45)',
+                background: 'radial-gradient(circle at 60% 40%, #2d2d2d 60%, #1a1a1a 100%)',
+                filter: 'drop-shadow(0 0 12px #FFD70066)',
+                outline: 'none',
+                pointerEvents: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+        >
+            <AnimatePresence mode="wait">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8, rotate: -30 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, rotate: 30 }}
+                    className="relative"
+                >
+                    <svg viewBox="0 0 75 75" width={menuSize} height={menuSize} className="drop-shadow-lg">
+                        {/* Center circle */}
+                        <circle
+                            cx={cx}
+                            cy={cy}
+                            r="18"
+                            fill="#1a1a1a"
+                            className="stroke-yellow-400"
+                            strokeWidth="2"
+                            style={{ filter: 'drop-shadow(0 0 8px #FFD70088)' }}
+                        />
+                        {menuItems.map((item, index) => {
+                            const iconPos = calculateIconPosition(index, cx, cy, r)
+                            return (
+                                <g key={item.id}>
+                                    <motion.path
+                                        d={createPieSlicePath(index, cx, cy, r)}
+                                        fill={item.color}
+                                        initial={{ opacity: 0.8 }}
+                                        whileHover={{ 
+                                            opacity: 1,
+                                            fill: item.hoverColor,
+                                            transition: { duration: 0.2 }
+                                        }}
+                                        className={`cursor-pointer transition-all duration-200 ${
+                                            loading && activeAction === item.id ? 'opacity-50' : ''
+                                        }`}
+                                        onClick={!loading ? item.action : undefined}
+                                        style={{ filter: 'drop-shadow(0 0 6px #FFD70044)' }}
+                                    />
+                                    <motion.g
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className="pointer-events-none"
+                                        style={{
+                                            transformOrigin: `${iconPos.x}px ${iconPos.y}px`,
+                                        }}
                                     >
-                                        <animateTransform
-                                            attributeName="transform"
-                                            type="rotate"
-                                            from="0 50 50"
-                                            to="360 50 50"
-                                            dur="1s"
-                                            repeatCount="indefinite"
+                                        <item.icon
+                                            x={iconPos.x - iconSize / 2}
+                                            y={iconPos.y - iconSize / 2}
+                                            width={iconSize}
+                                            height={iconSize}
+                                            className="text-white drop-shadow"
+                                            style={{ filter: 'drop-shadow(0 0 4px #FFD70066)' }}
                                         />
-                                    </circle>
-                                )}
-                            </svg>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </Popover.Content>
-
-            {/* Delete Confirmation Modal */}
-            {isDeleting && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-[1000]">
-                    <div className="bg-[#600000] p-6 rounded-xl border border-yellow-400 shadow-lg text-white max-w-sm">
-                        <h3 className="text-lg font-bold text-yellow-400">
-                            Confirm Deletion
-                        </h3>
-                        <p className="mt-2">
-                            Are you sure you want to delete this set? This
-                            action cannot be undone.
-                        </p>
-                        <div className="flex justify-end mt-4 space-x-3">
-                            <PanelButton
-                                variant="gold"
-                                className="w-auto px-4 py-2"
-                                onClick={() => setIsDeleting(false)}
+                                    </motion.g>
+                                </g>
+                            )
+                        })}
+                        {loading && (
+                            <circle
+                                cx={cx}
+                                cy={cy}
+                                r="14"
+                                fill="none"
+                                stroke="#FFD700"
+                                strokeWidth="2"
+                                strokeDasharray="30 30"
+                                className="animate-spin"
                             >
-                                Cancel
-                            </PanelButton>
-                            <PanelButton
-                                variant="danger"
-                                className="w-auto px-4 py-2"
-                                onClick={confirmDelete}
-                            >
-                                Delete
-                            </PanelButton>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </>
+                                <animateTransform
+                                    attributeName="transform"
+                                    type="rotate"
+                                    from={`0 ${cx} ${cy}`}
+                                    to={`360 ${cx} ${cy}`}
+                                    dur="1s"
+                                    repeatCount="indefinite"
+                                />
+                            </circle>
+                        )}
+                    </svg>
+                </motion.div>
+            </AnimatePresence>
+        </Popover.Content>
     )
 })
 

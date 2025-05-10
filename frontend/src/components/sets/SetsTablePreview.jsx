@@ -3,6 +3,7 @@ import { useState } from 'react'
 import texture2 from '../../assets/texture2.png'
 import * as Popover from '@radix-ui/react-popover'
 import RadialMenuPopover from '../ui/RadialMenuPopover'
+import { SetEditModal } from './SetEditForm'
 
 const TableHeader = ({ children }) => (
     <th className="border-b border-r border-brand-gold/30 p-3 first:border-l text-center">
@@ -22,6 +23,7 @@ const TableCell = ({ children }) => (
 
 const SetsTablePreview = ({ sets, workoutId }) => {
     const [activeSetId, setActiveSetId] = useState(null)
+    const [editingSetId, setEditingSetId] = useState(null)
 
     if (!sets || sets.length === 0) {
         return (
@@ -64,7 +66,9 @@ const SetsTablePreview = ({ sets, workoutId }) => {
                     </thead>
                     <tbody>
                         {sets.map((set, index) => (
-                            <Popover.Root key={set.id} open={activeSetId === set.id} onOpenChange={(open) => setActiveSetId(open ? set.id : null)}>
+                            <Popover.Root key={set.id} open={activeSetId === set.id} onOpenChange={(open) => {
+                                if (!open) setActiveSetId(null)
+                            }}>
                                 <Popover.Trigger asChild>
                                     <tr 
                                         className={`
@@ -77,6 +81,7 @@ const SetsTablePreview = ({ sets, workoutId }) => {
                                         style={{
                                             height: '48px' // Ensure consistent row height
                                         }}
+                                        onClick={() => setActiveSetId(set.id)}
                                     >
                                         <TableCell>{set.exercise_name}</TableCell>
                                         <TableCell>{set.set_number}</TableCell>
@@ -88,16 +93,24 @@ const SetsTablePreview = ({ sets, workoutId }) => {
                                         <TableCell>{set.notes || 'N/A'}</TableCell>
                                     </tr>
                                 </Popover.Trigger>
-                                <RadialMenuPopover 
-                                    setId={set.id} 
-                                    workoutId={workoutId} 
-                                    closeMenu={() => setActiveSetId(null)}
-                                />
+                                {activeSetId === set.id && (
+                                    <RadialMenuPopover 
+                                        setId={set.id} 
+                                        workoutId={workoutId} 
+                                        closeMenu={() => setActiveSetId(null)}
+                                        onEdit={id => {
+                                            setEditingSetId(id)
+                                            setActiveSetId(null)
+                                        }}
+                                    />
+                                )}
                             </Popover.Root>
                         ))}
                     </tbody>
                 </table>
             </div>
+            {/* SetEditModal for editing */}
+            <SetEditModal setId={editingSetId} open={!!editingSetId} onClose={() => setEditingSetId(null)} />
         </div>
     )
 }
