@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import LandingPage from './pages/LandingPage'
+import WorkoutsList from './pages/WorkoutsList'
 import PrivateRoute from './components/auth/PrivateRoute'
 import useAuthStore from './stores/authStore'
 
@@ -29,6 +30,14 @@ function App() {
                     element={
                         <PrivateRoute>
                             <Dashboard />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/workouts"
+                    element={
+                        <PrivateRoute>
+                            <WorkoutsList />
                         </PrivateRoute>
                     }
                 />
