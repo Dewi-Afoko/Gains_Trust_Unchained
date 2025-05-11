@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import useWorkoutStore from '../stores/workoutStore'
-import { LucideListFilter, LucidePlus } from 'lucide-react'
+import { 
+    LucideListFilter, 
+    LucidePlus,
+    LucideCheckCircle2,
+    LucideClock,
+    LucideDumbbell,
+    LucideClipboardList,
+    LucideCalendar,
+    LucideActivity
+} from 'lucide-react'
 import PanelButton from '../components/ui/PanelButton'
 import WorkoutFeedFull from '../components/workouts/WorkoutFeedFull'
 import WorkoutCreationForm from '../components/workouts/WorkoutCreationForm'
