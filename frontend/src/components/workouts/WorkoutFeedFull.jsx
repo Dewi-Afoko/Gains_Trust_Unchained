@@ -1,30 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import useWorkoutStore from '../../stores/workoutStore'
 import WorkoutCreationForm from './WorkoutCreationForm'
 import PanelButton from '../ui/PanelButton'
 import { useNavigate } from 'react-router-dom'
 
-const WorkoutFeedFull = () => {
+const WorkoutFeedFull = ({ workouts, onDelete, onDuplicate }) => {
     const navigate = useNavigate()
-    const {
-        workouts,
-        loading,
-        error,
-        fetchAllWorkouts,
-        deleteWorkout,
-        duplicateWorkout,
-    } = useWorkoutStore()
-
     const [isCreating, setIsCreating] = useState(false)
     const [isSubmitted, setIsSubmitted] = useState(false)
 
-    useEffect(() => {
-        fetchAllWorkouts()
-    }, [])
-
     const handleDuplicate = async (workoutId) => {
         try {
-            const newWorkout = await duplicateWorkout(workoutId)
+            const newWorkout = await onDuplicate(workoutId)
             if (newWorkout?.id) {
                 navigate(`/workouts/${newWorkout.id}`)
             }
@@ -36,28 +23,11 @@ const WorkoutFeedFull = () => {
     const handleDelete = async (workoutId) => {
         if (window.confirm('Are you sure you want to delete this workout?')) {
             try {
-                await deleteWorkout(workoutId)
+                await onDelete(workoutId)
             } catch (error) {
                 console.error('Error deleting workout:', error)
             }
         }
-    }
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
-            </div>
-        )
-    }
-
-    if (error) {
-        return (
-            <div className="text-center text-red-500 p-4">
-                <h2>Error loading workouts</h2>
-                <p>{error}</p>
-            </div>
-        )
     }
 
     return (
@@ -75,53 +45,65 @@ const WorkoutFeedFull = () => {
 
             {/* Workouts Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {workouts.map((workout) => (
-                    <div
-                        key={workout.id}
-                        className="bg-brand-dark-2 rounded-xl border border-brand-gold/30 p-6 shadow-lg"
-                    >
-                        <h3 className="text-xl font-bold text-brand-gold mb-4">
-                            {workout.workout_name}
-                        </h3>
-                        <div className="space-y-2 mb-6">
-                            <p className="text-gray-300">
-                                <span className="font-semibold">Date:</span>{' '}
-                                {new Date(workout.date).toLocaleDateString()}
-                            </p>
-                            <p className="text-gray-300">
-                                <span className="font-semibold">Status:</span>{' '}
-                                {workout.complete ? '✅ Completed' : '⏳ In Progress'}
-                            </p>
-                            {workout.notes && (
+                {workouts?.length > 0 ? (
+                    workouts.map((workout) => (
+                        <div
+                            key={workout.id}
+                            className="bg-brand-dark-2 rounded-xl border border-brand-gold/30 p-6 shadow-lg"
+                        >
+                            <h3 className="text-xl font-bold text-brand-gold mb-4">
+                                {workout.workout_name}
+                            </h3>
+                            <div className="space-y-2 mb-6">
                                 <p className="text-gray-300">
-                                    <span className="font-semibold">Notes:</span>{' '}
-                                    {workout.notes}
+                                    <span className="font-semibold">Date:</span>{' '}
+                                    {new Date(workout.date).toLocaleDateString()}
                                 </p>
-                            )}
+                                <p className="text-gray-300">
+                                    <span className="font-semibold">Status:</span>{' '}
+                                    {workout.complete ? '✅ Completed' : '⏳ In Progress'}
+                                </p>
+                                {workout.notes && (
+                                    <p className="text-gray-300">
+                                        <span className="font-semibold">Notes:</span>{' '}
+                                        {workout.notes}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="flex gap-3">
+                                <PanelButton
+                                    onClick={() => navigate(`/workouts/${workout.id}`)}
+                                    className="flex-1"
+                                >
+                                    View
+                                </PanelButton>
+                                <PanelButton
+                                    onClick={() => handleDuplicate(workout.id)}
+                                    className="flex-1"
+                                >
+                                    Duplicate
+                                </PanelButton>
+                                <PanelButton
+                                    onClick={() => handleDelete(workout.id)}
+                                    variant="danger"
+                                    className="flex-1"
+                                >
+                                    Delete
+                                </PanelButton>
+                            </div>
                         </div>
-                        <div className="flex gap-3">
-                            <PanelButton
-                                onClick={() => navigate(`/workouts/${workout.id}`)}
-                                className="flex-1"
-                            >
-                                View
-                            </PanelButton>
-                            <PanelButton
-                                onClick={() => handleDuplicate(workout.id)}
-                                className="flex-1"
-                            >
-                                Duplicate
-                            </PanelButton>
-                            <PanelButton
-                                onClick={() => handleDelete(workout.id)}
-                                variant="danger"
-                                className="flex-1"
-                            >
-                                Delete
-                            </PanelButton>
-                        </div>
+                    ))
+                ) : (
+                    <div className="col-span-full text-center py-12">
+                        <p className="text-gray-400 text-lg mb-4">No workouts yet</p>
+                        <PanelButton 
+                            onClick={() => setIsCreating(true)}
+                            className="inline-flex items-center gap-2"
+                        >
+                            Create Your First Workout
+                        </PanelButton>
                     </div>
-                ))}
+                )}
             </div>
 
             {/* Create Workout Modal */}

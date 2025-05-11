@@ -30,6 +30,7 @@ const useWorkoutStore = create(
             sets: [],
             loading: false,
             error: null,
+            isLoading: false,
             pagination: { count: 0, next: null, previous: null },
             timeElapsed: 0,
             timerInterval: null,
@@ -63,11 +64,11 @@ const useWorkoutStore = create(
                 set({ timeElapsed: 0 })
             },
 
-            fetchAllWorkouts: async (page = 1) => {
-                set({ loading: true })
+            fetchAllWorkouts: async () => {
+                set({ loading: true, error: null })
                 try {
                     let allWorkouts = []
-                    let currentPage = page
+                    let currentPage = 1
                     let hasNextPage = true
 
                     while (hasNextPage) {
@@ -87,8 +88,7 @@ const useWorkoutStore = create(
                             count: allWorkouts.length,
                             next: null,
                             previous: null,
-                        },
-                        error: null
+                        }
                     })
                 } catch (err) {
                     set({ 
@@ -168,15 +168,16 @@ const useWorkoutStore = create(
                     await apiDeleteWorkout(workoutId)
                     set(state => ({
                         workouts: state.workouts.filter(w => w.id !== workoutId),
-                        workout: null,
-                        sets: [],
+                        workout: state.workout?.id === workoutId ? null : state.workout,
+                        sets: state.workout?.id === workoutId ? [] : state.sets,
                         workoutSets: Object.fromEntries(
-                            Object.entries(state.workoutSets).filter(([id]) => id !== workoutId)
+                            Object.entries(state.workoutSets).filter(([id]) => id !== workoutId.toString())
                         )
                     }))
                     showToast('Workout deleted successfully!', 'success')
                 } catch (error) {
                     showToast('Failed to delete workout.', 'error')
+                    throw error
                 }
             },
 
@@ -194,6 +195,7 @@ const useWorkoutStore = create(
                     return newWorkout
                 } catch (err) {
                     showToast('Failed to duplicate workout.', 'error')
+                    throw err
                 }
             },
 
@@ -313,6 +315,38 @@ const useWorkoutStore = create(
                     showToast('Failed to update sets.', 'error')
                 }
             },
+
+            // New actions
+            fetchWorkouts: async () => {
+                set({ isLoading: true, error: null })
+                try {
+                    const workouts = await getWorkouts()
+                    set({ workouts, isLoading: false })
+                } catch (error) {
+                    set({ error: error.message, isLoading: false })
+                    showToast('Failed to fetch workouts', 'error')
+                }
+            },
+
+            createWorkout: async (workoutData) => {
+                set({ isLoading: true, error: null })
+                try {
+                    const newWorkout = await apiUpdateWorkout(null, workoutData)
+                    set((state) => ({
+                        workouts: [...state.workouts, newWorkout],
+                        isLoading: false
+                    }))
+                    showToast('Workout created successfully', 'success')
+                } catch (error) {
+                    set({ error: error.message, isLoading: false })
+                    showToast('Failed to create workout', 'error')
+                    throw error
+                }
+            },
+
+            clearWorkouts: () => {
+                set({ workouts: [], isLoading: false, error: null })
+            }
         }),
         {
             name: 'workout-store',
