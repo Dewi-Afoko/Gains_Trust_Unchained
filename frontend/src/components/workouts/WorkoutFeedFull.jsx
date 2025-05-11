@@ -1,8 +1,19 @@
 import { useState } from 'react'
-import useWorkoutStore from '../../stores/workoutStore'
-import WorkoutCreationForm from './WorkoutCreationForm'
-import PanelButton from '../ui/PanelButton'
 import { useNavigate } from 'react-router-dom'
+import { 
+    LucideCheckCircle2, 
+    LucideClock, 
+    LucideDumbbell,
+    LucideClipboardList,
+    LucideCalendar,
+    LucideActivity,
+    LucideEye,
+    LucideCopy,
+    LucideTrash2,
+    LucidePlus
+} from 'lucide-react'
+import PanelButton from '../ui/PanelButton'
+import WorkoutCreationForm from './WorkoutCreationForm'
 
 const WorkoutFeedFull = ({ workouts, onDelete, onDuplicate }) => {
     const navigate = useNavigate()
@@ -30,6 +41,12 @@ const WorkoutFeedFull = ({ workouts, onDelete, onDuplicate }) => {
         }
     }
 
+    const formatDuration = (seconds) => {
+        if (!seconds) return '0m'
+        const minutes = Math.floor(seconds / 60)
+        return `${minutes}m`
+    }
+
     return (
         <div className="container mx-auto p-4">
             {/* Header with Create Button */}
@@ -54,40 +71,82 @@ const WorkoutFeedFull = ({ workouts, onDelete, onDuplicate }) => {
                             <h3 className="text-xl font-bold text-brand-gold mb-4">
                                 {workout.workout_name}
                             </h3>
+                            
+                            {/* Primary Workout Info */}
                             <div className="space-y-2 mb-6">
-                                <p className="text-gray-300">
-                                    <span className="font-semibold">Date:</span>{' '}
+                                <div className="flex items-center gap-2 text-gray-300">
+                                    <LucideCalendar className="w-4 h-4" />
+                                    <span className="font-semibold">Date:</span>
                                     {new Date(workout.date).toLocaleDateString()}
-                                </p>
-                                <p className="text-gray-300">
-                                    <span className="font-semibold">Status:</span>{' '}
-                                    {workout.complete ? '✅ Completed' : '⏳ In Progress'}
-                                </p>
-                                {workout.notes && (
-                                    <p className="text-gray-300">
-                                        <span className="font-semibold">Notes:</span>{' '}
-                                        {workout.notes}
-                                    </p>
+                                </div>
+                                
+                                <div className="flex items-center gap-2 text-gray-300">
+                                    <LucideActivity className="w-4 h-4" />
+                                    <span className="font-semibold">Status:</span>
+                                    {workout.complete ? (
+                                        <span className="flex items-center gap-1 text-green-400">
+                                            <LucideCheckCircle2 className="w-4 h-4" /> Complete
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-1 text-yellow-400">
+                                            <LucideClock className="w-4 h-4" /> In Progress
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-2 text-gray-300">
+                                    <LucideDumbbell className="w-4 h-4" />
+                                    <span className="font-semibold">Exercises:</span>
+                                    {workout.exercise_count || 0}
+                                </div>
+
+                                {workout.description && (
+                                    <div className="flex items-center gap-2 text-gray-300">
+                                        <LucideClipboardList className="w-4 h-4" />
+                                        <span className="font-semibold">Description:</span>
+                                        <p className="text-sm line-clamp-2">{workout.description}</p>
+                                    </div>
                                 )}
                             </div>
+
+                            {/* Workout Stats */}
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="text-center p-3 bg-zinc-800 rounded-lg">
+                                    <p className="text-yellow-500 text-lg font-semibold">
+                                        {workout.total_sets || 0}
+                                    </p>
+                                    <p className="text-xs text-gray-400">Total Sets</p>
+                                </div>
+                                <div className="text-center p-3 bg-zinc-800 rounded-lg">
+                                    <p className="text-yellow-500 text-lg font-semibold">
+                                        {workout.completion_count || 0}
+                                    </p>
+                                    <p className="text-xs text-gray-400">Completions</p>
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
                             <div className="flex gap-3">
                                 <PanelButton
                                     onClick={() => navigate(`/workouts/${workout.id}`)}
-                                    className="flex-1"
+                                    className="flex-1 flex items-center justify-center gap-2"
                                 >
+                                    <LucideEye className="w-4 h-4" />
                                     View
                                 </PanelButton>
                                 <PanelButton
                                     onClick={() => handleDuplicate(workout.id)}
-                                    className="flex-1"
+                                    className="flex-1 flex items-center justify-center gap-2"
                                 >
-                                    Duplicate
+                                    <LucideCopy className="w-4 h-4" />
+                                    Copy
                                 </PanelButton>
                                 <PanelButton
                                     onClick={() => handleDelete(workout.id)}
                                     variant="danger"
-                                    className="flex-1"
+                                    className="flex-1 flex items-center justify-center gap-2"
                                 >
+                                    <LucideTrash2 className="w-4 h-4" />
                                     Delete
                                 </PanelButton>
                             </div>
@@ -100,6 +159,7 @@ const WorkoutFeedFull = ({ workouts, onDelete, onDuplicate }) => {
                             onClick={() => setIsCreating(true)}
                             className="inline-flex items-center gap-2"
                         >
+                            <LucidePlus className="w-5 h-5" />
                             Create Your First Workout
                         </PanelButton>
                     </div>
