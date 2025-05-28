@@ -39,6 +39,18 @@ const useWorkoutStore = create(
             completeSets: () => get().sets.filter(set => set.complete),
             incompleteSets: () => get().sets.filter(set => !set.complete),
 
+            // Computed helper for getting sets by workout ID
+            getSetsByWorkoutId: (workoutId) => get().workoutSets[workoutId] || [],
+
+            // Helper to get exercise counts for a workout (needed for old behavior)
+            getExerciseCounts: (workoutId) => {
+                const sets = get().workoutSets[workoutId] || []
+                return sets.reduce((acc, set) => {
+                    acc[set.exercise_name] = (acc[set.exercise_name] || 0) + 1
+                    return acc
+                }, {})
+            },
+
             setLoading: (loading) => set({ loading }),
             setError: (error) => set({ error }),
 
@@ -90,6 +102,9 @@ const useWorkoutStore = create(
                             previous: null,
                         }
                     })
+
+                    // Fetch sets for all workouts to populate workoutSets lookup
+                    await get().fetchAllWorkoutSets(allWorkouts)
                 } catch (err) {
                     set({ 
                         error: 'Failed to load workouts. Please try again.',
@@ -98,6 +113,28 @@ const useWorkoutStore = create(
                     })
                 } finally {
                     set({ loading: false })
+                }
+            },
+
+            // New function to fetch sets for all workouts (needed for exercise counts in WorkoutFeedFull)
+            fetchAllWorkoutSets: async (workouts) => {
+                try {
+                    const workoutSetsPromises = workouts.map(async (workout) => {
+                        try {
+                            const setsData = await getSetsByWorkoutId(workout.id)
+                            return { [workout.id]: setsData.results || [] }
+                        } catch (error) {
+                            console.warn(`Failed to fetch sets for workout ${workout.id}:`, error)
+                            return { [workout.id]: [] }
+                        }
+                    })
+
+                    const workoutSetsArray = await Promise.all(workoutSetsPromises)
+                    const workoutSetsMap = Object.assign({}, ...workoutSetsArray)
+                    
+                    set({ workoutSets: workoutSetsMap })
+                } catch (error) {
+                    console.error('Error fetching workout sets:', error)
                 }
             },
 
