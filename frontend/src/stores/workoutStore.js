@@ -32,8 +32,6 @@ const useWorkoutStore = create(
             error: null,
             isLoading: false,
             pagination: { count: 0, next: null, previous: null },
-            timeElapsed: 0,
-            timerInterval: null,
 
             // Computed properties
             completeSets: () => get().sets.filter(set => set.complete),
@@ -53,28 +51,6 @@ const useWorkoutStore = create(
 
             setLoading: (loading) => set({ loading }),
             setError: (error) => set({ error }),
-
-            // Timer functions
-            startTimer: () => {
-                if (!get().timerInterval) {
-                    const interval = setInterval(() => {
-                        set(state => ({ timeElapsed: state.timeElapsed + 1 }))
-                    }, 1000)
-                    set({ timerInterval: interval })
-                }
-            },
-
-            stopTimer: () => {
-                if (get().timerInterval) {
-                    clearInterval(get().timerInterval)
-                    set({ timerInterval: null })
-                }
-            },
-
-            resetTimer: () => {
-                get().stopTimer()
-                set({ timeElapsed: 0 })
-            },
 
             fetchAllWorkouts: async () => {
                 set({ loading: true, error: null })
@@ -181,7 +157,6 @@ const useWorkoutStore = create(
                 try {
                     await apiStartWorkout(workoutId)
                     await get().fetchWorkoutDetails(workoutId)
-                    get().startTimer()
                     showToast('Workout started!', 'success')
                 } catch (err) {
                     showToast('Failed to start workout.', 'error')
@@ -191,7 +166,6 @@ const useWorkoutStore = create(
             toggleComplete: async (workoutId) => {
                 try {
                     await apiCompleteWorkout(workoutId)
-                    get().stopTimer()
                     await get().fetchWorkoutDetails(workoutId)
                     await get().fetchAllWorkouts()
                     showToast('Workout completion status updated!', 'success')
