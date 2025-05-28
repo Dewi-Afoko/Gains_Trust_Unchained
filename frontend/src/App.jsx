@@ -24,11 +24,11 @@ const queryClient = new QueryClient({
 })
 
 function App() {
-    const { fetchUser } = useAuthStore()
+    const { initAuth } = useAuthStore()
 
     useEffect(() => {
-        fetchUser()
-    }, [fetchUser])
+        initAuth()
+    }, [initAuth])
 
     return (
         <QueryClientProvider client={queryClient}>

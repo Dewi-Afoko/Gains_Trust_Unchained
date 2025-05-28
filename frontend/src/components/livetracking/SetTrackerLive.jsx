@@ -4,9 +4,10 @@ import useWorkoutStore from '../../stores/workoutStore'
 import SetEditForm from '../sets/SetEditForm'
 import { formatLoading } from '../../utils/formatters'
 import PanelButton from '../ui/PanelButton'
+import PanelHeader from '../ui/PanelHeader'
 import texture2 from '../../assets/texture2.png'
 
-const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
+const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => {
     const { sets } = useWorkoutStore()
     const [editingSetId, setEditingSetId] = useState(null)
     const [isExpanded, setIsExpanded] = useState(true)
@@ -32,113 +33,161 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
         setFilteredSets([...newFilteredSets])
     }, [sets, showNextOnly, showCompletedOnly])
 
+    // Notify parent when expansion state changes
+    useEffect(() => {
+        if (onExpandChange) {
+            onExpandChange(isExpanded)
+        }
+    }, [isExpanded, onExpandChange])
+
     const title = showNextOnly ? 'Next 3 Sets' : showCompletedOnly ? 'Last 3 Sets' : 'All Sets'
 
     return (
-        <div className="relative overflow-hidden bg-gradient-to-b from-brand-dark-2/90 via-brand-dark/80 to-brand-dark-2/90 backdrop-blur-sm rounded-xl border border-brand-gold/40 p-6 shadow-2xl">
+        <div className="bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl flex flex-col overflow-visible p-6 text-white relative">
             {/* Background Texture */}
             <div
-                className="absolute inset-0 opacity-20 pointer-events-none z-0 rounded-xl"
+                className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-2xl"
                 style={{ 
-                    backgroundImage: `url(${texture2})`,
-                    backgroundSize: '300px 300px',
-                    backgroundRepeat: 'repeat',
-                    backgroundAttachment: 'scroll',
-                    backgroundPosition: 'center center'
+                    backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
+                    backgroundBlendMode: 'overlay, multiply',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
                 }}
             />
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/10 via-black/60 to-black/80 rounded-xl z-10"></div>
             
             {/* Content */}
             <div className="relative z-20">
                 <div 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="flex items-center gap-3 mb-4 cursor-pointer hover:text-yellow-300 transition group"
+                    className="cursor-pointer hover:text-yellow-300 transition group"
                 >
-                    <div className="bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 rounded-full p-2 shadow-lg group-hover:shadow-xl transition-shadow">
-                        <Dumbbell className="w-6 h-6 stroke-[2.5px] text-black" />
+                    <PanelHeader 
+                        title={title}
+                        icon={Dumbbell}
+                        size="large"
+                    />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                        {isExpanded ? (
+                            <ChevronDown className="w-5 h-5 text-brand-gold group-hover:text-yellow-300 transition" />
+                        ) : (
+                            <ChevronRight className="w-5 h-5 text-brand-gold group-hover:text-yellow-300 transition" />
+                        )}
                     </div>
-                    <h3 className="text-brand-gold text-xl font-bold uppercase tracking-wider flex-1">
-                        {title}
-                    </h3>
-                    {isExpanded ? (
-                        <ChevronDown className="w-5 h-5 text-brand-gold" />
-                    ) : (
-                        <ChevronRight className="w-5 h-5 text-brand-gold" />
-                    )}
                 </div>
 
                 <div
-                    className={`overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-[1000px]' : 'max-h-0'}`}
+                    className={`overflow-visible transition-all duration-500 ${isExpanded ? 'max-h-[1000px]' : 'max-h-0'}`}
                 >
                     {filteredSets.length > 0 ? (
-                        <ul className="space-y-3">
+                        <ul className="space-y-3 pb-8">
                             {filteredSets.map((set, index) => (
                                 <li
                                     key={`${set.id}-${set.set_order}-${index}`}
-                                    className="p-4 bg-gradient-to-b from-black/40 via-black/60 to-black/80 backdrop-blur-sm rounded-lg border border-brand-gold/30 shadow-inner hover:border-brand-gold/50 transition-all duration-200 hover:transform hover:scale-[1.02]"
+                                    className={`p-4 bg-brand-dark border-2 border-brand-gold/30 rounded-lg shadow-inner hover:border-brand-gold hover:shadow-lg transition-all duration-200 hover:transform hover:scale-[1.02] relative overflow-hidden ${index === filteredSets.length - 1 ? 'mb-6' : ''}`}
                                 >
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 rounded-full p-1.5 shadow-lg">
-                                            <Dumbbell className="w-4 h-4 stroke-[2.5px] text-black" />
+                                    {/* Individual set background texture */}
+                                    <div
+                                        className="absolute inset-0 opacity-20 pointer-events-none z-0 rounded-lg"
+                                        style={{ 
+                                            backgroundImage: `url(${texture2})`,
+                                            backgroundSize: '200px 200px',
+                                            backgroundRepeat: 'repeat'
+                                        }}
+                                    />
+                                    <div className="relative z-10">
+                                        {/* Exercise Name as Panel Header */}
+                                        <div className="bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e] border border-brand-gold/80 rounded-t-lg p-3 mb-0 -mx-4 -mt-4"
+                                            style={{
+                                                backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
+                                                backgroundBlendMode: 'overlay, multiply',
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                            }}
+                                        >
+                                            <div className="flex items-center justify-center gap-2">
+                                                <span className="w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
+                                                <p className="text-base font-extrabold uppercase tracking-wider bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] text-center">
+                                                    {set.exercise_name}
+                                                </p>
+                                                <span className="w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
+                                            </div>
                                         </div>
-                                        <p className="text-lg text-brand-gold font-bold flex-1">
-                                            {set.exercise_name}
-                                            {set.set_type && <span className="text-gray-300 font-medium"> - {set.set_type}</span>}
-                                        </p>
-                                    </div>
-                                    
-                                    <div className="space-y-2 mb-3">
-                                        {set.focus && (
+                                        
+                                        {/* Set Info Section */}
+                                        <div className="pt-4 space-y-2 mb-3">
+                                            {set.set_type && (
+                                                <div className="flex items-center gap-2">
+                                                    <Dumbbell className="w-3 h-3 text-gray-400" />
+                                                    <p className="text-sm text-gray-300 font-medium">
+                                                        Type: {set.set_type}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {set.focus && (
+                                                <div className="flex items-center gap-2">
+                                                    <Focus className="w-3 h-3 text-gray-400" />
+                                                    <p className="text-sm text-gray-300 font-medium">
+                                                        Focus: {set.focus}
+                                                    </p>
+                                                </div>
+                                            )}
                                             <div className="flex items-center gap-2">
-                                                <Focus className="w-3 h-3 text-gray-400" />
+                                                <Target className="w-3 h-3 text-gray-400" />
                                                 <p className="text-sm text-gray-300 font-medium">
-                                                    Focus: {set.focus}
+                                                    Loading: {formatLoading(set.loading)}
                                                 </p>
                                             </div>
-                                        )}
-                                        <div className="flex items-center gap-2">
-                                            <Target className="w-3 h-3 text-gray-400" />
-                                            <p className="text-sm text-gray-300 font-medium">
-                                                Loading: {formatLoading(set.loading)}
-                                            </p>
+                                            {set.reps && (
+                                                <div className="flex items-center gap-2">
+                                                    <Dumbbell className="w-3 h-3 text-gray-400" />
+                                                    <p className="text-sm text-gray-300 font-medium">
+                                                        Reps: {set.reps}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {set.rest && (
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="w-3 h-3 text-gray-400" />
+                                                    <p className="text-sm text-gray-300 font-medium">
+                                                        Rest: {set.rest}s
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {(set.set_duration !== null || set.complete) && (
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="w-3 h-3 text-gray-400" />
+                                                    <p className="text-sm text-gray-300 font-medium">
+                                                        Duration: {(() => {
+                                                            // Try optimistic update first (from localStorage)
+                                                            const optimisticDuration = localStorage.getItem(`completedSetDuration_${set.id}`)
+                                                            if (optimisticDuration && set.complete) {
+                                                                const seconds = parseInt(optimisticDuration)
+                                                                const minutes = Math.floor(seconds / 60)
+                                                                const secs = seconds % 60
+                                                                return `${minutes}:${secs.toString().padStart(2, '0')}`
+                                                            }
+                                                            // Fall back to server data
+                                                            if (set.set_duration !== null) {
+                                                                return new Date(set.set_duration * 1000)
+                                                                    .toISOString()
+                                                                    .substr(14, 5)
+                                                            }
+                                                            return 'Calculating...'
+                                                        })()}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
-                                        {set.reps && (
-                                            <div className="flex items-center gap-2">
-                                                <Dumbbell className="w-3 h-3 text-gray-400" />
-                                                <p className="text-sm text-gray-300 font-medium">
-                                                    Reps: {set.reps}
-                                                </p>
-                                            </div>
-                                        )}
-                                        {set.rest && (
-                                            <div className="flex items-center gap-2">
-                                                <Clock className="w-3 h-3 text-gray-400" />
-                                                <p className="text-sm text-gray-300 font-medium">
-                                                    Rest: {set.rest}s
-                                                </p>
-                                            </div>
-                                        )}
-                                        {set.set_duration !== null && (
-                                            <div className="flex items-center gap-2">
-                                                <Clock className="w-3 h-3 text-gray-400" />
-                                                <p className="text-sm text-gray-300 font-medium">
-                                                    Set Duration: {new Date(set.set_duration * 1000)
-                                                        .toISOString()
-                                                        .substr(14, 5)}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
 
-                                    <PanelButton
-                                        onClick={() => setEditingSetId(set.id)}
-                                        className="w-full flex items-center justify-center gap-2 text-sm bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                        Edit Set
-                                    </PanelButton>
+                                        <PanelButton
+                                            onClick={() => setEditingSetId(set.id)}
+                                            variant="gold"
+                                            className="text-sm"
+                                        >
+                                            <Edit className="w-4 h-4 mr-2" />
+                                            Edit Set
+                                        </PanelButton>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
@@ -156,12 +205,24 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly }) => {
             </div>
 
             {editingSetId && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4 shadow-lg">
-                        <SetEditForm
-                            setId={editingSetId}
-                            onClose={() => setEditingSetId(null)}
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20 p-4">
+                    <div className="bg-brand-dark-2 border border-brand-gold/30 backdrop-blur-sm p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl relative overflow-hidden">
+                        {/* Modal background texture */}
+                        <div
+                            className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-xl"
+                            style={{ 
+                                backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
+                                backgroundBlendMode: 'overlay, multiply',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                            }}
                         />
+                        <div className="relative z-10">
+                            <SetEditForm
+                                setId={editingSetId}
+                                onClose={() => setEditingSetId(null)}
+                            />
+                        </div>
                     </div>
                 </div>
             )}

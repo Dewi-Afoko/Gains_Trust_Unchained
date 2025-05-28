@@ -35,10 +35,9 @@ const PanelHeader = React.forwardRef(({ title, icon: Icon, useGainsFont = true, 
                         <Icon className={`text-orange-400 flex-shrink-0 drop-shadow self-center ${iconSize}`} />
                     )}
                     <span className={`
-                        uppercase font-bold tracking-widest
+                        font-extrabold uppercase tracking-wider
                         bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text 
                         drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] text-center leading-tight
-                        ${useGainsFont ? 'gains-font' : ''}
                         ${size === 'large' ? '' : 'truncate'}
                     `}>
                         {title}
