@@ -7,6 +7,7 @@ const useAuthStore = create((set, get) => ({
     user: null,
     accessToken: localStorage.getItem('accessToken'),
     refreshToken: localStorage.getItem('refreshToken'),
+    isLoading: true,
 
     refreshAccessToken: async () => {
         const refreshToken = get().refreshToken
@@ -43,7 +44,8 @@ const useAuthStore = create((set, get) => ({
         set({
             user: userData,
             accessToken: access,
-            refreshToken: refresh
+            refreshToken: refresh,
+            isLoading: false
         })
         localStorage.setItem('accessToken', access)
         localStorage.setItem('refreshToken', refresh)
@@ -53,7 +55,8 @@ const useAuthStore = create((set, get) => ({
         set({
             user: null,
             accessToken: null,
-            refreshToken: null
+            refreshToken: null,
+            isLoading: false
         })
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
@@ -61,20 +64,27 @@ const useAuthStore = create((set, get) => ({
 
     fetchUser: async () => {
         const { accessToken } = get()
-        if (!accessToken) return
+        if (!accessToken) {
+            set({ isLoading: false })
+            return
+        }
 
         try {
             const response = await axios.get(`${API_BASE_URL}/users/me/`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
             })
 
-            set({ user: response.data })
+            set({ user: response.data, isLoading: false })
         } catch (error) {
             if (error.response?.status === 401) {
                 const newAccessToken = await get().refreshAccessToken()
                 if (newAccessToken) {
                     get().fetchUser()
+                } else {
+                    set({ isLoading: false })
                 }
+            } else {
+                set({ isLoading: false })
             }
         }
     }
