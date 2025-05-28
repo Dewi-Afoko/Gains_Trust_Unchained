@@ -9,6 +9,7 @@ import Register from './pages/Register'
 import LandingPage from './pages/LandingPage'
 import WorkoutsList from './pages/WorkoutsList'
 import WorkoutDetails from './pages/WorkoutDetails'
+import LiveTracking from './pages/LiveTracking'
 import PrivateRoute from './components/auth/PrivateRoute'
 import useAuthStore from './stores/authStore'
 
@@ -59,6 +60,14 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <WorkoutDetails />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/livetracking/:id"
+                        element={
+                            <PrivateRoute>
+                                <LiveTracking />
                             </PrivateRoute>
                         }
                     />
