@@ -78,11 +78,11 @@ const PanelButton = React.forwardRef(({
             {...props}
         >
             {/* Left rivet */}
-            <span className="absolute left-2 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
+            <span className="absolute left-2 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
             
             {/* Button Content */}
             <span className={`
-                font-bold uppercase tracking-widest text-sm
+                font-bold uppercase tracking-widest text-sm flex items-center
                 ${variantStyles.textGradient}
                 ${variantStyles.hoverTextGradient}
                 drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]
@@ -91,7 +91,7 @@ const PanelButton = React.forwardRef(({
             </span>
             
             {/* Right rivet */}
-            <span className="absolute right-2 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
+            <span className="absolute right-2 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
         </button>
     )
 })

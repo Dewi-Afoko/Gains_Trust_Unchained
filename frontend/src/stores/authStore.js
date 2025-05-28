@@ -40,6 +40,44 @@ const useAuthStore = create((set, get) => ({
         }
     },
 
+    // Initialize auth state on app startup
+    initAuth: async () => {
+        const { accessToken, refreshToken } = get()
+        
+        if (!accessToken || !refreshToken) {
+            set({ isLoading: false })
+            return
+        }
+
+        // Check if current token is valid by trying to fetch user
+        try {
+            const response = await axios.get(`${API_BASE_URL}/users/me/`, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            })
+            set({ user: response.data, isLoading: false })
+        } catch (error) {
+            if (error.response?.status === 401) {
+                // Token expired, try to refresh
+                const newAccessToken = await get().refreshAccessToken()
+                if (newAccessToken) {
+                    // Retry fetching user with new token
+                    try {
+                        const response = await axios.get(`${API_BASE_URL}/users/me/`, {
+                            headers: { Authorization: `Bearer ${newAccessToken}` },
+                        })
+                        set({ user: response.data, isLoading: false })
+                    } catch (retryError) {
+                        set({ isLoading: false })
+                    }
+                } else {
+                    set({ isLoading: false })
+                }
+            } else {
+                set({ isLoading: false })
+            }
+        }
+    },
+
     login: (userData, access, refresh) => {
         set({
             user: userData,

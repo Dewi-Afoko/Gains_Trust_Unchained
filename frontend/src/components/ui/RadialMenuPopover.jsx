@@ -7,6 +7,7 @@ import { SetEditModal } from '../sets/SetEditForm'
 import useWorkoutStore from '../../stores/workoutStore'
 import { showToast } from '../../utils/toast'
 import PanelButton from './PanelButton'
+import texture2 from '../../assets/texture2.png'
 
 // Function to generate SVG path for a 120-degree pie slice (adjusted for r=25)
 const createPieSlicePath = (index, cx, cy, r, innerRadius = 10) => {
@@ -109,24 +110,24 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdi
         { 
             label: 'Edit', 
             action: handleEdit, 
-            color: '#FFD700',
-            hoverColor: '#FFC107',
+            color: '#D97706', // brand amber/orange
+            hoverColor: '#F59E0B', // lighter amber
             icon: Edit,
             id: 'edit'
         },
         {
             label: 'Delete',
             action: handleDelete,
-            color: '#D90000',
-            hoverColor: '#FF0000',
+            color: '#B91C1C', // brand red
+            hoverColor: '#DC2626', // lighter red
             icon: Trash2,
             id: 'delete'
         },
         {
             label: 'Duplicate',
             action: handleDuplicate,
-            color: '#008000',
-            hoverColor: '#00A000',
+            color: '#166534', // dark green
+            hoverColor: '#16A34A', // lighter green
             icon: Copy,
             id: 'duplicate'
         },
@@ -138,15 +139,18 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdi
             side="bottom"
             align="center"
             sideOffset={8}
-            className="z-[1000] p-0 bg-[#1a1a1a] border-2 border-yellow-400 rounded-full shadow-2xl drop-shadow-xl ring-2 ring-yellow-400/30 ring-offset-2 ring-offset-[#1a1a1a] animate-fadeIn"
+            className="z-[1000] p-0 border-2 border-brand-gold rounded-full shadow-2xl drop-shadow-xl ring-2 ring-brand-gold/30 ring-offset-2 ring-offset-brand-dark-2 animate-fadeIn"
             style={{
                 width: menuSize,
                 height: menuSize,
                 minWidth: menuSize,
                 minHeight: menuSize,
-                boxShadow: '0 4px 32px 0 rgba(255, 215, 0, 0.10), 0 2px 8px 0 rgba(0,0,0,0.45)',
-                background: 'radial-gradient(circle at 60% 40%, #2d2d2d 60%, #1a1a1a 100%)',
-                filter: 'drop-shadow(0 0 12px #FFD70066)',
+                boxShadow: '0 8px 32px 0 rgba(234, 179, 8, 0.25), 0 4px 16px 0 rgba(0,0,0,0.6)',
+                background: `radial-gradient(circle at 60% 40%, #2d2d2d 40%, #1a1a1a 100%), url(${texture2})`,
+                backgroundBlendMode: 'overlay, multiply',
+                backgroundSize: 'cover, 80px 80px',
+                backgroundPosition: 'center, center',
+                filter: 'drop-shadow(0 0 16px rgba(234, 179, 8, 0.3))',
                 outline: 'none',
                 pointerEvents: 'auto',
                 display: 'flex',
@@ -162,16 +166,31 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdi
                     className="relative"
                 >
                     <svg viewBox="0 0 75 75" width={menuSize} height={menuSize} className="drop-shadow-lg">
-                        {/* Center circle */}
+                        {/* Define all gradients */}
+                        <defs>
+                            <radialGradient id="centerGradient" cx="0.3" cy="0.3">
+                                <stop offset="0%" stopColor="#2d2d2d" />
+                                <stop offset="70%" stopColor="#1a1a1a" />
+                                <stop offset="100%" stopColor="#0e0e0e" />
+                            </radialGradient>
+                            <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#F59E0B" />
+                                <stop offset="50%" stopColor="#EAB308" />
+                                <stop offset="100%" stopColor="#D97706" />
+                            </linearGradient>
+                        </defs>
+                        
+                        {/* Center circle with brand styling */}
                         <circle
                             cx={cx}
                             cy={cy}
                             r="18"
-                            fill="#1a1a1a"
-                            className="stroke-yellow-400"
+                            fill="url(#centerGradient)"
+                            className="stroke-brand-gold"
                             strokeWidth="2"
-                            style={{ filter: 'drop-shadow(0 0 8px #FFD70088)' }}
+                            style={{ filter: 'drop-shadow(0 0 8px rgba(234, 179, 8, 0.4))' }}
                         />
+                        
                         {menuItems.map((item, index) => {
                             const iconPos = calculateIconPosition(index, cx, cy, r)
                             return (
@@ -189,12 +208,14 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdi
                                             loading && activeAction === item.id ? 'opacity-50' : ''
                                         }`}
                                         onClick={!loading ? item.action : undefined}
-                                        style={{ filter: 'drop-shadow(0 0 6px #FFD70044)' }}
+                                        style={{ 
+                                            filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.4)) drop-shadow(0 0 4px rgba(234, 179, 8, 0.2))' 
+                                        }}
                                     />
                                     <motion.g
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
-                                        transition={{ delay: index * 0.1 }}
+                                        transition={{ delay: index * 0.1, type: "spring", stiffness: 300 }}
                                         className="pointer-events-none"
                                         style={{
                                             transformOrigin: `${iconPos.x}px ${iconPos.y}px`,
@@ -206,7 +227,10 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdi
                                             width={iconSize}
                                             height={iconSize}
                                             className="text-white drop-shadow"
-                                            style={{ filter: 'drop-shadow(0 0 4px #FFD70066)' }}
+                                            style={{ 
+                                                filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.6)) drop-shadow(0 0 2px rgba(255,255,255,0.3))',
+                                                strokeWidth: 2.5
+                                            }}
                                         />
                                     </motion.g>
                                 </g>
@@ -218,10 +242,11 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdi
                                 cy={cy}
                                 r="14"
                                 fill="none"
-                                stroke="#FFD700"
-                                strokeWidth="2"
+                                stroke="url(#loadingGradient)"
+                                strokeWidth="3"
                                 strokeDasharray="30 30"
                                 className="animate-spin"
+                                style={{ filter: 'drop-shadow(0 0 6px rgba(234, 179, 8, 0.6))' }}
                             >
                                 <animateTransform
                                     attributeName="transform"
