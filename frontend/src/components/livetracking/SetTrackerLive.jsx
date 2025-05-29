@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ChevronDown, ChevronRight, Dumbbell, Target, Clock, Focus, Edit } from 'lucide-react'
+import { Dumbbell, Target, Clock, Focus, Edit } from 'lucide-react'
 import useWorkoutStore from '../../stores/workoutStore'
 import SetEditForm from '../sets/SetEditForm'
 import { formatLoading } from '../../utils/formatters'
@@ -42,8 +42,12 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
 
     const title = showNextOnly ? 'Next 3 Sets' : showCompletedOnly ? 'Last 3 Sets' : 'All Sets'
 
+    const handleToggleExpanded = () => {
+        setIsExpanded(!isExpanded)
+    }
+
     return (
-        <div className="bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl flex flex-col overflow-visible p-6 text-white relative">
+        <div className="bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl flex flex-col overflow-hidden p-6 text-white relative">
             {/* Background Texture */}
             <div
                 className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-2xl"
@@ -57,33 +61,32 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
             
             {/* Content */}
             <div className="relative z-20">
-                <div 
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    className="cursor-pointer hover:text-yellow-300 transition group"
-                >
-                    <PanelHeader 
-                        title={title}
-                        icon={Dumbbell}
-                        size="large"
-                    />
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                        {isExpanded ? (
-                            <ChevronDown className="w-5 h-5 text-brand-gold group-hover:text-yellow-300 transition" />
-                        ) : (
-                            <ChevronRight className="w-5 h-5 text-brand-gold group-hover:text-yellow-300 transition" />
-                        )}
-                    </div>
-                </div>
+                {/* Collapsible Header */}
+                <PanelHeader 
+                    title={title}
+                    icon={Dumbbell}
+                    size="large"
+                    collapsible={true}
+                    isExpanded={isExpanded}
+                    onToggle={handleToggleExpanded}
+                />
 
+                {/* Collapsible Content with Dynamic Height */}
                 <div
-                    className={`overflow-visible transition-all duration-500 ${isExpanded ? 'max-h-[1000px]' : 'max-h-0'}`}
+                    className={`transition-all duration-500 ease-in-out ${
+                        isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                    }`}
+                    style={{
+                        height: isExpanded ? 'auto' : '0px',
+                        overflow: isExpanded ? 'visible' : 'hidden'
+                    }}
                 >
                     {filteredSets.length > 0 ? (
-                        <ul className="space-y-3 pb-8">
+                        <ul className="space-y-3">
                             {filteredSets.map((set, index) => (
                                 <li
                                     key={`${set.id}-${set.set_order}-${index}`}
-                                    className={`p-4 bg-brand-dark border-2 border-brand-gold/30 rounded-lg shadow-inner hover:border-brand-gold hover:shadow-lg transition-all duration-200 hover:transform hover:scale-[1.02] relative overflow-hidden ${index === filteredSets.length - 1 ? 'mb-6' : ''}`}
+                                    className={`p-4 bg-brand-dark border-2 border-brand-gold/30 rounded-lg shadow-inner hover:border-brand-gold hover:shadow-lg transition-all duration-200 hover:transform hover:scale-[1.02] relative overflow-hidden`}
                                 >
                                     {/* Individual set background texture */}
                                     <div
