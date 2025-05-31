@@ -37,11 +37,11 @@ const UserDetailsEditForm = ({ user, onClose, onUpdate }) => {
     }
 
     return (
-        <div className="bg-brand-dark-2 text-white p-8 rounded-xl border-2 border-brand-gold shadow-2xl max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000] animate-fadeIn">
+        <div className="w-full max-w-md mx-auto">
             <h3 className="text-2xl font-bold text-brand-gold mb-6 text-center tracking-wide">
                 Edit User Details
             </h3>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-h-[70vh] overflow-y-auto pr-2">
                 <label className="block text-brand-gold font-semibold mb-1">
                     First Name:
                     <input
@@ -76,20 +76,20 @@ const UserDetailsEditForm = ({ user, onClose, onUpdate }) => {
                     />
                 </label>
 
-                <div className="flex gap-4 pt-4">
-                    <PanelButton
-                        type="submit"
-                        variant="gold"
+                <div className="flex gap-4 pt-4 sticky bottom-0 bg-brand-dark-2 py-2 -mx-2 px-2">
+                    <PanelButton 
+                        type="submit" 
+                        disabled={isSubmitting} 
+                        variant="gold" 
                         className="flex-1"
-                        disabled={isSubmitting}
                     >
                         {isSubmitting ? 'Saving...' : 'Save Changes'}
                     </PanelButton>
-                    <PanelButton
-                        type="button"
-                        variant="danger"
+                    <PanelButton 
+                        type="button" 
+                        onClick={onClose} 
+                        variant="danger" 
                         className="flex-1"
-                        onClick={onClose}
                     >
                         Cancel
                     </PanelButton>

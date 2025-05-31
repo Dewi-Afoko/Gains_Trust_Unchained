@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import useWorkoutStore from '../../stores/workoutStore'
 import WorkoutEditForm from './WorkoutEditForm'
 import SetsTableFull from '../sets/SetsTableFull'
@@ -206,10 +207,10 @@ const WorkoutDetailsFull = () => {
                 )}
             </div>
 
-            {/* Modals */}
-            {isWorkoutModalOpen && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4 shadow-lg">
+            {/* Modals using portals to render fullscreen */}
+            {isWorkoutModalOpen && createPortal(
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
                         <WorkoutEditForm
                             workout={workout}
                             workoutId={workoutId}
@@ -217,19 +218,21 @@ const WorkoutDetailsFull = () => {
                             onUpdate={handleWorkoutUpdate}
                         />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
-            {isSetModalOpen && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4 shadow-lg">
+            {isSetModalOpen && createPortal(
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
                         <SetCreationForm
                             workoutId={workoutId}
                             onClose={() => setIsSetModalOpen(false)}
                             onSetCreated={handleSetUpdated}
                         />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     )

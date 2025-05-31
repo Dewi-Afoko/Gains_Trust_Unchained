@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import useWorkoutStore from '../../stores/workoutStore'
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
 import { formatLoading } from '../../utils/formatters'
@@ -210,13 +211,14 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                 </div>
             </div>
 
-            {/* Edit Modal */}
-            {editingSetId !== null && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4 shadow-lg">
+            {/* Edit Modal using portal */}
+            {editingSetId !== null && createPortal(
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
                         <SetEditForm setId={editingSetId} onClose={closeEditModal} />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     )

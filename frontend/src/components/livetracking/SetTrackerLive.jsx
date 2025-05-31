@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Dumbbell, Target, Clock, Focus, Edit } from 'lucide-react'
 import useWorkoutStore from '../../stores/workoutStore'
 import SetEditForm from '../sets/SetEditForm'
@@ -207,9 +208,9 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                 </div>
             </div>
 
-            {editingSetId && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20 p-4">
-                    <div className="bg-brand-dark-2 border border-brand-gold/30 backdrop-blur-sm p-6 rounded-xl w-full max-w-lg mx-4 shadow-2xl relative overflow-hidden">
+            {editingSetId && createPortal(
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-brand-dark-2/90 border border-brand-gold/30 backdrop-blur-sm p-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative">
                         {/* Modal background texture */}
                         <div
                             className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-xl"
@@ -227,7 +228,8 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                             />
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     )

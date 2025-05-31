@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import useWorkoutStore from '../../stores/workoutStore'
 import SetEditForm from '../sets/SetEditForm'
 import PanelButton from '../ui/PanelButton'
@@ -43,16 +44,17 @@ const SetActionsLive = ({ set, onStartRest }) => {
                 </PanelButton>
             )}
 
-            {/* Edit Modal */}
-            {isEditing && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-brand-dark-2 p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4">
+            {/* Edit Modal using portal */}
+            {isEditing && createPortal(
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
                         <SetEditForm
                             setId={set.id}
                             onClose={() => setIsEditing(false)}
                         />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     )

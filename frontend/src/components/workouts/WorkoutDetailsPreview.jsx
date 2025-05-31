@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import useWorkoutStore from '../../stores/workoutStore'
 import WorkoutEditForm from '../workouts/WorkoutEditForm'
 import SetsTablePreview from '../sets/SetsTablePreview'
@@ -122,10 +123,10 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
                         </div>
                     </div>
 
-                    {/* Edit Workout Modal */}
-                    {isEditModalOpen && (
-                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-                            <div className="bg-brand-dark-2 p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4">
+                    {/* Edit Workout Modal using portal */}
+                    {isEditModalOpen && createPortal(
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                            <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
                                 <WorkoutEditForm
                                     workout={workout}
                                     workoutId={workoutId}
@@ -133,20 +134,22 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
                                     onUpdate={handleWorkoutUpdate}
                                 />
                             </div>
-                        </div>
+                        </div>,
+                        document.body
                     )}
 
-                    {/* Add Set Modal */}
-                    {isSetModalOpen && (
-                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-                            <div className="bg-brand-dark-2 p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl mx-4">
+                    {/* Add Set Modal using portal */}
+                    {isSetModalOpen && createPortal(
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                            <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
                                 <SetCreationForm
                                     workoutId={workoutId}
                                     onClose={() => setIsSetModalOpen(false)}
                                     onSetCreated={handleSetAdded}
                                 />
                             </div>
-                        </div>
+                        </div>,
+                        document.body
                     )}
                 </>
             )}

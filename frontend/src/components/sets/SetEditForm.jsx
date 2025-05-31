@@ -53,73 +53,101 @@ const SetEditForm = ({ setId, onClose }) => {
     }
 
     return (
-        <>
+        <div className="w-full max-w-lg mx-auto">
             <h2 className="text-2xl font-bold mb-6 text-brand-gold text-center tracking-wide">Edit Set</h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                <label className="block text-brand-gold font-semibold mb-1">
-                    Exercise Name:
-                    <input
-                        {...register('exercise_name', { required: true })}
-                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
-                    />
-                </label>
-                <label className="block text-brand-gold font-semibold mb-1">
-                    Set Type:
-                    <input
-                        {...register('set_type')}
-                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
-                    />
-                </label>
-                <label className="block text-brand-gold font-semibold mb-1">
-                    Loading (kg):
-                    <input
-                        type="number"
-                        step="0.5"
-                        {...register('loading')}
-                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
-                    />
-                </label>
-                <label className="block text-brand-gold font-semibold mb-1">
-                    Reps:
-                    <input
-                        type="number"
-                        {...register('reps')}
-                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
-                    />
-                </label>
-                <label className="block text-brand-gold font-semibold mb-1">
-                    Rest (seconds):
-                    <input
-                        type="number"
-                        {...register('rest')}
-                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
-                    />
-                </label>
-                <label className="block text-brand-gold font-semibold mb-1">
-                    Focus:
-                    <input
-                        {...register('focus')}
-                        className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
-                    />
-                </label>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                {/* Exercise Name + Rest */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-2">
+                        <label className="block text-brand-gold font-semibold mb-1">
+                            Exercise Name:
+                            <input
+                                {...register('exercise_name', { required: true })}
+                                className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                            />
+                        </label>
+                    </div>
+                    <div>
+                        <label className="block text-brand-gold font-semibold mb-1">
+                            Rest (seconds):
+                            <input
+                                type="number"
+                                {...register('rest')}
+                                className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                            />
+                        </label>
+                    </div>
+                </div>
+
+                {/* Set Type + Focus */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label className="block text-brand-gold font-semibold mb-1">
+                        Set Type:
+                        <input
+                            {...register('set_type')}
+                            className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                        />
+                    </label>
+                    <label className="block text-brand-gold font-semibold mb-1">
+                        Focus:
+                        <input
+                            {...register('focus')}
+                            className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                        />
+                    </label>
+                </div>
+
+                {/* Loading + Reps */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label className="block text-brand-gold font-semibold mb-1">
+                        Loading (kg):
+                        <input
+                            type="number"
+                            step="0.5"
+                            {...register('loading')}
+                            className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                        />
+                    </label>
+                    <label className="block text-brand-gold font-semibold mb-1">
+                        Reps:
+                        <input
+                            type="number"
+                            {...register('reps')}
+                            className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                        />
+                    </label>
+                </div>
+
+                {/* Notes */}
                 <label className="block text-brand-gold font-semibold mb-1">
                     Notes:
                     <textarea
                         {...register('notes')}
                         className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
+                        rows="2"
                     />
                 </label>
 
-                <div className="flex gap-4 justify-center mt-6">
-                    <PanelButton type="submit" disabled={isSubmitting} variant="gold" className="px-6 py-2 text-lg">
+                <div className="flex gap-4 justify-center mt-6 sticky bottom-0 bg-brand-dark-2 py-2 -mx-2 px-2">
+                    <PanelButton 
+                        type="submit" 
+                        disabled={isSubmitting} 
+                        variant="gold" 
+                        className="px-6 py-2 text-lg flex-1"
+                    >
                         {isSubmitting ? 'Saving...' : 'Save Changes'}
                     </PanelButton>
-                    <PanelButton type="button" onClick={onClose} variant="danger" className="px-6 py-2 text-lg">
+                    <PanelButton 
+                        type="button" 
+                        onClick={onClose} 
+                        variant="danger" 
+                        className="px-6 py-2 text-lg flex-1"
+                    >
                         Cancel
                     </PanelButton>
                 </div>
             </form>
-        </>
+        </div>
     )
 }
 
@@ -138,13 +166,13 @@ export function SetEditModal({ setId, open, onClose }) {
     if (!open) return null;
     return createPortal(
         <div
-            className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn"
+            className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4"
             onClick={onClose}
             tabIndex={-1}
             data-testid="set-edit-modal-overlay"
         >
             <div
-                className="w-full max-w-3xl mx-auto bg-[#2d2d2d] rounded-xl border-2 border-yellow-400 shadow-2xl p-8 relative"
+                className="w-full max-w-lg bg-brand-dark-2/90 backdrop-blur-sm rounded-xl border border-brand-gold/30 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto"
                 onClick={e => e.stopPropagation()}
                 onMouseDown={e => e.stopPropagation()}
                 data-testid="set-edit-modal-content"
