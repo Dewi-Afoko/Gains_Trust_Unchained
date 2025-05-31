@@ -7,7 +7,7 @@ import { showToast } from '../../utils/toast'
 
 const WorkoutCreationForm = ({ onClose }) => {
     const { fetchAllWorkouts } = useWorkoutStore()
-    const { register, handleSubmit, errors } = useForm()
+    const { register, handleSubmit, formState: { errors } } = useForm()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const onSubmit = async (data) => {
