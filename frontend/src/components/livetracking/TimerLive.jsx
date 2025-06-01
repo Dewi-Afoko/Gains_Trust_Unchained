@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Clock, Play, Dumbbell, CheckCircle2, SkipForward, Timer, AlertTriangle } from 'lucide-react'
 import useWorkoutStore from '../../stores/workoutStore'
 import useTimerStore from '../../stores/timerStore'
+import useUserPreferencesStore from '../../stores/userPreferencesStore'
 import { formatLoading } from '../../utils/formatters'
 import PanelButton from '../ui/PanelButton'
 import PanelHeader from '../ui/PanelHeader'
@@ -10,8 +11,9 @@ import texture2 from '../../assets/texture2.png'
 import { motion } from 'framer-motion'
 
 const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false }) => {
-    const { timeElapsed, restTimeLeft, isResting, startRestTimer, stopRestTimer, hydrateRestTimer } = useTimerStore()
+    const { timeElapsed, restTimeLeft, isResting, startRestTimer, stopRestTimer, hydrateRestTimer, markSetAsManuallyStarted, isSetManuallyStarted, clearManualSetStart } = useTimerStore()
     const { toggleSetComplete, skipSet } = useWorkoutStore()
+    const { autoStartNextSet } = useUserPreferencesStore()
     const [setTimer, setSetTimer] = useState(0)
     const intervalRefSet = useRef(null)
     const isInitialMount = useRef(true)
@@ -51,16 +53,29 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
         }
     }
 
+    // Determine if set timer should be running
+    const shouldSetTimerRun = () => {
+        if (!workoutStarted || isResting || nextSet?.complete) {
+            return false
+        }
+        
+        if (autoStartNextSet) {
+            // Auto-start mode: timer runs immediately when rest ends
+            return true
+        } else {
+            // Manual mode: timer only runs if set was manually started
+            return nextSet?.id && isSetManuallyStarted(nextSet.id)
+        }
+    }
+
     useEffect(() => {
-        if (!workoutStarted || isResting) {
-            // Don't run set timer if workout not started or we're resting
+        if (!shouldSetTimerRun()) {
+            // Don't run set timer
             resetSetTimer()
             return
         }
 
-        if (nextSet?.complete) {
-            resetSetTimer()
-        } else if (nextSet?.id) {
+        if (nextSet?.id) {
             // Check if timer is already running for this set
             const savedSetStartTime = localStorage.getItem(`setStartTime_${nextSet.id}`)
             if (savedSetStartTime) {
@@ -72,10 +87,11 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
                     const currentElapsed = Math.floor((Date.now() - parseInt(savedSetStartTime)) / 1000)
                     setSetTimer(currentElapsed)
                 }, 1000)
-            } else {
-                // Start new timer
+            } else if (autoStartNextSet) {
+                // Auto-start mode: Start new timer immediately
                 resetSetTimer(true)
             }
+            // In manual mode, timer only starts when handleStartSet is called
         }
 
         return () => {
@@ -83,7 +99,7 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
                 clearInterval(intervalRefSet.current)
             }
         }
-    }, [nextSet?.id, nextSet?.complete, workoutStarted, isResting])
+    }, [nextSet?.id, nextSet?.complete, workoutStarted, isResting, autoStartNextSet, shouldSetTimerRun()])
 
     const formatTime = (seconds) => {
         if (!seconds || seconds < 0 || isNaN(seconds)) {
@@ -110,11 +126,24 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
         return `${pad(minutes)}:${pad(remainingSeconds)}`
     }
 
+    const handleStartSet = () => {
+        if (nextSet?.id) {
+            // Mark this set as manually started
+            markSetAsManuallyStarted(nextSet.id)
+            
+            // Start the timer
+            resetSetTimer(true)
+        }
+    }
+
     const handleCompleteSet = () => {
         if (nextSet?.id) {
             // Store the duration for optimistic update
             const duration = setTimer
             localStorage.setItem(`completedSetDuration_${nextSet.id}`, duration.toString())
+            
+            // Clear manual start tracking for this set
+            clearManualSetStart(nextSet.id)
             
             toggleSetComplete(nextSet.id)
             resetSetTimer()
@@ -128,8 +157,84 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
 
     const handleSkipSet = () => {
         if (nextSet?.id) {
+            // Clear manual start tracking for this set
+            clearManualSetStart(nextSet.id)
             skipSet(nextSet.id)
             resetSetTimer()
+        }
+    }
+
+    // Determine what buttons to show
+    const getActionButtons = () => {
+        if (!workoutStarted) {
+            return (
+                <PanelButton
+                    onClick={onStartWorkout}
+                    variant="gold"
+                    className="px-12 py-6 text-2xl font-black"
+                >
+                    <Play className="w-8 h-8 mr-4" />
+                    Start Workout
+                </PanelButton>
+            )
+        }
+
+        if (isResting) {
+            return (
+                <div className="text-center text-gray-400 italic font-bold text-xl">
+                    Resting... {autoStartNextSet 
+                        ? 'Set timer will start when rest ends' 
+                        : 'Click "Start Set" when ready'
+                    }
+                </div>
+            )
+        }
+
+        // Workout started and not resting
+        if (!autoStartNextSet && !isSetManuallyStarted(nextSet?.id)) {
+            // Manual mode and set hasn't been started yet
+            return (
+                <>
+                    <PanelButton
+                        onClick={handleStartSet}
+                        variant="gold"
+                        className="px-8 py-4 text-xl font-black"
+                    >
+                        <Play className="w-6 h-6 mr-3" />
+                        Start Set
+                    </PanelButton>
+                    <PanelButton
+                        onClick={handleSkipSet}
+                        variant="danger"
+                        className="px-8 py-4 text-xl font-black"
+                    >
+                        <SkipForward className="w-6 h-6 mr-3" />
+                        Skip Set
+                    </PanelButton>
+                </>
+            )
+        } else {
+            // Auto mode OR manual mode with set already started
+            return (
+                <>
+                    <PanelButton
+                        onClick={handleCompleteSet}
+                        variant="gold"
+                        className="px-8 py-4 text-xl font-black"
+                    >
+                        <CheckCircle2 className="w-6 h-6 mr-3" />
+                        Complete Set
+                    </PanelButton>
+                    <PanelButton
+                        onClick={handleSkipSet}
+                        variant="danger"
+                        className="px-8 py-4 text-xl font-black"
+                    >
+                        <SkipForward className="w-6 h-6 mr-3" />
+                        Skip Set
+                    </PanelButton>
+                </>
+            )
         }
     }
 
@@ -187,17 +292,31 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
                 document.body
             )}
 
-            <motion.div 
-                className={`bg-brand-dark-2 border shadow-2xl ${hideHeader ? 'rounded-b-2xl border-t-0' : 'rounded-2xl'} flex flex-col overflow-hidden text-white relative transition-all duration-500 border-brand-gold p-8 border`}
-                animate={{
-                    scale: 1,
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            {/* Main Timer Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`bg-brand-dark-2 border border-brand-gold shadow-lg ${hideHeader ? 'rounded-b-2xl border-t-0' : 'rounded-2xl'} flex flex-col overflow-hidden p-6 text-white relative ${
+                    isResting && restIntensity === 'critical' ? 'animate-pulse' : ''
+                } ${
+                    isResting && restIntensity === 'urgent' ? 'border-red-500 shadow-red-500/30' : 
+                        isResting && restIntensity === 'warning' ? 'border-yellow-500 shadow-yellow-500/20' : 
+                            'border-brand-gold shadow-brand-gold/10'
+                }`}
+                style={{
+                    minHeight: '400px',
+                    boxShadow: isResting && restIntensity === 'critical' 
+                        ? '0 0 30px rgba(239, 68, 68, 0.5), 0 0 60px rgba(239, 68, 68, 0.3)'
+                        : isResting && restIntensity === 'urgent'
+                            ? '0 0 20px rgba(239, 68, 68, 0.4), 0 0 40px rgba(239, 68, 68, 0.2)'
+                            : isResting && restIntensity === 'warning'
+                                ? '0 0 15px rgba(234, 179, 8, 0.3), 0 0 30px rgba(234, 179, 8, 0.2)'
+                                : undefined,
                 }}
-                transition={{ duration: 0.3 }}
             >
                 {/* Background Texture */}
                 <div
-                    className={`absolute inset-0 opacity-40 pointer-events-none z-0 ${hideHeader ? 'rounded-b-2xl' : 'rounded-2xl'}`}
+                    className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-2xl"
                     style={{ 
                         backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
                         backgroundBlendMode: 'overlay, multiply',
@@ -206,7 +325,6 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
                     }}
                 />
                 
-                {/* Content */}
                 <div className="relative z-20 h-full flex flex-col">
                     {!hideHeader && (
                         <PanelHeader 
@@ -324,109 +442,74 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
                                         {restIntensity === 'critical' ? 'GET READY NOW!' :
                                             restIntensity === 'urgent' ? 'Almost time!' :
                                                 restIntensity === 'warning' ? 'Prepare for next set' :
-                                                    'Next set starts automatically when rest ends'}
+                                                    autoStartNextSet 
+                                                        ? 'Next set starts automatically when rest ends'
+                                                        : 'Click "Start Set" when ready'
+                                        }
                                     </p>
                                 </div>
                             </div>
                         )}
                         
                         {nextSet && (
-                            <div className={`p-8 bg-brand-dark border border-brand-gold/60 rounded-2xl shadow-2xl shadow-brand-gold/20 relative overflow-hidden ${
-                                isResting && restIntensity === 'critical' ? 'mt-12' : 'mt-8'
-                            }`}>
-                                {/* Next set background texture */}
-                                <div
-                                    className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-2xl"
-                                    style={{ 
-                                        backgroundImage: `url(${texture2})`,
-                                        backgroundSize: '200px 200px',
-                                        backgroundRepeat: 'repeat'
-                                    }}
-                                />
-                                <div className="relative z-10">
-                                    <div className="flex items-center justify-center gap-6 mb-8">
-                                        <div className="bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 rounded-full p-4 shadow-2xl">
-                                            <Dumbbell className="w-12 h-12 text-black stroke-[3px]" />
-                                        </div>
-                                        <h2 className="text-4xl font-black tracking-wide uppercase bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]">
-                                            {nextSet.exercise_name}
-                                        </h2>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-3 gap-6 mb-6">
-                                        <div className="text-center p-4 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20">
-                                            <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Set</p>
-                                            <p className="text-3xl font-black text-white">{nextSet.set_number}</p>
-                                        </div>
-                                        <div className="text-center p-4 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20">
-                                            <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Loading</p>
-                                            <p className="text-2xl font-black text-yellow-400">{formatLoading(nextSet.loading)}</p>
-                                        </div>
-                                        {nextSet.reps && (
-                                            <div className="text-center p-4 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20">
-                                                <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Target Reps</p>
-                                                <p className="text-2xl font-black text-green-400">{nextSet.reps}</p>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {workoutStarted && !isResting && (
-                                        <div className="text-center p-6 mb-6 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20 relative overflow-hidden">
-                                            {/* Set Duration background texture */}
-                                            <div
-                                                className="absolute inset-0 opacity-30 pointer-events-none z-0 rounded-xl"
-                                                style={{ 
-                                                    backgroundImage: `url(${texture2})`,
-                                                    backgroundSize: '200px 200px',
-                                                    backgroundRepeat: 'repeat'
-                                                }}
-                                            />
-                                            <div className="relative z-10">
-                                                <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-3">Set Duration</p>
-                                                <p className="text-4xl font-mono font-black text-white">
-                                                    {formatTime(setTimer)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    
-                                    {/* Action Buttons */}
-                                    <div className="flex gap-6 justify-center">
-                                        {!workoutStarted ? (
-                                            <PanelButton
-                                                onClick={onStartWorkout}
-                                                variant="gold"
-                                                className="px-12 py-6 text-2xl font-black"
-                                            >
-                                                <Play className="w-8 h-8 mr-4" />
-                                                Start Workout
-                                            </PanelButton>
-                                        ) : !isResting ? (
-                                            <>
-                                                <PanelButton
-                                                    onClick={handleCompleteSet}
-                                                    variant="gold"
-                                                    className="px-8 py-4 text-xl font-black"
-                                                >
-                                                    <CheckCircle2 className="w-6 h-6 mr-3" />
-                                                    Complete Set
-                                                </PanelButton>
-                                                <PanelButton
-                                                    onClick={handleSkipSet}
-                                                    variant="danger"
-                                                    className="px-8 py-4 text-xl font-black"
-                                                >
-                                                    <SkipForward className="w-6 h-6 mr-3" />
-                                                    Skip Set
-                                                </PanelButton>
-                                            </>
-                                        ) : (
-                                            <div className="text-center text-gray-400 italic font-bold text-xl">
-                                                Resting... Set timer will start when rest ends
-                                            </div>
-                                        )}
-                                    </div>
+                            <div className="max-w-2xl mx-auto">
+                                {/* Exercise Name with dynamic styling */}
+                                <div className="mb-8">
+                                    <h2 className={`font-black uppercase tracking-wide ${
+                                        isResting && restIntensity === 'critical' ? 'text-6xl text-red-300' :
+                                            isResting && restIntensity === 'urgent' ? 'text-4xl text-red-500' :
+                                                isResting && restIntensity === 'warning' ? 'text-3xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]' :
+                                                    'text-3xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                    }`}>
+                                        {nextSet.exercise_name}
+                                    </h2>
                                 </div>
+
+                                {!isResting && (
+                                    <>
+                                        <div className="grid grid-cols-3 gap-6 mb-6">
+                                            <div className="text-center p-4 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20">
+                                                <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Set</p>
+                                                <p className="text-3xl font-black text-white">{nextSet.set_number}</p>
+                                            </div>
+                                            <div className="text-center p-4 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20">
+                                                <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Loading</p>
+                                                <p className="text-2xl font-black text-yellow-400">{formatLoading(nextSet.loading)}</p>
+                                            </div>
+                                            {nextSet.reps && (
+                                                <div className="text-center p-4 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20">
+                                                    <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Target Reps</p>
+                                                    <p className="text-2xl font-black text-green-400">{nextSet.reps}</p>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {workoutStarted && shouldSetTimerRun() && (
+                                            <div className="text-center p-6 mb-6 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20 relative overflow-hidden">
+                                                {/* Set Duration background texture */}
+                                                <div
+                                                    className="absolute inset-0 opacity-30 pointer-events-none z-0 rounded-xl"
+                                                    style={{ 
+                                                        backgroundImage: `url(${texture2})`,
+                                                        backgroundSize: '200px 200px',
+                                                        backgroundRepeat: 'repeat'
+                                                    }}
+                                                />
+                                                <div className="relative z-10">
+                                                    <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-3">Set Duration</p>
+                                                    <p className="text-4xl font-mono font-black text-white">
+                                                        {formatTime(setTimer)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Action Buttons */}
+                                        <div className="flex gap-6 justify-center">
+                                            {getActionButtons()}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>

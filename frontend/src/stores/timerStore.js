@@ -21,6 +21,9 @@ const useTimerStore = create(
                 setInterval: null,
                 isTrackingSet: false,
                 
+                // Manual set start tracking - for non-auto-start mode
+                manuallyStartedSets: {}, // { setId: true/false }
+                
                 // Current workout ID for localStorage keys
                 currentWorkoutId: null,
 
@@ -177,6 +180,29 @@ const useTimerStore = create(
                     set({ setTimeElapsed: 0 })
                 },
 
+                // Manual set start tracking functions
+                markSetAsManuallyStarted: (setId) => {
+                    set(state => ({
+                        manuallyStartedSets: {
+                            ...state.manuallyStartedSets,
+                            [setId]: true
+                        }
+                    }))
+                },
+
+                isSetManuallyStarted: (setId) => {
+                    const state = get()
+                    return !!state.manuallyStartedSets[setId]
+                },
+
+                clearManualSetStart: (setId) => {
+                    set(state => {
+                        const newManuallyStartedSets = { ...state.manuallyStartedSets }
+                        delete newManuallyStartedSets[setId]
+                        return { manuallyStartedSets: newManuallyStartedSets }
+                    })
+                },
+
                 // Cleanup function for when leaving a workout
                 cleanupTimers: (workoutId) => {
                     console.log('🧹 cleanupTimers called for workoutId:', workoutId)
@@ -184,7 +210,10 @@ const useTimerStore = create(
                     get().stopWorkoutTimer()
                     get().stopRestTimer()
                     get().stopSetTimer()
-                    set({ currentWorkoutId: null })
+                    set({ 
+                        currentWorkoutId: null,
+                        manuallyStartedSets: {} // Clear manual set starts on cleanup
+                    })
                     console.log('🧹 Cleanup complete')
                 },
 
@@ -203,12 +232,13 @@ const useTimerStore = create(
             }),
             {
                 name: 'timer-storage',
-                // Only persist rest timer state, not intervals or workout timer
+                // Only persist rest timer state and manual set starts, not intervals or workout timer
                 partialize: (state) => ({
                     restTimeLeft: state.restTimeLeft,
                     isResting: state.isResting,
                     restStartTime: state.restStartTime,
                     restDuration: state.restDuration,
+                    manuallyStartedSets: state.manuallyStartedSets,
                 }),
                 // Skip hydration during SSR
                 skipHydration: false,
