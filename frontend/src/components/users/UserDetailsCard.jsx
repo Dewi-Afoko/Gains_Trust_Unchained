@@ -98,12 +98,17 @@ const UserDetailsCard = () => {
                             Edit Profile
                         </PanelButton>
                     </DialogTrigger>
-                    <DialogContent>
-                        <UserDetailsEditForm
-                            user={updatedUser}
-                            onClose={() => setIsModalOpen(false)}
-                            onUpdate={handleUserUpdate}
-                        />
+                    <DialogContent 
+                        className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4"
+                        onInteractOutside={() => setIsModalOpen(false)}
+                    >
+                        <div className="w-full max-w-lg bg-brand-dark-2/90 backdrop-blur-sm rounded-xl border border-brand-gold/30 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+                            <UserDetailsEditForm
+                                user={updatedUser}
+                                onClose={() => setIsModalOpen(false)}
+                                onUpdate={handleUserUpdate}
+                            />
+                        </div>
                     </DialogContent>
                 </Dialog>
                 <button 
