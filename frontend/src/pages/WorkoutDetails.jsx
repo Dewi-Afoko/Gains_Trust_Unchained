@@ -124,7 +124,7 @@ export default function WorkoutDetails() {
             <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 z-10"></div>
             
             {/* Content */}
-            <div className="relative z-20 max-w-7xl mx-auto px-6 py-12">
+            <div className="relative z-20 max-w-7xl mx-auto px-6 py-12 pb-24">
                 {/* Header Section */}
                 <div className="mb-8">
                     {/* Navigation */}

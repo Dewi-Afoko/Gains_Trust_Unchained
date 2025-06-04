@@ -108,12 +108,26 @@ const useTimerStore = create(
                         clearInterval(state.restInterval)
                     }
                     
+                    // Clear previous set timer data to prevent flashing
+                    get().clearPreviousSetTimerData()
+                    
                     set({ 
                         restInterval: null,
                         restTimeLeft: 0,
                         isResting: false,
                         restStartTime: null,
                         restDuration: null
+                    })
+                },
+
+                // Clear previous set timer data from localStorage
+                clearPreviousSetTimerData: () => {
+                    // Clear all setStartTime entries from localStorage
+                    const keys = Object.keys(localStorage)
+                    keys.forEach(key => {
+                        if (key.startsWith('setStartTime_')) {
+                            localStorage.removeItem(key)
+                        }
                     })
                 },
 
