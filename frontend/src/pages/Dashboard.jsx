@@ -29,6 +29,16 @@ export default function Dashboard() {
         fetchWeights()
     }, [])
 
+    // Handler to refresh weights when new weight is logged
+    const handleWeightUpdate = async () => {
+        try {
+            const data = await getWeights()
+            setWeights(data.results || [])
+        } catch (err) {
+            setError('Failed to refresh weights')
+        }
+    }
+
     // Handler to open workout details
     const handleWorkoutClick = (workoutId) => {
         setSelectedWorkoutId(workoutId)
@@ -67,7 +77,7 @@ export default function Dashboard() {
                     </div>
                     {/* Weight Tracking (tall) */}
                     <div className="h-[600px] w-full bg-brand-dark-2 border border-brand-gold shadow-lg rounded-[2rem] flex flex-col p-6 sm:p-10 text-white">
-                        <UserWeightCard weights={weights} />
+                        <UserWeightCard weights={weights} onWeightUpdate={handleWeightUpdate} />
                     </div>
                 </div>
 

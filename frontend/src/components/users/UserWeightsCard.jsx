@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
     LineChart,
     Line,
@@ -7,8 +8,11 @@ import {
     ResponsiveContainer,
     ReferenceLine,
 } from 'recharts'
+import { Dialog, DialogTrigger, DialogContent } from '@radix-ui/react-dialog'
 import PanelHeader from '../ui/PanelHeader'
-import { Scale } from 'lucide-react'
+import PanelButton from '../ui/PanelButton'
+import WeightLogForm from './WeightLogForm'
+import { Scale, Plus } from 'lucide-react'
 
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -24,7 +28,9 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null
 }
 
-const UserWeightCard = ({ weights }) => {
+const UserWeightCard = ({ weights, onWeightUpdate }) => {
+    const [isLogWeightModalOpen, setIsLogWeightModalOpen] = useState(false)
+
     const formattedWeights = [...weights]
         .reverse()
         .map((w) => ({
@@ -33,9 +39,9 @@ const UserWeightCard = ({ weights }) => {
         }))
 
     // Calculate min and max for better visualization
-    const minWeight = Math.min(...formattedWeights.map(w => w.weight))
-    const maxWeight = Math.max(...formattedWeights.map(w => w.weight))
-    const padding = (maxWeight - minWeight) * 0.1
+    const minWeight = formattedWeights.length > 0 ? Math.min(...formattedWeights.map(w => w.weight)) : 0
+    const maxWeight = formattedWeights.length > 0 ? Math.max(...formattedWeights.map(w => w.weight)) : 0
+    const padding = formattedWeights.length > 0 ? (maxWeight - minWeight) * 0.1 : 0
     
     // Calculate weight change
     const weightChange = formattedWeights.length >= 2 
@@ -46,6 +52,14 @@ const UserWeightCard = ({ weights }) => {
         if (change > 0) return 'text-brand-green'
         if (change < 0) return 'text-brand-red'
         return 'text-gray-400'
+    }
+
+    const handleWeightLogged = (newWeight) => {
+        setIsLogWeightModalOpen(false)
+        // Notify parent component to refresh weight data
+        if (onWeightUpdate) {
+            onWeightUpdate()
+        }
     }
 
     return (
@@ -147,10 +161,41 @@ const UserWeightCard = ({ weights }) => {
                     </div>
                 </>
             ) : (
-                <div className="flex-1 flex items-center justify-center">
-                    <p className="text-brand-gold/70 uppercase tracking-wider font-medium">No weight records found.</p>
+                <div className="flex-1 flex flex-col items-center justify-center space-y-4">
+                    <p className="text-brand-gold/70 uppercase tracking-wider font-medium text-center">
+                        No weight records found.
+                    </p>
+                    <p className="text-gray-400 text-sm text-center">
+                        Start tracking your weight progress by logging your first entry!
+                    </p>
                 </div>
             )}
+
+            {/* Log Weight Button */}
+            <div className="mt-auto pt-4">
+                <Dialog open={isLogWeightModalOpen} onOpenChange={setIsLogWeightModalOpen}>
+                    <DialogTrigger asChild>
+                        <PanelButton 
+                            variant="gold" 
+                            className="w-full hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Log Weight
+                        </PanelButton>
+                    </DialogTrigger>
+                    <DialogContent 
+                        className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4"
+                        onInteractOutside={() => setIsLogWeightModalOpen(false)}
+                    >
+                        <div className="w-full max-w-lg bg-brand-dark-2/90 backdrop-blur-sm rounded-xl border border-brand-gold/30 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+                            <WeightLogForm
+                                onClose={() => setIsLogWeightModalOpen(false)}
+                                onUpdate={handleWeightLogged}
+                            />
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </div>
         </div>
     )
 }
