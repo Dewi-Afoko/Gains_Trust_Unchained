@@ -199,7 +199,7 @@ const WorkoutDetailsFull = () => {
                             </div>
 
                             {/* Sets Table */}
-                            <div className="w-full px-4 pb-4">
+                            <div className="w-full px-4 pb-24">
                                 <SetsTableFull hideCompleteButton={true} />
                             </div>
                         </div>

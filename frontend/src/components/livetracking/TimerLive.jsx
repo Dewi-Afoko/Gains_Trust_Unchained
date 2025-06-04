@@ -28,8 +28,20 @@ const TimerLive = ({ nextSet, workoutStarted, onStartWorkout, hideHeader = false
             } else {
                 setSetTimer(0)
             }
+        } else {
+            // Reset timer when not in an active set state
+            setSetTimer(0)
         }
     }, [nextSet?.id, workoutStarted, isResting])
+
+    // Reset timer when nextSet changes to prevent flashing previous duration
+    useEffect(() => {
+        setSetTimer(0)
+        if (intervalRefSet.current) {
+            clearInterval(intervalRefSet.current)
+            intervalRefSet.current = null
+        }
+    }, [nextSet?.id])
 
     const resetSetTimer = (restart = false) => {
         if (intervalRefSet.current) {

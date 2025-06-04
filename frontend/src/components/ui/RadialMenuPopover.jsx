@@ -48,7 +48,6 @@ const calculateIconPosition = (index, cx, cy, r) => {
 // Accepts: setId, workoutId, closeMenu, onEdit
 const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdit }, ref) => {
     const { deleteSet, duplicateSet, sets } = useWorkoutStore()
-    const [isDeleting, setIsDeleting] = useState(false)
     const [loading, setLoading] = useState(false)
     const [activeAction, setActiveAction] = useState(null)
 
@@ -63,8 +62,17 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdi
     const iconSize = 18 // 0.75x of 24px
 
     const handleDelete = async () => {
-        setIsDeleting(true)
+        setLoading(true)
         setActiveAction('delete')
+        try {
+            await deleteSet(workoutId, setId)
+            closeMenu()
+        } catch (error) {
+            // Error toast is already shown in the store
+        } finally {
+            setLoading(false)
+            setActiveAction(null)
+        }
     }
 
     const confirmDelete = async () => {
@@ -76,7 +84,6 @@ const RadialMenuPopover = React.forwardRef(({ setId, workoutId, closeMenu, onEdi
             // Error toast is already shown in the store
         } finally {
             setLoading(false)
-            setIsDeleting(false)
             setActiveAction(null)
         }
     }

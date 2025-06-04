@@ -35,7 +35,7 @@ export default function LiveTracking() {
         sets, 
         fetchWorkoutDetails, 
         startWorkout, 
-        completeWorkout,
+        toggleComplete,
         toggleSetComplete,
         startTimer,
         stopTimer
@@ -124,7 +124,7 @@ export default function LiveTracking() {
 
     const handleCompleteWorkout = async () => {
         try {
-            await completeWorkout(id)
+            await toggleComplete(id)
             stopWorkoutTimer()
             navigate('/workouts')
         } catch (error) {
