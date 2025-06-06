@@ -107,7 +107,7 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                         Loading (kg):
                         <input
                             type="number"
-                            step="0.1"
+                            step="0.25"
                             min="0"
                             {...register('loading')}
                             className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"

@@ -84,11 +84,11 @@ const WorkoutEditForm = ({ workout, workoutId, onClose, onUpdate }) => {
                         />
                     </label>
                     <label className="block text-brand-gold font-semibold mb-1">
-                        Sleep Score (1-10):
+                        Sleep Score (1-100):
                         <input
                             type="number"
                             min="1"
-                            max="10"
+                            max="100"
                             {...register('sleep_score')}
                             className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         />

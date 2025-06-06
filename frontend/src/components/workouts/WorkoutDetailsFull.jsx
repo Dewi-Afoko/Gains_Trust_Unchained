@@ -58,7 +58,7 @@ const getWorkoutStatus = (workout) => {
 }
 
 const WorkoutDetailsFull = () => {
-    const { workoutId } = useParams()
+    const { id: workoutId } = useParams()
     const navigate = useNavigate()
     const {
         workout,
