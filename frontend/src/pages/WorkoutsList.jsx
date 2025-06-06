@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import useWorkoutStore from '../stores/workoutStore'
 import { 
@@ -9,7 +9,9 @@ import {
     LucideDumbbell,
     LucideClipboardList,
     LucideCalendar,
-    LucideActivity
+    LucideActivity,
+    Search,
+    X
 } from 'lucide-react'
 import PanelButton from '../components/ui/PanelButton'
 import WorkoutFeedFull from '../components/workouts/WorkoutFeedFull'
@@ -19,6 +21,7 @@ import texture2 from '../assets/texture2.png'
 export default function WorkoutsList() {
     const [isCreatingWorkout, setIsCreatingWorkout] = useState(false)
     const [filterOpen, setFilterOpen] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
     
     const { 
         workouts, 
@@ -32,6 +35,35 @@ export default function WorkoutsList() {
     useEffect(() => {
         fetchAllWorkouts()
     }, []) // Remove fetchAllWorkouts from deps since it's stable from the store
+
+    // Filter workouts based on search query
+    const filteredWorkouts = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return workouts
+        }
+
+        const query = searchQuery.toLowerCase().trim()
+        
+        return workouts.filter((workout) => {
+            // Search in workout name
+            const nameMatch = workout.workout_name?.toLowerCase().includes(query)
+            
+            // Search in notes
+            const notesMatch = workout.notes?.toLowerCase().includes(query)
+            
+            // Search in date (formatted as displayed)
+            const dateMatch = new Date(workout.date).toLocaleDateString().toLowerCase().includes(query)
+            
+            // Also search in raw date format (YYYY-MM-DD)
+            const rawDateMatch = workout.date?.toLowerCase().includes(query)
+            
+            return nameMatch || notesMatch || dateMatch || rawDateMatch
+        })
+    }, [workouts, searchQuery])
+
+    const clearSearch = () => {
+        setSearchQuery('')
+    }
 
     return (
         <main className="min-h-screen w-full relative overflow-hidden">
@@ -80,15 +112,68 @@ export default function WorkoutsList() {
                     </div>
                 </div>
 
-                {/* Filter Panel - can be expanded later */}
+                {/* Filter Panel - now with search functionality */}
                 {filterOpen && (
                     <motion.div 
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e] backdrop-blur-sm p-4 rounded-lg mb-6 border border-brand-gold/30 shadow-inner"
+                        className="bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e] backdrop-blur-sm p-6 rounded-lg mb-6 border border-brand-gold/30 shadow-inner"
                     >
-                        {/* Add filter controls here */}
-                        <p className="text-gray-400">Filters coming soon...</p>
+                        <div className="space-y-4">
+                            {/* Search Input */}
+                            <div>
+                                <label className="block text-brand-gold font-semibold mb-2 text-sm uppercase tracking-wider">
+                                    Search Workouts
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Search className="h-5 w-5 text-brand-gold/60" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-10 py-3 bg-[#1a1a1a] border border-brand-gold/40 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-gold focus:border-brand-gold transition-all"
+                                        placeholder="Search by workout name, date, or notes..."
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={clearSearch}
+                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-brand-gold/60 hover:text-brand-gold transition-colors"
+                                        >
+                                            <X className="h-5 w-5" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Search Results Info */}
+                            {searchQuery && (
+                                <div className="text-sm text-gray-300 bg-black/30 rounded-lg p-3 border border-brand-gold/20">
+                                    {filteredWorkouts.length === 0 ? (
+                                        <span className="text-yellow-400">
+                                            No workouts found matching &ldquo;{searchQuery}&rdquo;
+                                        </span>
+                                    ) : (
+                                        <span>
+                                            Found <span className="text-brand-gold font-semibold">{filteredWorkouts.length}</span> 
+                                            {' '}workout{filteredWorkouts.length !== 1 ? 's' : ''} matching 
+                                            <span className="text-brand-gold font-semibold"> &ldquo;{searchQuery}&rdquo;</span>
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Search Tips */}
+                            <div className="text-xs text-gray-400 bg-black/20 rounded-lg p-3 border border-brand-gold/10">
+                                <div className="font-semibold text-brand-gold/70 mb-1 uppercase tracking-wider">Search Tips:</div>
+                                <ul className="space-y-1">
+                                    <li>• Search by workout name: &ldquo;Upper Body&rdquo;, &ldquo;Leg Day&rdquo;</li>
+                                    <li>• Search by date: &ldquo;12/25/2023&rdquo;, &ldquo;December&rdquo;, &ldquo;2023&rdquo;</li>
+                                    <li>• Search by notes: &ldquo;heavy&rdquo;, &ldquo;personal record&rdquo;, &ldquo;gym&rdquo;</li>
+                                </ul>
+                            </div>
+                        </div>
                     </motion.div>
                 )}
 
@@ -109,7 +194,7 @@ export default function WorkoutsList() {
                 {/* Workouts Feed */}
                 {!loading && !error && (
                     <WorkoutFeedFull 
-                        workouts={workouts}
+                        workouts={filteredWorkouts}
                         onDelete={deleteWorkout}
                         onDuplicate={duplicateWorkout}
                     />
