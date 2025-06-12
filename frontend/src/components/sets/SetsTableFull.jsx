@@ -1,142 +1,227 @@
 import { useEffect, useState } from 'react'
-import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Use WorkoutContext
+import { createPortal } from 'react-dom'
+import useWorkoutStore from '../../stores/workoutStore'
 import { useReactTable, getCoreRowModel } from '@tanstack/react-table'
-import SetActions from './SetActions'
-import { formatLoading } from '../../lib/utils'
+import { formatLoading } from '../../utils/formatters'
+import PanelButton from '../ui/PanelButton'
+import { ChevronUp, ChevronDown, CheckCircle2, Clock } from 'lucide-react'
+import * as Popover from '@radix-ui/react-popover'
+import RadialMenuPopover from '../ui/RadialMenuPopover'
+import SetEditForm from './SetEditForm'
+import texture2 from '../../assets/texture2.png'
+
+const TableHeader = ({ children }) => (
+    <th className="border-b border-r border-brand-gold/30 p-3 first:border-l text-center">
+        <div className="font-bold uppercase tracking-wider text-sm bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]">
+            {children}
+        </div>
+    </th>
+)
+
+const TableCell = ({ children, className = "" }) => (
+    <td className={`border-b border-r border-brand-gold/30 p-3 first:border-l text-center ${className}`}>
+        <span className="text-gray-300 font-medium">
+            {children}
+        </span>
+    </td>
+)
 
 const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
-    // ✅ Use context functions and state
-    const { sets: contextSets, toggleSetComplete, moveSet } = useWorkoutContext();
-    const [tableData, setTableData] = useState(propSets || contextSets);
-    const [editingSetId, setEditingSetId] = useState(null);
-    const [hoveredRowId, setHoveredRowId] = useState(null);
+    const {
+        sets: storeSets,
+        toggleSetComplete,
+        moveSet,
+    } = useWorkoutStore()
+    const [tableData, setTableData] = useState(propSets || storeSets)
+    const [editingSetId, setEditingSetId] = useState(null)
+    const [activeSetId, setActiveSetId] = useState(null)
 
-    // ✅ Ensure table data updates dynamically when `sets` change
     useEffect(() => {
-        
-        setTableData([...(propSets || contextSets)]); // ✅ Forces re-render
-        console.log("📊 Context sets updated:", contextSets.map(s => ({ id: s.id, order: s.set_order })));
-    }, [propSets, contextSets]
-    );
+        setTableData([...(propSets || storeSets)])
+    }, [propSets, storeSets])
 
+    const handleEdit = (setId) => {
+        setEditingSetId(setId)
+        setActiveSetId(null)
+    }
 
-    const openEditModal = (setId) => {
-        setEditingSetId(setId); // ✅ Ensure `setId` is set before opening modal
-    };
+    const closeEditModal = () => {
+        setEditingSetId(null)
+    }
 
-    const columns = [
-        { accessorKey: 'exercise_name', header: 'Exercise' },
-        {
-            accessorKey: 'set_order',
-            header: 'Set Sequence',
-            cell: ({ row }) => {
-                const set = row.original;
-                return (
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => moveSet(set.id, set.set_order - 1)}
-                            disabled={set.set_order === 1}
-                            className="bg-gray-700 px-2 py-1 rounded hover:bg-gray-500 disabled:opacity-50"
-                        >
-                            ⬆
-                        </button>
-
-                        <span>{set.set_order}</span>
-
-                        <button
-                            onClick={() => moveSet(set.id, set.set_order + 1)}
-                            disabled={set.set_order === contextSets.length}
-                            className="bg-gray-700 px-2 py-1 rounded hover:bg-gray-500 disabled:opacity-50"
-                        >
-                            ⬇
-                        </button>
-                    </div>
-                );
-            },
-        },
-        { accessorKey: 'set_number', header: 'Set Count' },
-        { accessorKey: 'set_type', header: 'Set Type' },
-        { accessorKey: 'loading', header: 'Loading', cell: ({ row }) => formatLoading(row.original.loading) },
-        { accessorKey: 'reps', header: 'Reps' },
-        { accessorKey: 'rest', header: 'Rest (s)' },
-        { accessorKey: 'focus', header: 'Focus' },
-        { accessorKey: 'notes', header: 'Notes' },
-        {
-            accessorKey: 'complete',
-            header: 'Complete',
-            cell: ({ row }) => (
-                <button
-                    onClick={() =>
-                        toggleSetComplete(
-                            row.original.id,
-                            row.original.complete
-                        )
-                    }
-                    className={`px-3 py-1 rounded ${
-                        row.original.complete
-                            ? 'bg-green-500 hover:bg-green-400'
-                            : 'bg-red-500 hover:bg-red-400'
-                    } transition text-black`}
-                >
-                    {row.original.complete ? '💪🏾' : '⏳'}
-                </button>
-            ),
-        },
-        {
-            accessorKey: 'actions',
-            header: 'Actions',
-            cell: ({ row }) => (
-                <div className="flex flex-wrap gap-2 justify-center min-w-fit">
-                    <SetActions
-                        set={row.original}
-                        hideCompleteButton={hideCompleteButton}
-                        onEdit={() => openEditModal(row.original.id)}
-                        hoveredRowId={hoveredRowId}
-                    />
+    if (!tableData || tableData.length === 0) {
+        return (
+            <div className="w-full relative min-h-[200px] overflow-hidden rounded-xl">
+                {/* Background Texture */}
+                <div
+                    className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-xl"
+                    style={{ 
+                        backgroundImage: `url(${texture2})`,
+                        backgroundSize: '500px 500px',
+                        backgroundRepeat: 'repeat',
+                        backgroundAttachment: 'scroll',
+                        backgroundPosition: 'center center'
+                    }}
+                />
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 rounded-xl z-10"></div>
+                
+                {/* Content */}
+                <div className="relative z-20 text-center py-8 text-gray-400 flex items-center justify-center h-full">
+                    <span className="font-medium uppercase tracking-wider">No sets added yet. Click &quot;Add Set&quot; to get started!</span>
                 </div>
-            ),
-        },
-    ];
-
-    const table = useReactTable({
-        data: tableData,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    });
+            </div>
+        )
+    }
 
     return (
-        <div className="overflow-x-auto mt-4">
-            <table key={tableData.length} className="w-full border-collapse border border-yellow-400">
-                <thead>
-                    <tr className="bg-[#500000] text-yellow-400">
-                        {columns.map((col) => (
-                            <th key={col.accessorKey} className="border border-yellow-400 p-2">
-                                {col.header}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                        <tr
-                            key={row.id}
-                            className="text-white"
-                            onMouseEnter={() => setHoveredRowId(row.original.id)}
-                            onMouseLeave={() => setHoveredRowId(null)}
-                        >
-                            {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id} className="border border-yellow-400 p-2">
-                                    {cell.column.columnDef.cell
-                                        ? cell.column.columnDef.cell(cell.getContext())
-                                        : cell.getValue()}
-                                </td>
+        <div className="w-full rounded-xl border border-brand-gold/30 relative overflow-hidden">
+            {/* Background Texture */}
+            <div
+                className="absolute inset-0 opacity-40 pointer-events-none z-0"
+                style={{ 
+                    backgroundImage: `url(${texture2})`,
+                    backgroundSize: '500px 500px',
+                    backgroundRepeat: 'repeat',
+                    backgroundAttachment: 'scroll',
+                    backgroundPosition: 'center center'
+                }}
+            />
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 z-10"></div>
+            
+            {/* Content */}
+            <div className="relative z-20">
+                {/* Responsive table container */}
+                <div className="w-full overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead>
+                            <tr className="bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e]">
+                                <TableHeader>Exercise</TableHeader>
+                                <TableHeader>Order</TableHeader>
+                                <TableHeader>Set #</TableHeader>
+                                <TableHeader>Type</TableHeader>
+                                <TableHeader>Weight</TableHeader>
+                                <TableHeader>Reps</TableHeader>
+                                <TableHeader>Rest</TableHeader>
+                                <TableHeader>Focus</TableHeader>
+                                <TableHeader>Notes</TableHeader>
+                                <TableHeader>Status</TableHeader>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tableData.map((set, index) => (
+                                <Popover.Root 
+                                    key={set.id} 
+                                    open={activeSetId === set.id} 
+                                    onOpenChange={(open) => {
+                                        if (!open) setActiveSetId(null)
+                                    }}
+                                >
+                                    <Popover.Trigger asChild>
+                                        <tr
+                                            className={`
+                                                relative
+                                                transition-colors duration-150
+                                                hover:bg-black/40
+                                                cursor-pointer
+                                                ${index % 2 === 0 ? 'bg-black/20' : 'bg-black/10'}
+                                            `}
+                                            style={{ height: '48px' }}
+                                            onClick={() => setActiveSetId(set.id)}
+                                        >
+                                            <TableCell>{set.exercise_name}</TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-1 justify-center">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            moveSet(set.id, set.set_order - 1)
+                                                        }}
+                                                        disabled={set.set_order === 1}
+                                                        className="bg-gray-700/80 hover:bg-gray-600/80 disabled:opacity-50 w-6 h-6 p-0 flex items-center justify-center rounded border border-brand-gold/30 transition-colors"
+                                                    >
+                                                        <ChevronUp className="w-3 h-3 text-brand-gold" />
+                                                    </button>
+                                                    <span className="mx-2 min-w-[20px] text-center font-bold text-brand-gold">{set.set_order}</span>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            moveSet(set.id, set.set_order + 1)
+                                                        }}
+                                                        disabled={set.set_order === storeSets.length}
+                                                        className="bg-gray-700/80 hover:bg-gray-600/80 disabled:opacity-50 w-6 h-6 p-0 flex items-center justify-center rounded border border-brand-gold/30 transition-colors"
+                                                    >
+                                                        <ChevronDown className="w-3 h-3 text-brand-gold" />
+                                                    </button>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>{set.set_number}</TableCell>
+                                            <TableCell>{set.set_type || 'N/A'}</TableCell>
+                                            <TableCell>{formatLoading(set.loading)}</TableCell>
+                                            <TableCell>{set.reps || 'N/A'}</TableCell>
+                                            <TableCell>{set.rest ? `${set.rest}s` : 'N/A'}</TableCell>
+                                            <TableCell>{set.focus || 'N/A'}</TableCell>
+                                            <TableCell>
+                                                {set.notes ? (
+                                                    <span className="truncate block max-w-[120px]" title={set.notes}>
+                                                        {set.notes}
+                                                    </span>
+                                                ) : 'N/A'}
+                                            </TableCell>
+                                            <TableCell>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        toggleSetComplete(set.id, set.complete)
+                                                    }}
+                                                    className={`px-3 py-1 text-xs rounded border transition-colors flex items-center justify-center gap-1 ${
+                                                        set.complete 
+                                                            ? 'bg-green-600/80 hover:bg-green-700/80 text-white border-green-500/50' 
+                                                            : 'bg-gray-600/80 hover:bg-gray-700/80 text-white border-gray-500/50'
+                                                    }`}
+                                                >
+                                                    {set.complete ? (
+                                                        <>
+                                                            <CheckCircle2 className="w-3 h-3" />
+                                                            <span>Done</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Clock className="w-3 h-3" />
+                                                            <span>Pending</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </TableCell>
+                                        </tr>
+                                    </Popover.Trigger>
+                                    {activeSetId === set.id && (
+                                        <RadialMenuPopover
+                                            setId={set.id}
+                                            workoutId={set.workout}
+                                            closeMenu={() => setActiveSetId(null)}
+                                            onEdit={handleEdit}
+                                        />
+                                    )}
+                                </Popover.Root>
                             ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
-};
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-export default SetsTableFull;
+            {/* Edit Modal using portal */}
+            {editingSetId !== null && createPortal(
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
+                        <SetEditForm setId={editingSetId} onClose={closeEditModal} />
+                    </div>
+                </div>,
+                document.body
+            )}
+        </div>
+    )
+}
+
+export default SetsTableFull

@@ -2,10 +2,13 @@ import pytest
 from workouts.models import Workout, SetDict
 from tests.conftest import (
     create_user,
+    create_user_2,
     user_data,
     test_request,
     api_client,
     factory,
+    authenticated_client,
+    
 )
 from django.utils.timezone import now
 
@@ -48,3 +51,11 @@ def setdict_data(create_workout):
         "loading": 140,
         "reps": 3,
     }
+
+@pytest.fixture
+def create_multiple_workouts(create_user):
+    """Fixture to create multiple workouts for pagination tests."""
+    return [
+        Workout.objects.create(user=create_user, workout_name=f"Workout {i+1}", date=now().date())
+        for i in range(10)
+    ]

@@ -1,43 +1,40 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Weight
+from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=6)
+    password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
         fields = [
             "id",
             "username",
-            "password",
-            "height",
-            "dob",
             "email",
             "first_name",
             "last_name",
+            "height",
+            "dob",
             "date_joined",
-            "last_login",
+            "password",
         ]
-        read_only_fields = ["id", "date_joined"]
+        extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
-        email = validated_data.get("email")
-        user = User.objects.create_user(
-            username=validated_data["username"],
-            password=validated_data["password"],
-            email=email if email else None,
-        )
+        password = validated_data.pop("password")
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
         return user
 
     def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
         for attr, value in validated_data.items():
-            if value is not None and attr != "password":
-                setattr(instance, attr, value)
-        password = validated_data.get("password")
+            setattr(instance, attr, value)
         if password:
             instance.set_password(password)
         instance.save()
@@ -45,15 +42,30 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class WeightSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Weight
-        fields = "__all__"
-        read_only_fields = ["user", "date_recorded"]
+        fields = ["id", "weight", "date_recorded"]
 
-    def create(self, validated_data):
-        request = self.context.get("request")
-        weight = Weight.objects.create(
-            user=request.user, weight=validated_data["weight"]
-        )
-        return weight
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("No user with this email address exists.")
+        return value
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.UUIDField()
+    new_password = serializers.CharField(write_only=True, min_length=8)
+    confirm_password = serializers.CharField(write_only=True, min_length=8)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data

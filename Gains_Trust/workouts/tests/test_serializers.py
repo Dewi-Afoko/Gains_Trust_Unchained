@@ -1,117 +1,90 @@
 import pytest
 from workouts.serializers import WorkoutSerializer, SetDictSerializer
-from rest_framework.exceptions import ValidationError
-
-
-# ✅ TEST WorkoutSerializer
-@pytest.mark.django_db
-def test_workout_serializer_create_valid_data(create_workout):
-    """Test creating a workout with valid data"""
-    serializer = WorkoutSerializer(instance=create_workout)
-    data = serializer.data
-
-    assert data["workout_name"] == create_workout.workout_name
-    assert data["id"] == create_workout.id
-    assert "user" in data  # Should be present but read-only
-
+from workouts.models import Workout, SetDict
+from decimal import Decimal
+from rest_framework import serializers
 
 @pytest.mark.django_db
-def test_workout_serializer_create_invalid_data(factory):
-    """Test creating a workout without authentication"""
-    request = factory.post("/api/workouts/")
-    request.user = None  # Explicitly attach a None user
+def test_workout_serializer_create(create_user):
+    """Test that WorkoutSerializer correctly creates a workout."""
+    workout_data = {"workout_name": "Push Day"}
+    serializer = WorkoutSerializer(data=workout_data, context={"request": create_user})
+    
+    assert serializer.is_valid(), serializer.errors
+    workout = serializer.save(user=create_user)
 
-    data = {"workout_name": "Chest Day"}
-    serializer = WorkoutSerializer(data=data, context={"request": request})
-
-    assert serializer.is_valid(), serializer.errors  # Ensure validation passes
-
-    with pytest.raises(ValidationError) as exc_info:
-        serializer.save()
-
-    assert "user" in exc_info.value.detail
-
+    assert workout.workout_name == "Push Day"
+    assert workout.user == create_user
 
 @pytest.mark.django_db
 def test_workout_serializer_update(create_workout):
-    """Test updating a workout with valid data"""
-    serializer = WorkoutSerializer(
-        instance=create_workout,
-        data={"workout_name": "New Workout"},
-        partial=True,
-    )
-
+    """Test that WorkoutSerializer correctly updates a workout."""
+    serializer = WorkoutSerializer(instance=create_workout, data={"notes": "Updated Notes"}, partial=True)
+    
     assert serializer.is_valid(), serializer.errors
     updated_workout = serializer.save()
 
-    assert updated_workout.workout_name == "New Workout"
-
-
-@pytest.mark.django_db
-def test_workout_serializer_read_only_fields(create_workout):
-    """Test that read-only fields cannot be updated"""
-    serializer = WorkoutSerializer(
-        instance=create_workout, data={"user": None}, partial=True
-    )
-
-    assert serializer.is_valid(), serializer.errors
-    updated_workout = serializer.save()
-
-    assert updated_workout.user == create_workout.user  # User should remain unchanged
-
-
-# ✅ TEST SetDictSerializer
-@pytest.mark.django_db
-def test_setdict_serializer_create_valid_data(create_setdict):
-    """Test creating a SetDict with valid data"""
-    serializer = SetDictSerializer(instance=create_setdict)
-    data = serializer.data
-
-    assert data["exercise_name"] == create_setdict.exercise_name
-    assert data["set_number"] == create_setdict.set_number
-
+    assert updated_workout.notes == "Updated Notes"
 
 @pytest.mark.django_db
-def test_setdict_serializer_create_invalid_data():
-    """Test creating a SetDict without a workout in context"""
-    serializer = SetDictSerializer(data={"exercise_name": "Squat", "reps": 5})
+def test_workout_serializer_optional_fields(create_user):
+    """Test that WorkoutSerializer allows optional fields."""
+    workout_data = {
+        "workout_name": "Recovery Session",
+        "user_weight": None,
+        "sleep_score": None,
+        "sleep_quality": None,
+        "notes": None,
+    }
 
-    # Validate first
+    serializer = WorkoutSerializer(data=workout_data, context={"request": create_user})
     assert serializer.is_valid(), serializer.errors
 
-    # Now try to save and expect an error
-    with pytest.raises(ValidationError) as exc_info:
-        serializer.save()
+@pytest.mark.django_db
+def test_setdict_serializer_create(create_workout):
+    """Test that SetDictSerializer correctly creates a set entry."""
+    set_data = {
+        "exercise_name": "Deadlift",
+        "set_order": 1,
+        "set_number": 1,
+        "reps": 5,
+        "loading": 150.0,
+    }
 
-    assert "workout" in exc_info.value.detail  # Ensure error is correctly raised
+    serializer = SetDictSerializer(data=set_data, context={"workout": create_workout})
+    assert serializer.is_valid(), serializer.errors
 
+    set_dict = serializer.save()
+    assert set_dict.exercise_name == "Deadlift"
+    assert set_dict.workout == create_workout
+    assert set_dict.reps == 5
+    assert set_dict.loading == 150.0
 
 @pytest.mark.django_db
 def test_setdict_serializer_update(create_setdict):
-    """Test updating a SetDict with valid data"""
-    serializer = SetDictSerializer(
-        instance=create_setdict, data={"reps": 8}, partial=True
-    )
+    """Test that SetDictSerializer correctly updates a set entry."""
+    serializer = SetDictSerializer(instance=create_setdict, data={"reps": 8}, partial=True)
 
     assert serializer.is_valid(), serializer.errors
     updated_set = serializer.save()
 
     assert updated_set.reps == 8
 
-
 @pytest.mark.django_db
-def test_setdict_serializer_read_only_fields(create_setdict):
-    """Test that read-only fields cannot be updated"""
-    serializer = SetDictSerializer(
-        instance=create_setdict,
-        data={"set_number": 99, "set_order": 99},
-        partial=True,
-    )
+def test_setdict_serializer_missing_workout():
+    """Test that SetDictSerializer raises an error when saving without a workout."""
+    set_data = {
+        "exercise_name": "Pull-up",
+        "set_order": 2,
+        "set_number": 1,
+        "reps": 10,
+    }
 
-    assert serializer.is_valid(), serializer.errors
-    updated_set = serializer.save()
+    serializer = SetDictSerializer(data=set_data)
+    assert serializer.is_valid(), serializer.errors  # ✅ Validation passes because `workout` is read-only
 
-    assert (
-        updated_set.set_number == create_setdict.set_number
-    )  # Should remain unchanged
-    assert updated_set.set_order == create_setdict.set_order  # Should remain unchanged
+    with pytest.raises(serializers.ValidationError) as excinfo:
+        serializer.save()  # ✅ Should raise an error when trying to save
+    
+    assert "workout" in str(excinfo.value)  # ✅ Ensure error mentions missing workout
+

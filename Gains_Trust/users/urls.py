@@ -1,26 +1,25 @@
-from django.urls import path
+from django.urls import path, include
 from .views import (
-    register,
-    logout,
-    update_user,
-    WeightView,
+    UserViewSet,
+    WeightViewSet,
     check_availability,
-    my_details,
-    custom_login_view,
+    request_password_reset,
+    confirm_password_reset,
 )
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView
+from rest_framework.routers import DefaultRouter
+
+
+router = DefaultRouter()
+router.register(r"users", UserViewSet, basename="users")
+router.register(r"weights", WeightViewSet, basename="weights")
 
 
 urlpatterns = [
-    path("register/", register, name="register"),
-    path("login/", custom_login_view, name="custom-login"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("logout/", logout, name="logout"),
-    path("update_user/", update_user, name="update"),
-    path("weights/", WeightView.as_view(), name="weights"),
-    path("weights/<int:weight_id>/", WeightView.as_view(), name="weight-detail"),
-    path("check_availability/", check_availability, name="check_availability"),
-    path("me/", my_details, name="my_details"),
+    path("", include(router.urls)),
+    path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    path("logout/", TokenBlacklistView.as_view(), name="logout"),
+    path("check_availability/", check_availability, name="check-availability"),
+    path("password-reset/request/", request_password_reset, name="password-reset-request"),
+    path("password-reset/confirm/", confirm_password_reset, name="password-reset-confirm"),
 ]
