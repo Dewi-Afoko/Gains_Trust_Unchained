@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', "django-insecure-15onj$_$df(irribaxp48h6fzq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*.ondigitalocean.app').split(',')
 
 
 # Security Settings for Production
