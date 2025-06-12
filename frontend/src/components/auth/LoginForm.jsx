@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import useAuthStore from '../../stores/authStore'
 import { showToast } from '../../utils/toast'
 import { login as loginApi } from '../../api/authApi'
@@ -80,6 +80,15 @@ const LoginForm = () => {
             >
                 Sign In
             </PanelButton>
+            
+            <div className="text-center mt-4">
+                <Link 
+                    to="/forgot-password" 
+                    className="text-brand-gold hover:text-yellow-300 text-sm underline transition"
+                >
+                    Forgot your password?
+                </Link>
+            </div>
         </form>
     )
 }

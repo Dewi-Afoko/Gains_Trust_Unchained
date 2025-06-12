@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
+import uuid
+from django.utils import timezone
+from datetime import timedelta
 
 
 class User(AbstractUser):
@@ -29,6 +32,24 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="password_reset_tokens")
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    def is_expired(self):
+        from django.conf import settings
+        expiry_time = self.created_at + timedelta(seconds=getattr(settings, 'PASSWORD_RESET_TIMEOUT', 3600))
+        return timezone.now() > expiry_time
+
+    def __str__(self):
+        return f"Password reset token for {self.user.username}"
+
+    class Meta:
+        ordering = ['-created_at']
 
 
 class Weight(models.Model):

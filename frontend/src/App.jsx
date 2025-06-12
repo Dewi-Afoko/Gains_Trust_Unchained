@@ -10,6 +10,8 @@ import LandingPage from './pages/LandingPage'
 import WorkoutsList from './pages/WorkoutsList'
 import WorkoutDetails from './pages/WorkoutDetails'
 import LiveTracking from './pages/LiveTracking'
+import PasswordResetRequest from './components/auth/PasswordResetRequest'
+import PasswordResetConfirm from './components/auth/PasswordResetConfirm'
 import PrivateRoute from './components/auth/PrivateRoute'
 import useAuthStore from './stores/authStore'
 
@@ -39,6 +41,8 @@ function App() {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<PasswordResetRequest />} />
+                    <Route path="/reset-password/:token" element={<PasswordResetConfirm />} />
                     <Route
                         path="/dashboard"
                         element={
