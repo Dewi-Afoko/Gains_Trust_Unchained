@@ -21,7 +21,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust # 🚀 Allows connections without a password
         ports:
           - 5432:5432
-        options: --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "pg_isready -U dewi" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Checkout Repository
@@ -41,7 +41,7 @@ jobs:
 
       - name: Set Environment Variables
         run: |
-          echo "DATABASE_URL=postgresql://postgres@localhost:5432/test_db" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgresql://dewi@localhost:5432/gains_trust" >> $GITHUB_ENV
 
       - name: Run Migrations
         run: |
