@@ -95,7 +95,6 @@ class WorkoutViewSet(ModelViewSet):
     permission_classes = [
         IsAuthenticated
     ]  # Ensures only authenticated users can access
-    print("test")
 
     def perform_create(self, serializer):
         """Ensures the logged-in user is assigned to the created workout,
