@@ -1,72 +1,191 @@
 import { useState } from 'react'
-import { useWorkoutContext } from '../../context/WorkoutContext' // ✅ Import context
+import { BarChart3, Clock, CheckCircle, Settings } from 'lucide-react'
+import useWorkoutStore from '../../stores/workoutStore'
+import useUserPreferencesStore from '../../stores/userPreferencesStore'
 import SetsTableFull from '../sets/SetsTableFull'
+import PanelHeader from '../ui/PanelHeader'
+import texture2 from '../../assets/texture2.png'
 
 const WorkoutControlsLive = () => {
-    const [showIncomplete, setShowIncomplete] = useState(false) // ✅ Default to collapsed
-    const [showCompleted, setShowCompleted] = useState(false) // ✅ Default to collapsed
-    const { completeSets, incompleteSets } = useWorkoutContext() // ✅ Get complete/incomplete sets
+    const { sets } = useWorkoutStore()
+    const { autoStartNextSet, toggleAutoStartNextSet } = useUserPreferencesStore()
+    const [showIncomplete, setShowIncomplete] = useState(false)
+    const [showCompleted, setShowCompleted] = useState(false)
+    const [showSettings, setShowSettings] = useState(false)
 
-
-
-    // ✅ Reverse completed sets so most recent appear first
-    const sortedCompleteSets = [...completeSets].sort(
-        (a, b) => b.set_order - a.set_order
-    )
+    // Sort sets by set_order for proper display
+    const sortedSets = sets ? [...sets].sort((a, b) => a.set_order - b.set_order) : []
+    const incompleteSets = sortedSets.filter(set => !set.complete)
+    const completedSets = sortedSets.filter(set => set.complete)
+    
+    // Sort completed sets in reverse order (most recent first)
+    const sortedCompleteSets = [...completedSets].reverse()
+    
+    const incompleteCount = incompleteSets.length
+    const completedCount = completedSets.length
 
     return (
-        <div className="bg-[#500000] text-white p-6 rounded-xl border border-yellow-400 shadow-lg mt-6 text-center">
-            <h3 className="text-yellow-400 text-2xl font-extrabold text-stroke mb-4">
-                📊 Workout Overview
-            </h3>
-
-            {/* ✅ Collapsible Buttons Side-by-Side */}
-            <div className="flex justify-center space-x-6 mb-4">
-                <h4
-                    onClick={() => setShowIncomplete(!showIncomplete)}
-                    className="text-gray-400 text-xl font-bold cursor-pointer hover:text-gray-300 transition"
-                >
-                    ⚠️ Incomplete Sets {showIncomplete ? '🔽' : '▶️'}
-                </h4>
-                <h4
-                    onClick={() => setShowCompleted(!showCompleted)}
-                    className="text-yellow-500 text-xl font-bold cursor-pointer hover:text-yellow-400 transition"
-                >
-                    ⭐ Completed Sets {showCompleted ? '🔽' : '▶️'}
-                </h4>
-            </div>
-
-            {/* ✅ Tables: Side by Side if Both Open, Full Width if One Open */}
+        <div className="bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl flex flex-col overflow-hidden p-6 text-white relative">
+            {/* Background Texture */}
             <div
-                className={`flex gap-6 transition-all ${showIncomplete && showCompleted ? 'flex-row' : 'flex-col'}`}
-            >
-                {showIncomplete && (
-                    <div
-                        className={`overflow-hidden transition-all duration-500 flex-1 ${showIncomplete ? 'max-h-[400px]' : 'max-h-0'}`}
-                    >
-                        <div className="overflow-y-auto max-h-[400px]">
-                            <SetsTableFull
-                                sets={incompleteSets}
-                                hideCompleteColumn={true}
-                            />{' '}
-                            {/* ✅ Use incompleteSets */}
-                        </div>
-                    </div>
-                )}
+                className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-2xl"
+                style={{ 
+                    backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
+                    backgroundBlendMode: 'overlay, multiply',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}
+            />
+            
+            <div className="relative z-20">
+                <PanelHeader 
+                    title="Workout Overview"
+                    icon={BarChart3}
+                    size="large"
+                />
 
-                {showCompleted && (
+                {/* Settings Section */}
+                <div className="mb-4">
+                    <PanelHeader 
+                        title="Settings"
+                        icon={Settings}
+                        size="normal"
+                        collapsible={true}
+                        isExpanded={showSettings}
+                        onToggle={() => setShowSettings(!showSettings)}
+                    />
+
                     <div
-                        className={`overflow-hidden transition-all duration-500 flex-1 ${showCompleted ? 'max-h-[400px]' : 'max-h-0'}`}
+                        className={`transition-all duration-500 ease-in-out ${
+                            showSettings ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                        }`}
+                        style={{
+                            height: showSettings ? 'auto' : '0px',
+                            overflow: showSettings ? 'visible' : 'hidden'
+                        }}
                     >
-                        <div className="overflow-y-auto max-h-[400px]">
-                            <SetsTableFull
-                                sets={sortedCompleteSets}
-                                hideCompleteColumn={true}
-                            />{' '}
-                            {/* ✅ Sorted completed sets */}
+                        <div className="bg-brand-dark border border-brand-gold/30 rounded-lg p-4 relative mb-4">
+                            {/* Settings background texture */}
+                            <div
+                                className="absolute inset-0 opacity-20 pointer-events-none z-0 rounded-lg"
+                                style={{ 
+                                    backgroundImage: `url(${texture2})`,
+                                    backgroundSize: '200px 200px',
+                                    backgroundRepeat: 'repeat'
+                                }}
+                            />
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <label className="text-yellow-400 font-bold text-lg mb-1">
+                                            Auto-Start Next Set
+                                        </label>
+                                        <p className="text-gray-300 text-sm">
+                                            {autoStartNextSet 
+                                                ? 'Set timer starts automatically when rest ends' 
+                                                : 'Manually start each set with "Start Set" button'
+                                            }
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={toggleAutoStartNextSet}
+                                        className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 focus-visible:ring-opacity-75 ${
+                                            autoStartNextSet 
+                                                ? 'bg-gradient-to-r from-yellow-400 to-orange-600' 
+                                                : 'bg-gray-600'
+                                        }`}
+                                    >
+                                        <span
+                                            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                                                autoStartNextSet ? 'translate-x-6' : 'translate-x-0'
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                )}
+                </div>
+
+                {/* Incomplete Sets Section */}
+                <div className="mb-4">
+                    <PanelHeader 
+                        title={`Incomplete Sets (${incompleteCount})`}
+                        icon={Clock}
+                        size="normal"
+                        collapsible={true}
+                        isExpanded={showIncomplete}
+                        onToggle={() => setShowIncomplete(!showIncomplete)}
+                    />
+
+                    <div
+                        className={`transition-all duration-500 ease-in-out ${
+                            showIncomplete ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                        }`}
+                        style={{
+                            height: showIncomplete ? 'auto' : '0px',
+                            overflow: showIncomplete ? 'visible' : 'hidden'
+                        }}
+                    >
+                        <div className="bg-brand-dark border border-brand-gold/30 rounded-lg p-4 relative">
+                            {/* Table background texture */}
+                            <div
+                                className="absolute inset-0 opacity-20 pointer-events-none z-0 rounded-lg"
+                                style={{ 
+                                    backgroundImage: `url(${texture2})`,
+                                    backgroundSize: '200px 200px',
+                                    backgroundRepeat: 'repeat'
+                                }}
+                            />
+                            <div className="relative z-10">
+                                <SetsTableFull
+                                    sets={incompleteSets}
+                                    hideCompleteColumn={true}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Completed Sets Section */}
+                <div className="mb-4">
+                    <PanelHeader 
+                        title={`Completed Sets (${completedCount})`}
+                        icon={CheckCircle}
+                        size="normal"
+                        collapsible={true}
+                        isExpanded={showCompleted}
+                        onToggle={() => setShowCompleted(!showCompleted)}
+                    />
+
+                    <div
+                        className={`transition-all duration-500 ease-in-out ${
+                            showCompleted ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                        }`}
+                        style={{
+                            height: showCompleted ? 'auto' : '0px',
+                            overflow: showCompleted ? 'visible' : 'hidden'
+                        }}
+                    >
+                        <div className="bg-brand-dark border border-brand-gold/30 rounded-lg p-4 relative">
+                            {/* Table background texture */}
+                            <div
+                                className="absolute inset-0 opacity-20 pointer-events-none z-0 rounded-lg"
+                                style={{ 
+                                    backgroundImage: `url(${texture2})`,
+                                    backgroundSize: '200px 200px',
+                                    backgroundRepeat: 'repeat'
+                                }}
+                            />
+                            <div className="relative z-10">
+                                <SetsTableFull
+                                    sets={sortedCompleteSets}
+                                    hideCompleteColumn={true}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )
