@@ -24,12 +24,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-15onj$_$df(irribaxp48h6fzq$31z$^s%cqnhch(yx+bmp-di"
+SECRET_KEY = os.getenv('SECRET_KEY', "django-insecure-15onj$_$df(irribaxp48h6fzq$31z$^s%cqnhch(yx+bmp-di")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+
+# Security Settings for Production
+if not DEBUG and not os.getenv('TESTING'):
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 # Application definition
@@ -48,6 +60,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -85,17 +98,24 @@ WSGI_APPLICATION = "Gains_Trust.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DATABASE_NAME", "gains_trust"),
-        "USER": os.getenv("DATABASE_USER", "dewi"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),  # Load from .env
-        "HOST": os.getenv("DATABASE_HOST", "localhost"),
-        "PORT": os.getenv("DATABASE_PORT", "5432"),
+# Use DATABASE_URL if available (DigitalOcean App Platform provides this)
+if 'DATABASE_URL' in os.environ:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
-}
+else:
+    # Traditional database configuration for development/manual deployment
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DATABASE_NAME", "gains_trust"),
+            "USER": os.getenv("DATABASE_USER", "dewi"),
+            "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),  # Load from .env
+            "HOST": os.getenv("DATABASE_HOST", "localhost"),
+            "PORT": os.getenv("DATABASE_PORT", "5432"),
+        }
+    }
 
 
 # Password validation
@@ -133,6 +153,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -146,14 +167,17 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,  # 🚀 Adjust this to the number of workouts per page
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"
 }
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=180),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": False,
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=3),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=2),
+    "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
@@ -161,7 +185,110 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
-# Allow requests from the frontend
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React frontend
-]
+# CORS Configuration
+if DEBUG:
+    # Development CORS settings - Allow all for development
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",  # React frontend
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",  # Django backend
+        "http://127.0.0.1:8000",
+    ]
+    # Additional development CORS settings
+    CORS_ALLOW_HEADERS = [
+        'accept',
+        'accept-encoding',
+        'authorization',
+        'content-type',
+        'dnt',
+        'origin',
+        'user-agent',
+        'x-csrftoken',
+        'x-requested-with',
+    ]
+    CORS_ALLOW_METHODS = [
+        'DELETE',
+        'GET',
+        'OPTIONS',
+        'PATCH',
+        'POST',
+        'PUT',
+    ]
+else:
+    # Production CORS settings - update with your domain
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        # Add your production frontend URLs here
+        # "https://yourdomain.com",
+        # "https://www.yourdomain.com",
+    ]
+    
+# Allow credentials for CORS
+CORS_ALLOW_CREDENTIALS = True
+
+# Email Configuration for Password Reset
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+
+# Choose email backend based on configuration
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
+    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+    if DEBUG:
+        print("✅ Using SMTP email backend")
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'noreply@gainstrust.com'
+    if DEBUG:
+        print("⚠️  WARNING: Email credentials not found. Using console backend for development.")
+        print("   Emails will be printed to console instead of sent.")
+        print("   Set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD in .env to enable SMTP.")
+
+# Password Reset Settings
+PASSWORD_RESET_TIMEOUT = int(os.getenv('PASSWORD_RESET_TIMEOUT', '3600'))  # 1 hour default
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'gains_trust.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO' if DEBUG else 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'users': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'workouts': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

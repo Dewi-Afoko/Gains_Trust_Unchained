@@ -2,10 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-.text-stroke {
+/* .text-stroke {
     text-shadow:
         -1px -1px 0 black,
         1px -1px 0 black,
         -1px 1px 0 black,
         1px 1px 0 black;
+} */
+
+@font-face {
+    font-family: 'GainsTrustFont';
+    src: url('./assets/fonts/kraftundstil.TTF') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.gains-font {
+    font-family: 'GainsTrustFont', sans-serif;
+}
+
+/* Remove the react-hot-toast override block, as Sonner is now used. */
+
+/* Remove Sonner's default toast container styling for custom toasts */
+.sonner-toast {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
