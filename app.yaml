@@ -3,8 +3,8 @@ services:
   - name: backend
     source_dir: /Gains_Trust
     github:
-      repo: your-username/Gains_Trust_Unchained
-      branch: main
+      repo: dewi-afoko/Gains_Trust_Unchained
+      branch: Live
     run_command: gunicorn --worker-tmp-dir /dev/shm Gains_Trust.wsgi:application
     environment_slug: python
     instance_count: 1
@@ -44,7 +44,7 @@ services:
     source_dir: /frontend
     github:
       repo: your-username/Gains_Trust_Unchained
-      branch: main
+      branch: Live
     build_command: npm run build
     run_command: npx serve -s build -l ${PORT}
     environment_slug: node-js
@@ -54,7 +54,7 @@ services:
       - path: /
     envs:
       - key: REACT_APP_API_BASE_URL
-        value: "https://${_self.DOMAIN}"
+        value: ""
 
 databases:
   - name: db
