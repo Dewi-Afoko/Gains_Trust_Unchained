@@ -1,7 +1,7 @@
 name: gains-trust
 services:
   - name: backend
-    source_dir: /Gains_Trust
+    source_dir: Gains_Trust
     github:
       repo: dewi-afoko/Gains_Trust_Unchained
       branch: Live
@@ -41,9 +41,9 @@ services:
         value: "3600"
 
   - name: frontend
-    source_dir: /frontend
+    source_dir: frontend
     github:
-      repo: your-username/Gains_Trust_Unchained
+      repo: dewi-afoko/Gains_Trust_Unchained
       branch: Live
     build_command: npm run build
     run_command: npx serve -s build -l ${PORT}
