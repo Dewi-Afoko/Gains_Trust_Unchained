@@ -9,24 +9,30 @@ This guide will help you configure the password reset functionality for the Gain
 Create a `.env` file in the `Gains_Trust` directory with the following variables:
 
 ```env
-# Database Configuration
+# Database Configuration (non-sensitive settings)
 DATABASE_NAME=gains_trust
-DATABASE_USER=dewi
-DATABASE_PASSWORD=your_db_password
+DATABASE_USER=<YOUR_USERNAME>
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 
-# Email Configuration for Password Reset
+# SENSITIVE: Database password
+DATABASE_PASSWORD=<YOUR_DATABASE_PASSWORD>
+
+# Email SMTP Configuration (public server settings)
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your_email@gmail.com
-EMAIL_HOST_PASSWORD=your_app_password
-DEFAULT_FROM_EMAIL=your_email@gmail.com
 
-# Password Reset Settings
-PASSWORD_RESET_TIMEOUT=3600  # Token expires in 1 hour (3600 seconds)
+# SENSITIVE: Email credentials
+EMAIL_HOST_USER=<YOUR_EMAIL@EXAMPLE.COM>
+EMAIL_HOST_PASSWORD=<YOUR_16_CHAR_APP_PASSWORD>
+DEFAULT_FROM_EMAIL=<YOUR_EMAIL@EXAMPLE.COM>
+
+# Application Settings (non-sensitive)
+PASSWORD_RESET_TIMEOUT=3600
 ```
+
+**Note:** Only the `DATABASE_PASSWORD`, `EMAIL_HOST_USER`, and `EMAIL_HOST_PASSWORD` are sensitive credentials. The other values are standard configuration settings.
 
 ### 2. Email Provider Setup
 

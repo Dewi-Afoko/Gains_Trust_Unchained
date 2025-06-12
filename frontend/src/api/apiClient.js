@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const apiClient = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_URL,
+    baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000',
 })
 
 // Attach token if present
@@ -60,7 +60,7 @@ apiClient.interceptors.response.use(
             }
             try {
                 const response = await axios.post(
-                    `${process.env.REACT_APP_API_BASE_URL}/token/refresh/`,
+                    `${process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000'}/token/refresh/`,
                     { refresh: refreshToken }
                 )
                 const newAccessToken = response.data.access
