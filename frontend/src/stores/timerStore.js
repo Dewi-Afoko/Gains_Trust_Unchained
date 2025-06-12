@@ -219,8 +219,6 @@ const useTimerStore = create(
 
                 // Cleanup function for when leaving a workout
                 cleanupTimers: (workoutId) => {
-                    console.log('🧹 cleanupTimers called for workoutId:', workoutId)
-                    console.log('🧹 Calling stopWorkoutTimer, stopRestTimer, stopSetTimer')
                     get().stopWorkoutTimer()
                     get().stopRestTimer()
                     get().stopSetTimer()
@@ -228,7 +226,6 @@ const useTimerStore = create(
                         currentWorkoutId: null,
                         manuallyStartedSets: {} // Clear manual set starts on cleanup
                     })
-                    console.log('🧹 Cleanup complete')
                 },
 
                 // Format time helper

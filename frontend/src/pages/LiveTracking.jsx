@@ -74,9 +74,7 @@ export default function LiveTracking() {
 
     // Hydrate rest timer after Zustand rehydrates
     useEffect(() => {
-        console.log('📱 LiveTracking hydrate effect running, workoutData:', !!workoutData, 'id:', id)
         if (workoutData && id) {
-            console.log('📱 Calling hydrateRestTimer')
             // Hydrate rest timer immediately - Zustand persist handles the timing
             hydrateRestTimer()
         }
@@ -84,8 +82,6 @@ export default function LiveTracking() {
 
     // Cleanup on unmount ONLY - prevent running on initial mount
     useEffect(() => {
-        console.log('📱 LiveTracking cleanup effect setup for id:', id, 'isInitialMount:', isInitialMount.current)
-        
         // Mark that we've mounted
         if (isInitialMount.current) {
             isInitialMount.current = false
@@ -93,7 +89,6 @@ export default function LiveTracking() {
         }
         
         return () => {
-            console.log('📱 LiveTracking cleanup effect running for id:', id)
             // Only cleanup when truly unmounting (navigating away)
             if (id) {
                 cleanupTimers(id)
