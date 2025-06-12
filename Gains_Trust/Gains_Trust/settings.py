@@ -170,7 +170,8 @@ STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # React Frontend Static Files
-REACT_APP_DIR = os.path.join(BASE_DIR, '..', 'frontend', 'build')
+# Use frontend_build directory within Django project for deployment
+REACT_APP_DIR = os.path.join(BASE_DIR, 'frontend_build')
 STATICFILES_DIRS = [
     os.path.join(REACT_APP_DIR, 'static'),
 ]

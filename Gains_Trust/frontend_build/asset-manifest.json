@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/static/css/main.f00ccfc5.css",
+    "main.js": "/static/js/main.f3f3b07f.js",
+    "static/js/488.7213179a.chunk.js": "/static/js/488.7213179a.chunk.js",
+    "static/media/texture2.png": "/static/media/texture2.c0d119663f1d7fc55712.png",
+    "static/media/gains-trust-logo-final.png": "/static/media/gains-trust-logo-final.db30c6e0ea91fea4c281.png",
+    "static/media/industrial-features-texture.png": "/static/media/industrial-features-texture.88c9ba32de81368375af.png",
+    "static/media/industrial-texture.png": "/static/media/industrial-texture.488cc9aac6b92ca3824d.png",
+    "static/media/kraftundstil.TTF": "/static/media/kraftundstil.52da6365609f47fb5f1c.TTF",
+    "index.html": "/index.html",
+    "main.f00ccfc5.css.map": "/static/css/main.f00ccfc5.css.map",
+    "main.f3f3b07f.js.map": "/static/js/main.f3f3b07f.js.map",
+    "488.7213179a.chunk.js.map": "/static/js/488.7213179a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f00ccfc5.css",
+    "static/js/main.f3f3b07f.js"
+  ]
+}
