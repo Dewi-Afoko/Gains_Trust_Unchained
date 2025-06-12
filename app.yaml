@@ -1,12 +1,13 @@
 name: gains-trust
+
 services:
   - name: backend
     source_dir: Gains_Trust
     github:
       repo: dewi-afoko/Gains_Trust_Unchained
       branch: Live
-    run_command: gunicorn --worker-tmp-dir /dev/shm Gains_Trust.wsgi:application
     environment_slug: python
+    run_command: gunicorn --worker-tmp-dir /dev/shm Gains_Trust.wsgi:application
     instance_count: 1
     instance_size_slug: basic-xxs
     routes:
@@ -17,17 +18,17 @@ services:
       - key: DEBUG
         value: "False"
       - key: SECRET_KEY
-        value: "REPLACE-WITH-YOUR-SECRET-KEY"
+        value: "to-be-set"
         type: SECRET
       - key: ALLOWED_HOSTS
         value: "*.ondigitalocean.app"
       - key: DATABASE_URL
         value: "${db.DATABASE_URL}"
       - key: EMAIL_HOST_USER
-        value: "REPLACE-WITH-YOUR-EMAIL"
+        value: "to-be-set"
         type: SECRET
       - key: EMAIL_HOST_PASSWORD
-        value: "REPLACE-WITH-APP-PASSWORD"
+        value: "to-be-set"
         type: SECRET
       - key: EMAIL_HOST
         value: "smtp.gmail.com"
@@ -36,7 +37,7 @@ services:
       - key: EMAIL_USE_TLS
         value: "True"
       - key: DEFAULT_FROM_EMAIL
-        value: "REPLACE-WITH-YOUR-EMAIL"
+        value: "to-be-set"
       - key: PASSWORD_RESET_TIMEOUT
         value: "3600"
 
@@ -45,9 +46,9 @@ services:
     github:
       repo: dewi-afoko/Gains_Trust_Unchained
       branch: Live
+    environment_slug: node-js
     build_command: npm run build
     run_command: npx serve -s build -l ${PORT}
-    environment_slug: node-js
     instance_count: 1
     instance_size_slug: basic-xxs
     routes:
@@ -60,4 +61,4 @@ databases:
   - name: db
     engine: PG
     version: "13"
-    size: basic-xs 
+    size: basic-xs
