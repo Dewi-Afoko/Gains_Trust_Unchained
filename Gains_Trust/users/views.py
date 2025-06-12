@@ -2,12 +2,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from .serializers import UserSerializer, WeightSerializer
-from .models import Weight
+from .serializers import UserSerializer, WeightSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer
+from .models import Weight, PasswordResetToken
 from django.contrib.auth import get_user_model, authenticate, login
 from rest_framework.viewsets import ModelViewSet
 from django.utils.timezone import now
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import logging
 
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -27,6 +33,86 @@ def check_availability(request):
         return Response({"email": "taken"}, status=400)
 
     return Response({"message": "available"}, status=200)
+
+
+@api_view(["POST"])
+def request_password_reset(request):
+    """Send password reset email"""
+    serializer = PasswordResetRequestSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        user = User.objects.get(email=email)
+        
+        # Create password reset token
+        reset_token = PasswordResetToken.objects.create(user=user)
+        
+        # Prepare email
+        reset_url = f"{settings.CORS_ALLOWED_ORIGINS[0]}/reset-password/{reset_token.token}"
+        
+        subject = "Password Reset Request"
+        message = f"""
+        Hi {user.first_name or user.username},
+        
+        You requested a password reset for your Gains Trust account.
+        
+        Click the link below to reset your password:
+        {reset_url}
+        
+        This link will expire in 1 hour.
+        
+        If you didn't request this reset, please ignore this email.
+        
+        Best regards,
+        The Gains Trust Team
+        """
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+            logger.info(f"Password reset email sent successfully to {email}")
+            return Response({"message": "Password reset email sent successfully"}, status=200)
+        except Exception as e:
+            logger.error(f"Failed to send password reset email: {e}")
+            return Response({
+                "error": "Failed to send email. Please check your email configuration or try again later."
+            }, status=500)
+    
+    return Response(serializer.errors, status=400)
+
+
+@api_view(["POST"])
+def confirm_password_reset(request):
+    """Confirm password reset with token"""
+    serializer = PasswordResetConfirmSerializer(data=request.data)
+    if serializer.is_valid():
+        token = serializer.validated_data['token']
+        new_password = serializer.validated_data['new_password']
+        
+        try:
+            reset_token = PasswordResetToken.objects.get(token=token, is_used=False)
+            if reset_token.is_expired():
+                return Response({"error": "Reset token has expired"}, status=400)
+            
+            # Reset the password
+            user = reset_token.user
+            user.set_password(new_password)
+            user.save()
+            
+            # Mark token as used
+            reset_token.is_used = True
+            reset_token.save()
+            
+            return Response({"message": "Password reset successfully"}, status=200)
+            
+        except PasswordResetToken.DoesNotExist:
+            return Response({"error": "Invalid or expired reset token"}, status=400)
+    
+    return Response(serializer.errors, status=400)
 
 
 # User ViewSet

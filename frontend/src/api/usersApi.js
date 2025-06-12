@@ -20,6 +20,21 @@ export const checkAvailability = async ({ username, email }) => {
     return response.data
 }
 
+// Password Reset functions
+export const requestPasswordReset = async (email) => {
+    const response = await apiClient.post('/password-reset/request/', { email })
+    return response.data
+}
+
+export const confirmPasswordReset = async (token, newPassword, confirmPassword) => {
+    const response = await apiClient.post('/password-reset/confirm/', {
+        token,
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+    })
+    return response.data
+}
+
 // Weight endpoints
 export const getWeights = async () => {
     const response = await apiClient.get('/weights/')
