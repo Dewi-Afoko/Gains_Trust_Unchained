@@ -48,6 +48,14 @@ def test_duplicate_workout(authenticated_client, create_workout):
     assert Workout.objects.filter(workout_name__icontains="(Copy)").exists()
 
 @pytest.mark.django_db
+def test_duplicate_set(authenticated_client, create_setdict):
+    """Test duplicating a set."""
+    response = authenticated_client.post(reverse("sets-duplicate", args=[create_setdict.id]))
+
+    assert response.status_code == 201
+    assert "duplicated" in response.data["message"]
+
+@pytest.mark.django_db
 def test_start_workout(authenticated_client, create_workout):
     """Test starting a workout, setting start_time."""
     response = authenticated_client.patch(reverse("workouts-start-workout", args=[create_workout.id]))
@@ -55,6 +63,18 @@ def test_start_workout(authenticated_client, create_workout):
     assert response.status_code == 200
     create_workout.refresh_from_db()
     assert create_workout.start_time is not None
+
+@pytest.mark.django_db
+def test_start_workout_already_started(authenticated_client, create_workout):
+    """Test restarting an already started workout."""
+    # First start the workout
+    create_workout.start_time = now()
+    create_workout.save()
+    
+    response = authenticated_client.patch(reverse("workouts-start-workout", args=[create_workout.id]))
+
+    assert response.status_code == 200
+    assert "restarted" in response.data["message"]
 
 @pytest.mark.django_db
 def test_complete_workout(authenticated_client, create_workout):
@@ -68,6 +88,42 @@ def test_complete_workout(authenticated_client, create_workout):
     create_workout.refresh_from_db()
     assert create_workout.complete is True
     assert create_workout.duration > 0
+
+@pytest.mark.django_db
+def test_complete_workout_not_started(authenticated_client, create_workout):
+    """Test completing a workout that hasn't been started."""
+    response = authenticated_client.patch(reverse("workouts-complete-workout", args=[create_workout.id]))
+
+    assert response.status_code == 400
+    assert "cannot be marked complete before it has been started" in response.data["message"]
+
+@pytest.mark.django_db
+def test_complete_workout_already_completed(authenticated_client, create_workout):
+    """Test completing a workout that is already completed."""
+    create_workout.start_time = now() - timedelta(minutes=45)
+    create_workout.complete = True
+    create_workout.save()
+
+    response = authenticated_client.patch(reverse("workouts-complete-workout", args=[create_workout.id]))
+
+    assert response.status_code == 400
+    assert "already marked as complete" in response.data["error"]
+
+@pytest.mark.django_db
+def test_get_sets_filtered_by_workout(authenticated_client, create_workout, create_user):
+    """Test filtering sets by workout."""
+    # Create sets for this workout
+    set1 = SetDict.objects.create(workout=create_workout, exercise_name="Squat")
+    
+    # Create another workout and set
+    workout2 = Workout.objects.create(user=create_user, workout_name="Other Workout")
+    set2 = SetDict.objects.create(workout=workout2, exercise_name="Deadlift")
+    
+    response = authenticated_client.get(reverse("sets-list"), {"workout": create_workout.id})
+    
+    assert response.status_code == 200
+    assert len(response.data["results"]) == 1
+    assert response.data["results"][0]["id"] == set1.id
 
 @pytest.mark.django_db
 def test_create_set(authenticated_client, create_workout):
@@ -208,6 +264,24 @@ def test_update_active_set(authenticated_client, create_user):
 
     assert set1.is_active_set is False  # ✅ The previous set should no longer be active
     assert set2.is_active_set is True  # ✅ The next incomplete set should be active
+
+@pytest.mark.django_db
+def test_update_active_set_with_rest_timing(authenticated_client, create_user):
+    """Test that active set timing considers rest periods."""
+    
+    # Step 1: Create a workout with start_time
+    workout = Workout.objects.create(user=create_user, workout_name="Push Day", start_time=now())
+
+    # Step 2: Create sets with rest time
+    set1 = SetDict.objects.create(workout=workout, exercise_name="Squat", set_order=1, complete=True, rest=60)
+    set2 = SetDict.objects.create(workout=workout, exercise_name="Bench Press", set_order=2, complete=False)
+
+    # Ensure `update_active_set` works with rest timing
+    update_active_set(workout.id)
+
+    set2.refresh_from_db()
+    assert set2.is_active_set is True
+    assert set2.set_start_time is not None
 
 
 @pytest.mark.django_db
