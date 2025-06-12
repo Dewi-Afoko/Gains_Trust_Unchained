@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import User, UserRecord, Weight, PasswordResetToken
+from .models import User, Weight, PasswordResetToken
 
 # Register your models here.
 admin.site.register(User)
-admin.site.register(UserRecord)
+# admin.site.register(UserRecord)  # TODO: Uncomment when UserRecord model is implemented
 admin.site.register(Weight)
 
 @admin.register(PasswordResetToken)
