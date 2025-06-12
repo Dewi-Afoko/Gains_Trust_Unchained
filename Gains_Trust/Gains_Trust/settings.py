@@ -100,10 +100,23 @@ WSGI_APPLICATION = "Gains_Trust.wsgi.application"
 
 # Use DATABASE_URL if available (DigitalOcean App Platform provides this)
 if 'DATABASE_URL' in os.environ:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
-    }
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        }
+    except ImportError:
+        # Fallback if dj_database_url is not installed
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": os.getenv("DATABASE_NAME", "gains_trust"),
+                "USER": os.getenv("DATABASE_USER", "dewi"),
+                "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
+                "HOST": os.getenv("DATABASE_HOST", "localhost"),
+                "PORT": os.getenv("DATABASE_PORT", "5432"),
+            }
+        }
 else:
     # Traditional database configuration for development/manual deployment
     DATABASES = {
