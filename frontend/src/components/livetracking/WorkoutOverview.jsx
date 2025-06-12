@@ -1,140 +1,119 @@
-import { useNavigate } from "react-router-dom";
-import { useWorkoutContext } from "../../context/WorkoutContext";
-import WorkoutTimerDisplay from "./WorkoutTimerDisplay";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from 'react'
+import useWorkoutStore from '../../stores/workoutStore'
+import { formatLoading } from '../../utils/formatters'
+import PanelButton from '../ui/PanelButton'
 
 const WorkoutOverview = () => {
-    const { workout, completeSets, workoutSets, timeElapsed } = useWorkoutContext();
-    const navigate = useNavigate();
+    const { workout, sets } = useWorkoutStore()
+    const [isExpanded, setIsExpanded] = useState(true)
 
-    const totalSets = workoutSets?.[workout?.id]?.length || 0;
-    const completedCount = completeSets?.length || 0;
-    const progress = totalSets > 0 ? (completedCount / totalSets) * 100 : 0;
-    const isWorkoutComplete = Boolean(workout?.duration);
-    const lastCompletedSet = [...completeSets].sort((a, b) => b.set_order - a.set_order)[0] || null;
-
-
-    const exerciseStats = completeSets.reduce((acc, set) => {
+    // Calculate exercise stats
+    const exerciseStats = sets.reduce((acc, set) => {
         if (!acc[set.exercise_name]) {
             acc[set.exercise_name] = {
-                count: 0,
-                totalDuration: 0,
-                minDuration: Infinity,
-                maxDuration: 0,
-            };
+                totalSets: 0,
+                completedSets: 0,
+                totalReps: 0,
+                totalWeight: 0,
+            }
         }
-        acc[set.exercise_name].count += 1;
-        acc[set.exercise_name].totalDuration += set.set_duration || 0;
-        acc[set.exercise_name].minDuration = Math.min(acc[set.exercise_name].minDuration, set.set_duration || 0);
-        acc[set.exercise_name].maxDuration = Math.max(acc[set.exercise_name].maxDuration, set.set_duration || 0);
-        return acc;
-    }, {});
-    
 
-    const summaryData = Object.keys(exerciseStats).map((exercise) => ({
-        name: exercise,
-        value: exerciseStats[exercise]
-    }));
+        acc[set.exercise_name].totalSets++
+        if (set.complete) acc[set.exercise_name].completedSets++
+        if (set.reps) acc[set.exercise_name].totalReps += set.reps
+        if (set.loading) acc[set.exercise_name].totalWeight += set.loading
 
-    const totalSetDuration = Object.values(exerciseStats).reduce((sum, stats) => sum + stats.totalDuration, 0);
-    const activeWorkoutPercentage = workout?.duration ? ((totalSetDuration / workout.duration) * 100).toFixed(1) : 0;
-    const efficiencyColor = activeWorkoutPercentage >= 80 ? "text-green-400" 
-        : activeWorkoutPercentage >= 50 ? "text-yellow-400" 
-            : "text-red-400";
-
+        return acc
+    }, {})
 
     return (
-        <div className="relative flex flex-col bg-[#400000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg">
-            <button
-                onClick={() => navigate("/workouts")}
-                className="absolute top-4 right-4 bg-[#8B0000] hover:bg-[#600000] text-white font-bold px-4 py-2 rounded-xl transition text-stroke"
+        <div className="bg-[#500000] text-white p-4 rounded-xl border border-yellow-400 shadow-lg">
+            <h3
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-yellow-400 text-2xl font-extrabold text-stroke mb-3 cursor-pointer hover:text-yellow-300 transition"
             >
-                ❌ Exit Workout
-            </button>
+                📊 Workout Overview {isExpanded ? '🔽' : '▶️'}
+            </h3>
 
-            <AnimatePresence>
-                {!isWorkoutComplete ? (
-                    <motion.div
-                        key="tracking-view"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="flex flex-col items-center mb-2"
-                    >
-                        <h2 className="text-yellow-400 text-3xl font-extrabold text-stroke text-center">
-                            🏋🏾‍♂️ {workout?.workout_name || "Live Workout"}
-                        </h2>
+            <div
+                className={`overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-[1000px]' : 'max-h-0'}`}
+            >
+                {/* Workout Info */}
+                <div className="mb-4">
+                    <h4 className="text-lg font-bold text-yellow-300 mb-2">
+                        {workout?.workout_name}
+                    </h4>
+                    <p className="text-gray-300">
+                        Date: {new Date(workout?.date).toLocaleDateString()}
+                    </p>
+                    {workout?.notes && (
+                        <p className="text-gray-300">Notes: {workout.notes}</p>
+                    )}
+                </div>
 
-                        {lastCompletedSet && lastCompletedSet.set_duration !== null && (
-                            <motion.div
-                                className="text-2xl text-center text-green-400 font-bold mt-2"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.3 }}
-                            >
-                                Last Set Took {new Date(lastCompletedSet.set_duration * 1000).toISOString().substr(14, 5)} 
-                                - {lastCompletedSet.exercise_name} | Set {lastCompletedSet.set_number} 
-                                {lastCompletedSet.loading ? ` | ${lastCompletedSet.loading}kg` : ""} 
-                                {lastCompletedSet.reps ? ` | ${lastCompletedSet.reps} reps` : ""}
-                            </motion.div>
-                        )}
-
-
-                        <WorkoutTimerDisplay timeElapsed={timeElapsed} workout={workout} />
-                        <div className="relative w-full bg-gray-700 rounded-full h-6 mt-4">
+                {/* Exercise Stats */}
+                <div className="space-y-4">
+                    {Object.entries(exerciseStats).map(
+                        ([exercise, stats]) => (
                             <div
-                                className="bg-green-700 h-full rounded-full transition-all"
-                                style={{ width: `${progress}%` }}
+                                key={exercise}
+                                className="bg-[#600000] p-3 rounded-lg border border-yellow-400"
+                            >
+                                <h5 className="text-yellow-300 font-bold mb-2">
+                                    {exercise}
+                                </h5>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <p>
+                                        Sets: {stats.completedSets}/
+                                        {stats.totalSets}
+                                    </p>
+                                    <p>Total Reps: {stats.totalReps}</p>
+                                    <p>
+                                        Total Weight:{' '}
+                                        {formatLoading(stats.totalWeight)}
+                                    </p>
+                                    <p>
+                                        Progress:{' '}
+                                        {Math.round(
+                                            (stats.completedSets /
+                                                stats.totalSets) *
+                                                100
+                                        )}
+                                        %
+                                    </p>
+                                </div>
+                            </div>
+                        )
+                    )}
+                </div>
+
+                {/* Overall Progress */}
+                <div className="mt-4">
+                    <h4 className="text-lg font-bold text-yellow-300 mb-2">
+                        Overall Progress
+                    </h4>
+                    <div className="bg-[#600000] p-3 rounded-lg border border-yellow-400">
+                        <p>
+                            Total Sets Completed:{' '}
+                            {sets.filter((s) => s.complete).length}/{sets.length}
+                        </p>
+                        <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
+                            <div
+                                className="bg-yellow-400 h-2.5 rounded-full"
+                                style={{
+                                    width: `${Math.round(
+                                        (sets.filter((s) => s.complete).length /
+                                            sets.length) *
+                                            100
+                                    )}%`,
+                                }}
                             ></div>
-                            <span className="absolute inset-0 flex justify-center items-center text-sm font-bold text-black-400">
-                                {Math.round(progress)}% Complete
-                            </span>
                         </div>
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        key="summary-view"
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="flex flex-col items-center mt-4"
-                    >
-                        <h2 className="text-yellow-400 text-3xl font-extrabold text-center animate-pulse">
-                            🎉 Workout Complete!
-                        </h2>
-                        <motion.div
-                            className={`text-xl font-bold mt-2 ${efficiencyColor}`}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                        >
-                            <span className="block text-center">💪🏾 Workout Duration: {new Date(workout.duration * 1000).toISOString().substr(11, 8)}</span>
-                            ⛓️‍💥 Time Active: {new Date(totalSetDuration * 1000).toISOString().substr(11, 8)}
-                            <br />
-                            <span className="block text-center">📈 Set Duration: {activeWorkoutPercentage}%</span>
-                        </motion.div>
-
-
-                        <motion.div
-                            className="mt-4 overflow-hidden whitespace-nowrap w-full flex"
-                            initial={{ x: "100%" }}
-                            animate={{ x: "-100%" }}
-                            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                        >
-                            {Object.entries(exerciseStats).map(([exercise, stats]) => (
-                                <span key={exercise} className="text-yellow-300 text-xl font-bold mx-6">
-                                    🔄 Set Times For - {exercise}: Avg {Math.round(stats.totalDuration / stats.count)}s | ⏩ Fastest: {stats.minDuration}s | 🛑 Slowest: {stats.maxDuration}s
-                                </span>
-                            ))}
-                        </motion.div>
-
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    </div>
+                </div>
+            </div>
         </div>
-    );
-};
+    )
+}
 
-export default WorkoutOverview;
+export default WorkoutOverview

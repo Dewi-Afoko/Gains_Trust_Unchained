@@ -1,95 +1,83 @@
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import Home from './pages/Home'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
 import Navbar from './components/ui/Navbar'
-import Footer from './components/ui/Footer'
-import Register from './pages/Register'
-import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-import PrivateRoute from './components/PrivateRoute'
-import WorkoutById from './pages/WorkoutById'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import LandingPage from './pages/LandingPage'
 import WorkoutsList from './pages/WorkoutsList'
-import WorkoutLiveTracking from './pages/WorkoutLiveTracking'
-import { Toaster } from 'react-hot-toast'
+import WorkoutDetails from './pages/WorkoutDetails'
+import LiveTracking from './pages/LiveTracking'
+import PasswordResetRequest from './components/auth/PasswordResetRequest'
+import PasswordResetConfirm from './components/auth/PasswordResetConfirm'
+import PrivateRoute from './components/auth/PrivateRoute'
+import useAuthStore from './stores/authStore'
+
+// Create a client
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            refetchOnWindowFocus: false,
+        },
+    },
+})
 
 function App() {
-    return (
-        <>
-            <Toaster
-                position="top-center" // ✅ Positioned slightly below the top-center
-                reverseOrder={false}
-                containerStyle={{
-                    top: '25%', // ✅ Moves it down slightly
-                    transform: 'translateY(-50px)',
-                }}
-                toastOptions={{
-                    duration: 1000, // ✅ Keeps toasts visible longer
-                    style: {
-                        background: '#600000', // 🔥 Dark red background
-                        color: '#FFD700', // 🟡 Gold/yellow text
-                        border: '2px solid #B8860B', // Dark gold border
-                        padding: '12px',
-                        fontWeight: 'bold',
-                        fontSize: '18px',
-                        textAlign: 'center',
-                        animation: 'ease-in-out', // ✅ Wobble + Pulse Animation
-                    },
-                    success: {
-                        icon: '🔥',
-                        style: {
-                            background: '#400000', // ✅ Darker red for success
-                            color: '#FFD700',
-                        },
-                    },
-                    error: {
-                        icon: '⚠️',
-                        style: {
-                            background: '#8B0000', // ❌ Darkest red for errors
-                            color: '#FFD700',
-                        },
-                    },
-                }}
-            />
-            <Navbar />
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/login" element={<Login />} />
-                <Route
-                    path="/dashboard"
-                    element={
-                        <PrivateRoute>
-                            <Dashboard />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/workouts"
-                    element={
-                        <PrivateRoute>
-                            <WorkoutsList />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/workouts/:workout_id/full"
-                    element={
-                        <PrivateRoute>
-                            <WorkoutById />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
-                    path="/livetracking/:workoutId"
-                    element={
-                        <PrivateRoute>
-                            <WorkoutLiveTracking />
-                        </PrivateRoute>
-                    }
-                />
-            </Routes>
+    const { initAuth } = useAuthStore()
 
-            <Footer />
-        </>
+    useEffect(() => {
+        initAuth()
+    }, [initAuth])
+
+    return (
+        <QueryClientProvider client={queryClient}>
+            <div className="min-h-screen bg-brand-dark">
+                <Toaster richColors />
+                <Navbar />
+                <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<PasswordResetRequest />} />
+                    <Route path="/reset-password/:token" element={<PasswordResetConfirm />} />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <PrivateRoute>
+                                <Dashboard />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/workouts"
+                        element={
+                            <PrivateRoute>
+                                <WorkoutsList />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/workouts/:id"
+                        element={
+                            <PrivateRoute>
+                                <WorkoutDetails />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/livetracking/:id"
+                        element={
+                            <PrivateRoute>
+                                <LiveTracking />
+                            </PrivateRoute>
+                        }
+                    />
+                </Routes>
+            </div>
+        </QueryClientProvider>
     )
 }
 

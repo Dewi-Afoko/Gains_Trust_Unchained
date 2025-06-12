@@ -1,104 +1,97 @@
-import { useContext, useEffect, useState } from 'react'
-import AuthContext from '../context/AuthContext'
-import UserDetailsCard from '../components/UserDetailsCard'
-import UserWeightCard from '../components/UserWeightsCard'
-import WorkoutFeed from '../components/WorkoutFeedPreview'
-import WorkoutCreationForm from '../components/forms/WorkoutCreationForm'
-import WorkoutDetailsPreview from '../components/WorkoutDetailsPreview'
-import { WorkoutProvider } from '../context/WorkoutContext' // ✅ Import WorkoutProvider
-import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+import UserDetailsCard from '../components/users/UserDetailsCard'
+import UserWeightCard from '../components/users/UserWeightsCard'
+import WorkoutFeedPreview from '../components/workouts/WorkoutFeedPreview'
+import WorkoutDetailsPreview from '../components/workouts/WorkoutDetailsPreview'
+import useAuthStore from '../stores/authStore'
+import { getWeights } from '../api/usersApi'
+import industrialTexture from '../assets/industrial-features-texture.png'
 
-const Dashboard = () => {
-    const { accessToken } = useContext(AuthContext)
-    const [user, setUser] = useState(null)
+export default function Dashboard() {
+    const { user } = useAuthStore()
     const [weights, setWeights] = useState([])
-    const [workoutId, setWorkoutId] = useState(null) // Store selected workoutId
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [isCreating, setIsCreating] = useState(false)
-    const [isSubmitted, setIsSubmitted] = useState(false)
+    const [selectedWorkoutId, setSelectedWorkoutId] = useState(null)
+    const [loadingWeights, setLoadingWeights] = useState(true)
+    const [error, setError] = useState(null)
 
-    // ✅ Fetch User Details and Weight History using Axios
     useEffect(() => {
-        const fetchUserDetails = async () => {
+        const fetchWeights = async () => {
+            setLoadingWeights(true)
             try {
-                const response = await axios.get(
-                    `${process.env.REACT_APP_API_BASE_URL}/users/me/`,
-                    { headers: { Authorization: `Bearer ${accessToken}` } }
-                )
-
-                setUser(response.data.user)
-                setWeights(response.data.weights.slice(-10)) // Last 10 weigh-ins
-            } catch (error) {
-                console.error('❌ Error fetching user details:', error)
+                const data = await getWeights()
+                setWeights(data.results || [])
+            } catch (err) {
+                setError('Failed to fetch weights')
+            } finally {
+                setLoadingWeights(false)
             }
         }
+        fetchWeights()
+    }, [])
 
-        fetchUserDetails()
-    }, [accessToken])
+    // Handler to refresh weights when new weight is logged
+    const handleWeightUpdate = async () => {
+        try {
+            const data = await getWeights()
+            setWeights(data.results || [])
+        } catch (err) {
+            setError('Failed to refresh weights')
+        }
+    }
 
-    // ✅ Handles opening/closing workout creation modal
-    const handleOpenModal = () => setIsModalOpen(true)
-    const handleCloseModal = () => {
-        setIsModalOpen(false)
-        setIsSubmitted(false)
+    // Handler to open workout details
+    const handleWorkoutClick = (workoutId) => {
+        setSelectedWorkoutId(workoutId)
     }
 
     return (
-        <div className="pt-24 pb-20 flex flex-col items-center min-h-screen bg-[#8B0000] text-white">
-            {user && <UserDetailsCard user={user} />}
-
-            {/* ✅ Create Workout Button (hidden when form is open) */}
-            {!isModalOpen && !isCreating && !isSubmitted && !workoutId && (
-                <button
-                    onClick={handleOpenModal}
-                    className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition mt-6"
-                >
-                    Create Workout
-                </button>
-            )}
-
-            {/* ✅ Show "Creating Workout" Status */}
-            {isCreating && (
-                <div className="w-full max-w-md bg-yellow-400 text-black text-center p-3 mb-4 mt-6 rounded-lg shadow-md">
-                    Creating workout...
-                </div>
-            )}
-
-            {/* ✅ Workout Creation Modal */}
-            {isModalOpen && (
-                <WorkoutCreationForm
-                    onClose={handleCloseModal}
-                    setIsCreating={setIsCreating}
-                    setIsSubmitted={setIsSubmitted}
-                />
-            )}
-
-            {/* ✅ Display WorkoutDetails if a workout is selected */}
-            {/* ✅ Pass workoutId into WorkoutProvider */}
-            {workoutId && (
-                <WorkoutProvider workoutId={workoutId}>
-                    <div className="mt-6 w-full max-w-6xl">
-                        <WorkoutDetailsPreview workoutId={workoutId} />
-                        <button
-                            onClick={() => setWorkoutId(null)}
-                            className="bg-red-500 text-black px-4 py-2 rounded mt-4 hover:bg-red-400 transition"
-                        >
-                            Back to Workout Feed
-                        </button>
+        <div className="min-h-screen w-full relative overflow-hidden">
+            {/* Background Texture Layer */}
+            <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80 pointer-events-none z-0"
+                style={{ backgroundImage: `url(${industrialTexture})` }}
+            />
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-brand-dark-2/90 to-black/95 opacity-90 z-10"></div>
+            {/* Main Content */}
+            <div className="relative z-20 mx-auto px-6 py-24 sm:py-32 lg:max-w-[90rem] lg:px-8">
+                {/* Main 3-column grid, align bottoms */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* User Details (tall) */}
+                    <div className="h-[600px] w-full bg-brand-dark-2 border border-brand-gold shadow-lg rounded-[2rem] flex flex-col p-6 sm:p-10 text-white">
+                        <UserDetailsCard />
                     </div>
-                </WorkoutProvider>
-            )}
-
-            {/* ✅ Show Workout Feed & Weight Chart only when no workout is selected */}
-            {!workoutId && (
-                <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    {weights.length > 0 && <UserWeightCard weights={weights} />}
-                    <WorkoutFeed setWorkoutId={setWorkoutId} />{' '}
-                    {/* Pass setWorkoutId */}
+                    {/* Center: header + workouts (shorter) */}
+                    <div className="flex flex-col items-center w-full h-[600px]">
+                        <div className="w-full flex flex-col items-center justify-center text-center mb-10 h-[200px]">
+                            <h2 className="text-base font-semibold text-white tracking-widest uppercase mb-8 mt-2">
+                                Dashboard
+                            </h2>
+                            <p className="mx-auto max-w-lg text-4xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] gains-font">
+                                Welcome to your Gains Trust Dashboard
+                            </p>
+                        </div>
+                        <div className="w-full flex-1 bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl flex flex-col overflow-hidden p-6 sm:p-10 text-white">
+                            <WorkoutFeedPreview setWorkoutId={handleWorkoutClick} maxHeight="320px" />
+                        </div>
+                    </div>
+                    {/* Weight Tracking (tall) */}
+                    <div className="h-[600px] w-full bg-brand-dark-2 border border-brand-gold shadow-lg rounded-[2rem] flex flex-col p-6 sm:p-10 text-white">
+                        <UserWeightCard weights={weights} onWeightUpdate={handleWeightUpdate} />
+                    </div>
                 </div>
-            )}
+
+                {/* Full-width: Workout Details Preview */}
+                <div className="mt-10 w-full bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl h-[700px] overflow-hidden p-6 sm:p-10 text-white">
+                    <div className="w-full h-full flex items-center justify-center">
+                        {selectedWorkoutId ? (
+                            <WorkoutDetailsPreview workoutId={selectedWorkoutId} />
+                        ) : (
+                            <span className="text-gray-400 text-lg">Select a workout to see details</span>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
-
-export default Dashboard
