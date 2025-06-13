@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
@@ -22,7 +22,7 @@ User = get_user_model()
 
 # Username and email availability checker for real-time registration feedbacvk
 @api_view(["GET"])
-@permission_classes([])
+@permission_classes([AllowAny])
 def check_availability(request):
     username = request.query_params.get("username")
     email = request.query_params.get("email")
@@ -37,7 +37,7 @@ def check_availability(request):
 
 
 @api_view(["POST"])
-@permission_classes([])
+@permission_classes([AllowAny])
 def request_password_reset(request):
     """Send password reset email"""
     serializer = PasswordResetRequestSerializer(data=request.data)
@@ -88,7 +88,7 @@ def request_password_reset(request):
 
 
 @api_view(["POST"])
-@permission_classes([])
+@permission_classes([AllowAny])
 def confirm_password_reset(request):
     """Confirm password reset with token"""
     serializer = PasswordResetConfirmSerializer(data=request.data)
@@ -133,7 +133,7 @@ class UserViewSet(ModelViewSet):
         return User.objects.all()  # ✅ This allows the viewset to explicitly block unauthorized access
 
 
-    @action(detail=False, methods=["POST"], permission_classes=[])
+    @action(detail=False, methods=["POST"], permission_classes=[AllowAny])
     def register(self, request):
         """User registration"""
         serializer = UserSerializer(data=request.data)
@@ -148,7 +148,7 @@ class UserViewSet(ModelViewSet):
             )
         return Response(serializer.errors, status=400)
 
-    @action(detail=False, methods=["POST"], permission_classes=[])
+    @action(detail=False, methods=["POST"], permission_classes=[AllowAny])
     def login(self, request):
         """User login with JWT token response"""
         username = request.data.get("username")
