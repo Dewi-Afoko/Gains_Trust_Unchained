@@ -16,10 +16,12 @@ router.register(r"weights", WeightViewSet, basename="weights")
 
 
 urlpatterns = [
-    path("", include(router.urls)),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
-    path("logout/", TokenBlacklistView.as_view(), name="logout"),
-    path("check_availability/", check_availability, name="check-availability"),
+    # Custom views MUST come before router.urls to avoid conflicts
+    path("users/check_availability/", check_availability, name="check-availability"),
     path("password-reset/request/", request_password_reset, name="password-reset-request"),
     path("password-reset/confirm/", confirm_password_reset, name="password-reset-confirm"),
+    path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    path("logout/", TokenBlacklistView.as_view(), name="logout"),
+    # Router URLs come last
+    path("", include(router.urls)),
 ]
