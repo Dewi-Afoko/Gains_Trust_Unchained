@@ -111,11 +111,14 @@ if 'DATABASE_URL' in os.environ:
         DATABASES = {
             "default": {
                 "ENGINE": "django.db.backends.postgresql",
-                "NAME": os.getenv("DATABASE_NAME", "gains_trust"),
-                "USER": os.getenv("DATABASE_USER", "dewi"),
+                "NAME": os.getenv("DATABASE_NAME", "gainstrust"),
+                "USER": os.getenv("DATABASE_USER", "gainstrust"),
                 "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
-                "HOST": os.getenv("DATABASE_HOST", "localhost"),
-                "PORT": os.getenv("DATABASE_PORT", "5432"),
+                "HOST": os.getenv("DATABASE_HOST", ""),
+                "PORT": os.getenv("DATABASE_PORT", "25060"),
+                "OPTIONS": {
+                    "sslmode": "require",
+                },
             }
         }
 else:
