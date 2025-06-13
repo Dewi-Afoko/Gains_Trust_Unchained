@@ -52,7 +52,10 @@ const WorkoutEditForm = ({ workout, workoutId, onClose, onUpdate }) => {
             <h3 className="text-2xl font-bold text-brand-gold mb-6 text-center tracking-wide">
                 Edit Workout
             </h3>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-4 max-h-[70vh] overflow-y-auto pr-2"
+            >
                 {/* Workout Name + Date */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label className="block text-brand-gold font-semibold mb-1">
@@ -118,10 +121,20 @@ const WorkoutEditForm = ({ workout, workoutId, onClose, onUpdate }) => {
                 </label>
 
                 <div className="flex gap-4 pt-4 sticky bottom-0 bg-brand-dark-2 py-2 -mx-2 px-2">
-                    <PanelButton type="submit" disabled={isSubmitting} variant="gold" className="flex-1">
+                    <PanelButton
+                        type="submit"
+                        disabled={isSubmitting}
+                        variant="gold"
+                        className="flex-1"
+                    >
                         {isSubmitting ? 'Saving...' : 'Save Changes'}
                     </PanelButton>
-                    <PanelButton type="button" onClick={onClose} variant="danger" className="flex-1">
+                    <PanelButton
+                        type="button"
+                        onClick={onClose}
+                        variant="danger"
+                        className="flex-1"
+                    >
                         Cancel
                     </PanelButton>
                 </div>

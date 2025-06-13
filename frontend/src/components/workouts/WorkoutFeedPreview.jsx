@@ -4,7 +4,7 @@ import PanelHeader from '../ui/PanelHeader'
 import { Dumbbell, Calendar, Timer } from 'lucide-react'
 
 const WorkoutItem = ({ workout, onClick }) => {
-    const duration = workout.duration 
+    const duration = workout.duration
         ? new Date(workout.duration * 1000).toISOString().substr(11, 8)
         : 'In Progress'
 
@@ -74,7 +74,9 @@ const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
                     </ul>
                 ) : (
                     <div className="flex items-center justify-center h-full">
-                        <p className="text-brand-gold/70 uppercase tracking-wider font-medium">No workouts found.</p>
+                        <p className="text-brand-gold/70 uppercase tracking-wider font-medium">
+                            No workouts found.
+                        </p>
                     </div>
                 )}
                 {error && (

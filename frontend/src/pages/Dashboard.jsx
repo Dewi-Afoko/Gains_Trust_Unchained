@@ -72,12 +72,18 @@ export default function Dashboard() {
                             </p>
                         </div>
                         <div className="w-full flex-1 bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl flex flex-col overflow-hidden p-6 sm:p-10 text-white">
-                            <WorkoutFeedPreview setWorkoutId={handleWorkoutClick} maxHeight="320px" />
+                            <WorkoutFeedPreview
+                                setWorkoutId={handleWorkoutClick}
+                                maxHeight="320px"
+                            />
                         </div>
                     </div>
                     {/* Weight Tracking (tall) */}
                     <div className="h-[600px] w-full bg-brand-dark-2 border border-brand-gold shadow-lg rounded-[2rem] flex flex-col p-6 sm:p-10 text-white">
-                        <UserWeightCard weights={weights} onWeightUpdate={handleWeightUpdate} />
+                        <UserWeightCard
+                            weights={weights}
+                            onWeightUpdate={handleWeightUpdate}
+                        />
                     </div>
                 </div>
 
@@ -85,9 +91,13 @@ export default function Dashboard() {
                 <div className="mt-10 w-full bg-brand-dark-2 border border-brand-gold shadow-lg rounded-2xl h-[700px] overflow-hidden p-6 sm:p-10 text-white">
                     <div className="w-full h-full flex items-center justify-center">
                         {selectedWorkoutId ? (
-                            <WorkoutDetailsPreview workoutId={selectedWorkoutId} />
+                            <WorkoutDetailsPreview
+                                workoutId={selectedWorkoutId}
+                            />
                         ) : (
-                            <span className="text-gray-400 text-lg">Select a workout to see details</span>
+                            <span className="text-gray-400 text-lg">
+                                Select a workout to see details
+                            </span>
                         )}
                     </div>
                 </div>

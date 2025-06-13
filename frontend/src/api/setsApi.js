@@ -8,12 +8,12 @@ export const getSets = async (params = {}) => {
 
 export const getSetsByWorkoutId = async (workoutId, params = {}) => {
     // First request to get initial data and total count
-    const initialResponse = await apiClient.get('/sets/', { 
+    const initialResponse = await apiClient.get('/sets/', {
         params: {
             ...params,
             workout: workoutId,
-            page: 1
-        }
+            page: 1,
+        },
     })
 
     const { count, results } = initialResponse.data
@@ -25,16 +25,19 @@ export const getSetsByWorkoutId = async (workoutId, params = {}) => {
 
     // Fetch remaining pages if any
     if (totalPages > 1) {
-        const remainingPages = Array.from({ length: totalPages - 1 }, (_, i) => i + 2)
-        
+        const remainingPages = Array.from(
+            { length: totalPages - 1 },
+            (_, i) => i + 2
+        )
+
         // Fetch each page sequentially to ensure order
         for (const page of remainingPages) {
             const response = await apiClient.get('/sets/', {
                 params: {
                     ...params,
                     workout: workoutId,
-                    page
-                }
+                    page,
+                },
             })
             const pageResults = response.data.results
             allSets = [...allSets, ...pageResults]
@@ -46,7 +49,7 @@ export const getSetsByWorkoutId = async (workoutId, params = {}) => {
         ...initialResponse.data,
         results: allSets,
         next: null, // Since we've fetched everything
-        previous: null
+        previous: null,
     }
 }
 

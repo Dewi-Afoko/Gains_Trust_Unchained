@@ -113,11 +113,17 @@ const Navbar = () => {
                                                 {workouts.map((workout) => (
                                                     <button
                                                         key={workout.id}
-                                                        onClick={() => handleWorkoutClick(workout.id)}
+                                                        onClick={() =>
+                                                            handleWorkoutClick(
+                                                                workout.id
+                                                            )
+                                                        }
                                                         className="w-full text-left px-4 py-3 hover:bg-red-800 transition border-b border-gray-700 last:border-b-0 group"
                                                     >
                                                         <div className="font-medium text-white group-hover:text-yellow-300 transition">
-                                                            {workout.workout_name}
+                                                            {
+                                                                workout.workout_name
+                                                            }
                                                         </div>
                                                         {workout.start_time && (
                                                             <div className="text-xs text-green-400 mt-1">
@@ -134,10 +140,16 @@ const Navbar = () => {
                                             </>
                                         ) : (
                                             <div className="px-4 py-6 text-center">
-                                                <p className="text-gray-400 mb-2">No workouts available</p>
+                                                <p className="text-gray-400 mb-2">
+                                                    No workouts available
+                                                </p>
                                                 <Link
                                                     to="/workouts"
-                                                    onClick={() => setTrackerDropdownOpen(false)}
+                                                    onClick={() =>
+                                                        setTrackerDropdownOpen(
+                                                            false
+                                                        )
+                                                    }
                                                     className="text-yellow-400 hover:text-yellow-300 underline text-sm"
                                                 >
                                                     Create a workout first

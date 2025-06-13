@@ -138,18 +138,18 @@ export function Hero() {
                             {line}
                             {idx === typedLines.length - 1 &&
                                 !isTypingComplete && (
-                                <motion.span
-                                    className="text-yellow-400"
-                                    animate={{ opacity: [0, 1, 0] }}
-                                    transition={{
-                                        duration: 0.8,
-                                        repeat: Infinity,
-                                        ease: 'easeInOut',
-                                    }}
-                                >
+                                    <motion.span
+                                        className="text-yellow-400"
+                                        animate={{ opacity: [0, 1, 0] }}
+                                        transition={{
+                                            duration: 0.8,
+                                            repeat: Infinity,
+                                            ease: 'easeInOut',
+                                        }}
+                                    >
                                         █
-                                </motion.span>
-                            )}
+                                    </motion.span>
+                                )}
                         </motion.p>
                     ))}
                 </Terminal>

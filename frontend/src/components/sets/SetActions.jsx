@@ -6,7 +6,8 @@ import PanelButton from '../ui/PanelButton'
 import { showToast } from '../../utils/toast'
 
 const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
-    const { workout, toggleSetComplete, duplicateSet, deleteSet } = useWorkoutStore()
+    const { workout, toggleSetComplete, duplicateSet, deleteSet } =
+        useWorkoutStore()
     const [editingSetId, setEditingSetId] = useState(null)
     const [deleteModal, setDeleteModal] = useState(false)
 
@@ -44,31 +45,51 @@ const SetActions = ({ set, hideCompleteButton, hoveredRowId }) => {
         <div className="flex space-x-2 min-w-[200px]">
             {hoveredRowId === set.id && (
                 <div className="flex space-x-2 min-w-[200px] transition-opacity duration-200 opacity-100">
-                    <PanelButton onClick={() => openEditModal(set.id)} variant="gold" className="px-3 py-1 w-auto">
+                    <PanelButton
+                        onClick={() => openEditModal(set.id)}
+                        variant="gold"
+                        className="px-3 py-1 w-auto"
+                    >
                         Edit
                     </PanelButton>
-                    <PanelButton onClick={handleDuplicate} variant="gold" className="px-3 py-1 w-auto">
+                    <PanelButton
+                        onClick={handleDuplicate}
+                        variant="gold"
+                        className="px-3 py-1 w-auto"
+                    >
                         Duplicate
                     </PanelButton>
-                    <PanelButton onClick={() => setDeleteModal(true)} variant="danger" className="px-3 py-1 w-auto">
+                    <PanelButton
+                        onClick={() => setDeleteModal(true)}
+                        variant="danger"
+                        className="px-3 py-1 w-auto"
+                    >
                         Delete
                     </PanelButton>
                     {!hideCompleteButton && (
-                        <PanelButton onClick={() => toggleSetComplete(set.id)} variant={set.complete ? 'gold' : 'danger'} className="px-3 py-1 w-auto">
+                        <PanelButton
+                            onClick={() => toggleSetComplete(set.id)}
+                            variant={set.complete ? 'gold' : 'danger'}
+                            className="px-3 py-1 w-auto"
+                        >
                             {set.complete ? '💪🏾' : '⏳'}
                         </PanelButton>
                     )}
                 </div>
             )}
 
-            {editingSetId !== null && createPortal(
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
-                        <SetEditForm setId={editingSetId} onClose={closeEditModal} />
-                    </div>
-                </div>,
-                document.body
-            )}
+            {editingSetId !== null &&
+                createPortal(
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                        <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
+                            <SetEditForm
+                                setId={editingSetId}
+                                onClose={closeEditModal}
+                            />
+                        </div>
+                    </div>,
+                    document.body
+                )}
 
             {deleteModal && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">

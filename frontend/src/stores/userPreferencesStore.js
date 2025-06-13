@@ -6,15 +6,17 @@ const useUserPreferencesStore = create(
         persist(
             (set, get) => ({
                 // Auto-start preferences
-                autoStartNextSet: true,  // Default to true (current behavior)
-                
+                autoStartNextSet: true, // Default to true (current behavior)
+
                 // Actions
-                setAutoStartNextSet: (value) => set({ autoStartNextSet: value }),
-                
+                setAutoStartNextSet: (value) =>
+                    set({ autoStartNextSet: value }),
+
                 // Toggle function
-                toggleAutoStartNextSet: () => set(state => ({ 
-                    autoStartNextSet: !state.autoStartNextSet 
-                })),
+                toggleAutoStartNextSet: () =>
+                    set((state) => ({
+                        autoStartNextSet: !state.autoStartNextSet,
+                    })),
             }),
             {
                 name: 'user-preferences-storage',
@@ -26,9 +28,9 @@ const useUserPreferencesStore = create(
         ),
         {
             name: 'user-preferences-store',
-            enabled: process.env.NODE_ENV === 'development'
+            enabled: process.env.NODE_ENV === 'development',
         }
     )
 )
 
-export default useUserPreferencesStore 
+export default useUserPreferencesStore

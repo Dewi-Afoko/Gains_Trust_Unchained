@@ -20,11 +20,7 @@ const LoginForm = () => {
         try {
             const response = await loginApi(data.username, data.password)
 
-            login(
-                response.user,
-                response.access_token,
-                response.refresh_token
-            )
+            login(response.user, response.access_token, response.refresh_token)
 
             showToast(
                 `Welcome, Comrade ${data.username}! Redirecting...`,
@@ -37,7 +33,10 @@ const LoginForm = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full max-w-md mx-auto bg-brand-dark-2 p-8 rounded-xl border-2 border-brand-gold shadow-2xl animate-fadeIn">
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 w-full max-w-md mx-auto bg-brand-dark-2 p-8 rounded-xl border-2 border-brand-gold shadow-2xl animate-fadeIn"
+        >
             <div className="text-center mb-4">
                 <p className="text-gray-300">
                     Enter your credentials to continue
@@ -47,7 +46,9 @@ const LoginForm = () => {
                 <label className="block text-brand-gold font-semibold mb-1">
                     Username
                     <input
-                        {...register('username', { required: 'Username is required' })}
+                        {...register('username', {
+                            required: 'Username is required',
+                        })}
                         className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         placeholder="Enter your username"
                     />
@@ -61,7 +62,9 @@ const LoginForm = () => {
                     Password
                     <input
                         type="password"
-                        {...register('password', { required: 'Password is required' })}
+                        {...register('password', {
+                            required: 'Password is required',
+                        })}
                         className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         placeholder="Enter your password"
                     />
@@ -80,10 +83,10 @@ const LoginForm = () => {
             >
                 Sign In
             </PanelButton>
-            
+
             <div className="text-center mt-4">
-                <Link 
-                    to="/forgot-password" 
+                <Link
+                    to="/forgot-password"
                     className="text-brand-gold hover:text-yellow-300 text-sm underline transition"
                 >
                     Forgot your password?

@@ -6,7 +6,13 @@ import { showToast } from '../../utils/toast'
 
 const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
     const { createSets } = useWorkoutStore()
-    const { register, handleSubmit, reset, watch, formState: { errors } } = useForm()
+    const {
+        register,
+        handleSubmit,
+        reset,
+        watch,
+        formState: { errors },
+    } = useForm()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const addMultipleSets = watch('addMultipleSets')
@@ -50,20 +56,29 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
 
     return (
         <div className="w-full max-w-lg mx-auto">
-            <h3 className="text-2xl font-bold text-brand-gold mb-6 text-center tracking-wide">Add Set</h3>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+            <h3 className="text-2xl font-bold text-brand-gold mb-6 text-center tracking-wide">
+                Add Set
+            </h3>
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-4 max-h-[70vh] overflow-y-auto pr-2"
+            >
                 {/* Exercise Name + Rest */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="md:col-span-2">
                         <label className="block text-brand-gold font-semibold mb-1">
                             Exercise Name:
                             <input
-                                {...register('exercise_name', { required: 'Exercise name is required' })}
+                                {...register('exercise_name', {
+                                    required: 'Exercise name is required',
+                                })}
                                 className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                                 placeholder="e.g., Bench Press"
                             />
                             {errors.exercise_name && (
-                                <p className="mt-1 text-sm text-red-400">{errors.exercise_name.message}</p>
+                                <p className="mt-1 text-sm text-red-400">
+                                    {errors.exercise_name.message}
+                                </p>
                             )}
                         </label>
                     </div>
@@ -161,18 +176,20 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                 )}
 
                 <div className="flex gap-4 pt-4 sticky bottom-0 bg-brand-dark-2 py-2 -mx-2 px-2">
-                    <PanelButton 
-                        type="submit" 
-                        variant="gold" 
+                    <PanelButton
+                        type="submit"
+                        variant="gold"
                         className="flex-1"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? 'Adding...' : `Add Set${addMultipleSets ? 's' : ''}`}
+                        {isSubmitting
+                            ? 'Adding...'
+                            : `Add Set${addMultipleSets ? 's' : ''}`}
                     </PanelButton>
-                    <PanelButton 
-                        type="button" 
-                        variant="danger" 
-                        className="flex-1" 
+                    <PanelButton
+                        type="button"
+                        variant="danger"
+                        className="flex-1"
                         onClick={onClose}
                         disabled={isSubmitting}
                     >

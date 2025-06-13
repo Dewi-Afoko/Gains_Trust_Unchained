@@ -43,7 +43,7 @@ const useAuthStore = create((set, get) => ({
     // Initialize auth state on app startup
     initAuth: async () => {
         const { accessToken, refreshToken } = get()
-        
+
         if (!accessToken || !refreshToken) {
             set({ isLoading: false })
             return
@@ -62,9 +62,14 @@ const useAuthStore = create((set, get) => ({
                 if (newAccessToken) {
                     // Retry fetching user with new token
                     try {
-                        const response = await axios.get(`${API_BASE_URL}/users/me/`, {
-                            headers: { Authorization: `Bearer ${newAccessToken}` },
-                        })
+                        const response = await axios.get(
+                            `${API_BASE_URL}/users/me/`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${newAccessToken}`,
+                                },
+                            }
+                        )
                         set({ user: response.data, isLoading: false })
                     } catch (retryError) {
                         set({ isLoading: false })
@@ -83,7 +88,7 @@ const useAuthStore = create((set, get) => ({
             user: userData,
             accessToken: access,
             refreshToken: refresh,
-            isLoading: false
+            isLoading: false,
         })
         localStorage.setItem('accessToken', access)
         localStorage.setItem('refreshToken', refresh)
@@ -94,7 +99,7 @@ const useAuthStore = create((set, get) => ({
             user: null,
             accessToken: null,
             refreshToken: null,
-            isLoading: false
+            isLoading: false,
         })
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
@@ -125,7 +130,7 @@ const useAuthStore = create((set, get) => ({
                 set({ isLoading: false })
             }
         }
-    }
+    },
 }))
 
-export default useAuthStore 
+export default useAuthStore

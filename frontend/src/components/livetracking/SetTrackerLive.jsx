@@ -8,7 +8,11 @@ import PanelButton from '../ui/PanelButton'
 import PanelHeader from '../ui/PanelHeader'
 import texture2 from '../../assets/texture2.png'
 
-const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => {
+const SetTrackerLive = ({
+    showNextOnly,
+    showCompletedOnly,
+    onExpandChange,
+}) => {
     const { sets } = useWorkoutStore()
     const [editingSetId, setEditingSetId] = useState(null)
     const [isExpanded, setIsExpanded] = useState(true)
@@ -41,7 +45,11 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
         }
     }, [isExpanded, onExpandChange])
 
-    const title = showNextOnly ? 'Next 3 Sets' : showCompletedOnly ? 'Last 3 Sets' : 'All Sets'
+    const title = showNextOnly
+        ? 'Next 3 Sets'
+        : showCompletedOnly
+          ? 'Last 3 Sets'
+          : 'All Sets'
 
     const handleToggleExpanded = () => {
         setIsExpanded(!isExpanded)
@@ -52,18 +60,18 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
             {/* Background Texture */}
             <div
                 className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-2xl"
-                style={{ 
+                style={{
                     backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
                     backgroundBlendMode: 'overlay, multiply',
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center'
+                    backgroundPosition: 'center',
                 }}
             />
-            
+
             {/* Content */}
             <div className="relative z-20">
                 {/* Collapsible Header */}
-                <PanelHeader 
+                <PanelHeader
                     title={title}
                     icon={Dumbbell}
                     size="large"
@@ -75,11 +83,13 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                 {/* Collapsible Content with Dynamic Height */}
                 <div
                     className={`transition-all duration-500 ease-in-out ${
-                        isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                        isExpanded
+                            ? 'opacity-100'
+                            : 'opacity-0 pointer-events-none'
                     }`}
                     style={{
                         height: isExpanded ? 'auto' : '0px',
-                        overflow: isExpanded ? 'visible' : 'hidden'
+                        overflow: isExpanded ? 'visible' : 'hidden',
                     }}
                 >
                     {filteredSets.length > 0 ? (
@@ -92,18 +102,20 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                                     {/* Individual set background texture */}
                                     <div
                                         className="absolute inset-0 opacity-20 pointer-events-none z-0 rounded-lg"
-                                        style={{ 
+                                        style={{
                                             backgroundImage: `url(${texture2})`,
                                             backgroundSize: '200px 200px',
-                                            backgroundRepeat: 'repeat'
+                                            backgroundRepeat: 'repeat',
                                         }}
                                     />
                                     <div className="relative z-10">
                                         {/* Exercise Name as Panel Header */}
-                                        <div className="bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e] border border-brand-gold/80 rounded-t-lg p-3 mb-0 -mx-4 -mt-4"
+                                        <div
+                                            className="bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e] border border-brand-gold/80 rounded-t-lg p-3 mb-0 -mx-4 -mt-4"
                                             style={{
                                                 backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
-                                                backgroundBlendMode: 'overlay, multiply',
+                                                backgroundBlendMode:
+                                                    'overlay, multiply',
                                                 backgroundSize: 'cover',
                                                 backgroundPosition: 'center',
                                             }}
@@ -116,7 +128,7 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                                                 <span className="w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
                                             </div>
                                         </div>
-                                        
+
                                         {/* Set Info Section */}
                                         <div className="pt-4 space-y-2 mb-3">
                                             {set.set_type && (
@@ -138,7 +150,8 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                                             <div className="flex items-center gap-2">
                                                 <Target className="w-3 h-3 text-gray-400" />
                                                 <p className="text-sm text-gray-300 font-medium">
-                                                    Loading: {formatLoading(set.loading)}
+                                                    Loading:{' '}
+                                                    {formatLoading(set.loading)}
                                                 </p>
                                             </div>
                                             {set.reps && (
@@ -157,24 +170,49 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                                                     </p>
                                                 </div>
                                             )}
-                                            {(set.set_duration !== null || set.complete) && (
+                                            {(set.set_duration !== null ||
+                                                set.complete) && (
                                                 <div className="flex items-center gap-2">
                                                     <Clock className="w-3 h-3 text-gray-400" />
                                                     <p className="text-sm text-gray-300 font-medium">
-                                                        Duration: {(() => {
+                                                        Duration:{' '}
+                                                        {(() => {
                                                             // Try optimistic update first (from localStorage)
-                                                            const optimisticDuration = localStorage.getItem(`completedSetDuration_${set.id}`)
-                                                            if (optimisticDuration && set.complete) {
-                                                                const seconds = parseInt(optimisticDuration)
-                                                                const minutes = Math.floor(seconds / 60)
-                                                                const secs = seconds % 60
+                                                            const optimisticDuration =
+                                                                localStorage.getItem(
+                                                                    `completedSetDuration_${set.id}`
+                                                                )
+                                                            if (
+                                                                optimisticDuration &&
+                                                                set.complete
+                                                            ) {
+                                                                const seconds =
+                                                                    parseInt(
+                                                                        optimisticDuration
+                                                                    )
+                                                                const minutes =
+                                                                    Math.floor(
+                                                                        seconds /
+                                                                            60
+                                                                    )
+                                                                const secs =
+                                                                    seconds % 60
                                                                 return `${minutes}:${secs.toString().padStart(2, '0')}`
                                                             }
                                                             // Fall back to server data
-                                                            if (set.set_duration !== null) {
-                                                                return new Date(set.set_duration * 1000)
+                                                            if (
+                                                                set.set_duration !==
+                                                                null
+                                                            ) {
+                                                                return new Date(
+                                                                    set.set_duration *
+                                                                        1000
+                                                                )
                                                                     .toISOString()
-                                                                    .substr(14, 5)
+                                                                    .substr(
+                                                                        14,
+                                                                        5
+                                                                    )
                                                             }
                                                             return 'Calculating...'
                                                         })()}
@@ -184,7 +222,9 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                                         </div>
 
                                         <PanelButton
-                                            onClick={() => setEditingSetId(set.id)}
+                                            onClick={() =>
+                                                setEditingSetId(set.id)
+                                            }
                                             variant="gold"
                                             className="text-sm"
                                         >
@@ -208,29 +248,30 @@ const SetTrackerLive = ({ showNextOnly, showCompletedOnly, onExpandChange }) => 
                 </div>
             </div>
 
-            {editingSetId && createPortal(
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-                    <div className="bg-brand-dark-2/90 border border-brand-gold/30 backdrop-blur-sm p-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative">
-                        {/* Modal background texture */}
-                        <div
-                            className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-xl"
-                            style={{ 
-                                backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
-                                backgroundBlendMode: 'overlay, multiply',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center'
-                            }}
-                        />
-                        <div className="relative z-10">
-                            <SetEditForm
-                                setId={editingSetId}
-                                onClose={() => setEditingSetId(null)}
+            {editingSetId &&
+                createPortal(
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                        <div className="bg-brand-dark-2/90 border border-brand-gold/30 backdrop-blur-sm p-6 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative">
+                            {/* Modal background texture */}
+                            <div
+                                className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-xl"
+                                style={{
+                                    backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
+                                    backgroundBlendMode: 'overlay, multiply',
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                }}
                             />
+                            <div className="relative z-10">
+                                <SetEditForm
+                                    setId={editingSetId}
+                                    onClose={() => setEditingSetId(null)}
+                                />
+                            </div>
                         </div>
-                    </div>
-                </div>,
-                document.body
-            )}
+                    </div>,
+                    document.body
+                )}
         </div>
     )
 }

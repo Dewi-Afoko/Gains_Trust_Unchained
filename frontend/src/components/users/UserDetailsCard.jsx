@@ -20,8 +20,12 @@ const InfoRow = React.forwardRef(({ label, value, icon: Icon }, ref) => (
             <Icon className="w-4 h-4 text-black stroke-[2.5px]" />
         </div>
         <div className="flex-1 text-center">
-            <span className="text-brand-gold/70 text-sm font-semibold uppercase tracking-wider">{label}</span>
-            <div className="text-white font-medium mt-0.5">{value || 'N/A'}</div>
+            <span className="text-brand-gold/70 text-sm font-semibold uppercase tracking-wider">
+                {label}
+            </span>
+            <div className="text-white font-medium mt-0.5">
+                {value || 'N/A'}
+            </div>
         </div>
         {/* Corner Rivets with Hover Effect */}
         <div className="absolute left-1 top-1 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70 group-hover:bg-brand-gold group-hover:opacity-100 transition-all" />
@@ -64,31 +68,23 @@ const UserDetailsCard = () => {
         <div className="flex flex-col h-full w-full">
             <PanelHeader title="User Details" icon={User} />
             <div className="flex-1 flex flex-col gap-3 px-0 pt-2 pb-0">
-                <InfoRow 
-                    label="Username"
-                    value={user?.username}
-                    icon={User}
-                />
-                <InfoRow 
+                <InfoRow label="Username" value={user?.username} icon={User} />
+                <InfoRow
                     label="Date Joined"
                     value={formatDateTime(user?.date_joined)}
                     icon={Calendar}
                 />
-                <InfoRow 
+                <InfoRow
                     label="Last Login"
                     value={formatDateTime(user?.last_login)}
                     icon={Clock}
                 />
-                <InfoRow 
+                <InfoRow
                     label="Height"
                     value={user?.height ? `${user.height} cm` : 'N/A'}
                     icon={Ruler}
                 />
-                <InfoRow 
-                    label="Date of Birth"
-                    value={user?.dob}
-                    icon={Cake}
-                />
+                <InfoRow label="Date of Birth" value={user?.dob} icon={Cake} />
             </div>
 
             <div className="mt-auto space-y-3 pt-3">
@@ -98,7 +94,7 @@ const UserDetailsCard = () => {
                             Edit Profile
                         </PanelButton>
                     </DialogTrigger>
-                    <DialogContent 
+                    <DialogContent
                         className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4"
                         onInteractOutside={() => setIsModalOpen(false)}
                     >
@@ -111,8 +107,8 @@ const UserDetailsCard = () => {
                         </div>
                     </DialogContent>
                 </Dialog>
-                <button 
-                    onClick={() => setIsDeleteModalOpen(true)} 
+                <button
+                    onClick={() => setIsDeleteModalOpen(true)}
                     className="text-sm text-brand-gold/60 hover:text-brand-gold hover:underline transition-colors inline-block relative group w-full text-center"
                 >
                     Delete your Gains Trust account?
@@ -127,7 +123,8 @@ const UserDetailsCard = () => {
                             Confirm Account Deletion
                         </h3>
                         <p className="text-white mb-6 text-center">
-                            Are you sure you want to delete your account? This action cannot be undone.
+                            Are you sure you want to delete your account? This
+                            action cannot be undone.
                         </p>
                         <div className="flex justify-end space-x-4">
                             <PanelButton
