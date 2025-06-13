@@ -8,7 +8,7 @@ import LoadingSpinner from '../ui/LoadingSpinner'
 import { useNavigate, useParams } from 'react-router-dom'
 import PanelHeader from '../ui/PanelHeader'
 import PanelButton from '../ui/PanelButton'
-import { 
+import {
     Edit,
     Plus,
     Play,
@@ -18,7 +18,7 @@ import {
     Calendar,
     FileText,
     Dumbbell,
-    ClipboardList
+    ClipboardList,
 } from 'lucide-react'
 import texture2 from '../../assets/texture2.png'
 
@@ -30,7 +30,7 @@ const Spinner = () => (
 )
 
 // Icon wrapper component for consistent styling
-const GradientIcon = ({ icon: Icon, className = "" }) => (
+const GradientIcon = ({ icon: Icon, className = '' }) => (
     <div className="bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 rounded-full p-1.5 shadow-lg">
         <Icon className={`w-5 h-5 stroke-[2.5px] text-black ${className}`} />
     </div>
@@ -95,21 +95,23 @@ const WorkoutDetailsFull = () => {
                 {/* Background Texture */}
                 <div
                     className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-xl"
-                    style={{ 
+                    style={{
                         backgroundImage: `url(${texture2})`,
                         backgroundSize: '500px 500px',
                         backgroundRepeat: 'repeat',
                         backgroundAttachment: 'scroll',
-                        backgroundPosition: 'center center'
+                        backgroundPosition: 'center center',
                     }}
                 />
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-red-900/60 via-red-800/80 to-red-900/90 rounded-xl z-10"></div>
-                
+
                 {/* Content */}
                 <div className="relative z-20 text-center text-red-400 p-4 flex items-center justify-center h-full">
                     <div>
-                        <h2 className="font-bold uppercase tracking-wider">Error loading workout</h2>
+                        <h2 className="font-bold uppercase tracking-wider">
+                            Error loading workout
+                        </h2>
                         <p className="font-medium">{error}</p>
                     </div>
                 </div>
@@ -120,7 +122,9 @@ const WorkoutDetailsFull = () => {
     if (!workout && !loading) {
         return (
             <div className="flex flex-1 items-center justify-center w-full h-full min-h-[200px]">
-                <span className="text-brand-red font-bold tracking-wider uppercase">Workout not found.</span>
+                <span className="text-brand-red font-bold tracking-wider uppercase">
+                    Workout not found.
+                </span>
             </div>
         )
     }
@@ -130,41 +134,47 @@ const WorkoutDetailsFull = () => {
             {/* Background Texture */}
             <div
                 className="absolute inset-0 opacity-40 pointer-events-none z-0"
-                style={{ 
+                style={{
                     backgroundImage: `url(${texture2})`,
                     backgroundSize: '500px 500px',
                     backgroundRepeat: 'repeat',
                     backgroundAttachment: 'scroll',
-                    backgroundPosition: 'center center'
+                    backgroundPosition: 'center center',
                 }}
             />
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 z-10"></div>
-            
+
             {/* Content */}
             <div className="relative z-20 flex flex-col h-full">
                 {/* Spinner overlay while loading, but keep previous data visible */}
                 {loading && <Spinner />}
-                
+
                 {workout && (
                     <>
-                        <PanelHeader 
-                            title={workout?.workout_name || 'Loading Workout...'}
+                        <PanelHeader
+                            title={
+                                workout?.workout_name || 'Loading Workout...'
+                            }
                             icon={Dumbbell}
                             useGainsFont={false}
                             size="large"
                         />
-                        
+
                         <div className="flex flex-col h-full overflow-y-auto">
                             {/* Info Cards */}
                             <div className="grid grid-cols-3 gap-4 w-full px-4 py-3">
                                 <div className="flex items-center justify-center space-x-3 bg-black/20 p-3 rounded-lg border border-brand-gold/30">
                                     <GradientIcon icon={Calendar} />
                                     <span className="text-gray-300 font-medium">
-                                        {workout?.date ? new Date(workout.date).toLocaleDateString() : 'No date set'}
+                                        {workout?.date
+                                            ? new Date(
+                                                  workout.date
+                                              ).toLocaleDateString()
+                                            : 'No date set'}
                                     </span>
                                 </div>
-                                
+
                                 <div className="flex items-center justify-center space-x-3 bg-black/20 p-3 rounded-lg border border-brand-gold/30">
                                     <GradientIcon icon={Clock} />
                                     <span className="text-gray-300 font-medium">
@@ -208,32 +218,34 @@ const WorkoutDetailsFull = () => {
             </div>
 
             {/* Modals using portals to render fullscreen */}
-            {isWorkoutModalOpen && createPortal(
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
-                        <WorkoutEditForm
-                            workout={workout}
-                            workoutId={workoutId}
-                            onClose={() => setIsWorkoutModalOpen(false)}
-                            onUpdate={handleWorkoutUpdate}
-                        />
-                    </div>
-                </div>,
-                document.body
-            )}
+            {isWorkoutModalOpen &&
+                createPortal(
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                        <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
+                            <WorkoutEditForm
+                                workout={workout}
+                                workoutId={workoutId}
+                                onClose={() => setIsWorkoutModalOpen(false)}
+                                onUpdate={handleWorkoutUpdate}
+                            />
+                        </div>
+                    </div>,
+                    document.body
+                )}
 
-            {isSetModalOpen && createPortal(
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
-                        <SetCreationForm
-                            workoutId={workoutId}
-                            onClose={() => setIsSetModalOpen(false)}
-                            onSetCreated={handleSetUpdated}
-                        />
-                    </div>
-                </div>,
-                document.body
-            )}
+            {isSetModalOpen &&
+                createPortal(
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                        <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
+                            <SetCreationForm
+                                workoutId={workoutId}
+                                onClose={() => setIsSetModalOpen(false)}
+                                onSetCreated={handleSetUpdated}
+                            />
+                        </div>
+                    </div>,
+                    document.body
+                )}
         </div>
     )
 }

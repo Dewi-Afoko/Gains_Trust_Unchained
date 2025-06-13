@@ -45,7 +45,8 @@ apiClient.interceptors.response.use(
                     failedQueue.push({ resolve, reject })
                 })
                     .then((token) => {
-                        originalRequest.headers['Authorization'] = 'Bearer ' + token
+                        originalRequest.headers['Authorization'] =
+                            'Bearer ' + token
                         return apiClient(originalRequest)
                     })
                     .catch((err) => {
@@ -66,7 +67,8 @@ apiClient.interceptors.response.use(
                 const newAccessToken = response.data.access
                 localStorage.setItem('accessToken', newAccessToken)
                 processQueue(null, newAccessToken)
-                originalRequest.headers['Authorization'] = 'Bearer ' + newAccessToken
+                originalRequest.headers['Authorization'] =
+                    'Bearer ' + newAccessToken
                 return apiClient(originalRequest)
             } catch (err) {
                 processQueue(err, null)

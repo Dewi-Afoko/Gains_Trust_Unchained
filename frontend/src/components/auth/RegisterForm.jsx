@@ -52,7 +52,10 @@ const RegisterForm = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full max-w-md mx-auto bg-brand-dark-2 p-8 rounded-xl border-2 border-brand-gold shadow-2xl animate-fadeIn">
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 w-full max-w-md mx-auto bg-brand-dark-2 p-8 rounded-xl border-2 border-brand-gold shadow-2xl animate-fadeIn"
+        >
             <div className="text-center mb-4">
                 <p className="text-gray-300">
                     Create your account to get started
@@ -65,7 +68,10 @@ const RegisterForm = () => {
                         {...register('username', {
                             required: 'Username is required',
                             onBlur: (e) =>
-                                checkAvailabilityDebounced(e.target.value, 'username'),
+                                checkAvailabilityDebounced(
+                                    e.target.value,
+                                    'username'
+                                ),
                         })}
                         className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         placeholder="Choose a username"
@@ -86,7 +92,10 @@ const RegisterForm = () => {
                                 message: 'Invalid email',
                             },
                             onBlur: (e) =>
-                                checkAvailabilityDebounced(e.target.value, 'email'),
+                                checkAvailabilityDebounced(
+                                    e.target.value,
+                                    'email'
+                                ),
                         })}
                         className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         placeholder="Enter your email"

@@ -2,15 +2,15 @@ import React, { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { 
-    ArrowLeft, 
-    Play, 
+import {
+    ArrowLeft,
+    Play,
     Edit,
     Calendar,
     Clock,
     FileText,
     Activity,
-    CheckCircle2
+    CheckCircle2,
 } from 'lucide-react'
 import WorkoutDetailsFull from '../components/workouts/WorkoutDetailsFull'
 import PanelButton from '../components/ui/PanelButton'
@@ -24,10 +24,14 @@ export default function WorkoutDetails() {
     const { fetchWorkoutDetails } = useWorkoutStore()
 
     // Use React Query for the workout data
-    const { data: workout, isLoading, error } = useQuery({
+    const {
+        data: workout,
+        isLoading,
+        error,
+    } = useQuery({
         queryKey: ['workout', id],
         queryFn: () => getWorkoutById(id),
-        enabled: !!id
+        enabled: !!id,
     })
 
     // Update Zustand store when workout data changes
@@ -39,7 +43,8 @@ export default function WorkoutDetails() {
 
     // Helper function to determine workout status
     const getWorkoutStatus = (workout) => {
-        if (!workout) return { text: 'N/A', icon: Clock, color: 'text-gray-400' }
+        if (!workout)
+            return { text: 'N/A', icon: Clock, color: 'text-gray-400' }
         if (workout.duration) {
             const hours = Math.floor(workout.duration / 3600)
             const minutes = Math.floor((workout.duration % 3600) / 60)
@@ -53,20 +58,20 @@ export default function WorkoutDetails() {
             return {
                 text: `Completed in ${timeStr}`,
                 icon: CheckCircle2,
-                color: 'text-green-400'
+                color: 'text-green-400',
             }
         }
         if (workout.start_time) {
             return {
                 text: 'In Progress',
                 icon: Activity,
-                color: 'text-yellow-400'
+                color: 'text-yellow-400',
             }
         }
         return {
             text: 'Not Started',
             icon: Clock,
-            color: 'text-gray-400'
+            color: 'text-gray-400',
         }
     }
 
@@ -76,23 +81,28 @@ export default function WorkoutDetails() {
                 {/* Background Texture */}
                 <div
                     className="absolute inset-0 opacity-40 pointer-events-none z-0"
-                    style={{ 
+                    style={{
                         backgroundImage: `url(${texture2})`,
                         backgroundSize: '500px 500px',
                         backgroundRepeat: 'repeat',
                         backgroundAttachment: 'scroll',
-                        backgroundPosition: 'center center'
+                        backgroundPosition: 'center center',
                     }}
                 />
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 z-10"></div>
-                
+
                 {/* Content */}
                 <div className="relative z-20 max-w-7xl mx-auto px-6 py-12">
                     <div className="text-center py-12">
-                        <h1 className="text-3xl font-bold text-red-400 mb-4">Workout Not Found</h1>
-                        <p className="text-gray-400 mb-6">The workout you&apos;re looking for doesn&apos;t exist or has been deleted.</p>
-                        <PanelButton 
+                        <h1 className="text-3xl font-bold text-red-400 mb-4">
+                            Workout Not Found
+                        </h1>
+                        <p className="text-gray-400 mb-6">
+                            The workout you&apos;re looking for doesn&apos;t
+                            exist or has been deleted.
+                        </p>
+                        <PanelButton
                             onClick={() => navigate('/workouts')}
                             className="flex items-center justify-center gap-2"
                         >
@@ -112,17 +122,17 @@ export default function WorkoutDetails() {
             {/* Background Texture */}
             <div
                 className="absolute inset-0 opacity-40 pointer-events-none z-0"
-                style={{ 
+                style={{
                     backgroundImage: `url(${texture2})`,
                     backgroundSize: '500px 500px',
                     backgroundRepeat: 'repeat',
                     backgroundAttachment: 'scroll',
-                    backgroundPosition: 'center center'
+                    backgroundPosition: 'center center',
                 }}
             />
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 z-10"></div>
-            
+
             {/* Content */}
             <div className="relative z-20 max-w-7xl mx-auto px-6 py-12 pb-24">
                 {/* Header Section */}
@@ -137,10 +147,10 @@ export default function WorkoutDetails() {
                             <span>Back to Workouts</span>
                         </PanelButton>
                     </div>
-                    
+
                     {/* Title and Quick Actions */}
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                        <motion.h1 
+                        <motion.h1
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             className="text-4xl lg:text-5xl font-bold gains-font bg-gradient-to-r from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]"
@@ -152,7 +162,9 @@ export default function WorkoutDetails() {
                         {workout && (
                             <div className="flex justify-center lg:justify-end gap-3 mb-8">
                                 <PanelButton
-                                    onClick={() => navigate(`/livetracking/${id}`)}
+                                    onClick={() =>
+                                        navigate(`/livetracking/${id}`)
+                                    }
                                     className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-center"
                                 >
                                     <Play className="w-4 h-4" />
@@ -176,10 +188,10 @@ export default function WorkoutDetails() {
                         {/* Component texture */}
                         <div
                             className="absolute inset-0 opacity-20 pointer-events-none rounded-xl"
-                            style={{ 
+                            style={{
                                 backgroundImage: `url(${texture2})`,
                                 backgroundSize: '400px 400px',
-                                backgroundRepeat: 'repeat'
+                                backgroundRepeat: 'repeat',
                             }}
                         />
                         <div className="relative z-10">
@@ -190,4 +202,4 @@ export default function WorkoutDetails() {
             </div>
         </main>
     )
-} 
+}

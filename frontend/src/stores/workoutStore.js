@@ -34,11 +34,12 @@ const useWorkoutStore = create(
             pagination: { count: 0, next: null, previous: null },
 
             // Computed properties
-            completeSets: () => get().sets.filter(set => set.complete),
-            incompleteSets: () => get().sets.filter(set => !set.complete),
+            completeSets: () => get().sets.filter((set) => set.complete),
+            incompleteSets: () => get().sets.filter((set) => !set.complete),
 
             // Computed helper for getting sets by workout ID
-            getSetsByWorkoutId: (workoutId) => get().workoutSets[workoutId] || [],
+            getSetsByWorkoutId: (workoutId) =>
+                get().workoutSets[workoutId] || [],
 
             // Helper to get exercise counts for a workout (needed for old behavior)
             getExerciseCounts: (workoutId) => {
@@ -70,22 +71,22 @@ const useWorkoutStore = create(
                         }
                     }
 
-                    set({ 
+                    set({
                         workouts: allWorkouts,
                         pagination: {
                             count: allWorkouts.length,
                             next: null,
                             previous: null,
-                        }
+                        },
                     })
 
                     // Fetch sets for all workouts to populate workoutSets lookup
                     await get().fetchAllWorkoutSets(allWorkouts)
                 } catch (err) {
-                    set({ 
+                    set({
                         error: 'Failed to load workouts. Please try again.',
                         workouts: [],
-                        pagination: { count: 0, next: null, previous: null }
+                        pagination: { count: 0, next: null, previous: null },
                     })
                 } finally {
                     set({ loading: false })
@@ -95,19 +96,30 @@ const useWorkoutStore = create(
             // New function to fetch sets for all workouts (needed for exercise counts in WorkoutFeedFull)
             fetchAllWorkoutSets: async (workouts) => {
                 try {
-                    const workoutSetsPromises = workouts.map(async (workout) => {
-                        try {
-                            const setsData = await getSetsByWorkoutId(workout.id)
-                            return { [workout.id]: setsData.results || [] }
-                        } catch (error) {
-                            console.warn(`Failed to fetch sets for workout ${workout.id}:`, error)
-                            return { [workout.id]: [] }
+                    const workoutSetsPromises = workouts.map(
+                        async (workout) => {
+                            try {
+                                const setsData = await getSetsByWorkoutId(
+                                    workout.id
+                                )
+                                return { [workout.id]: setsData.results || [] }
+                            } catch (error) {
+                                console.warn(
+                                    `Failed to fetch sets for workout ${workout.id}:`,
+                                    error
+                                )
+                                return { [workout.id]: [] }
+                            }
                         }
-                    })
+                    )
 
-                    const workoutSetsArray = await Promise.all(workoutSetsPromises)
-                    const workoutSetsMap = Object.assign({}, ...workoutSetsArray)
-                    
+                    const workoutSetsArray =
+                        await Promise.all(workoutSetsPromises)
+                    const workoutSetsMap = Object.assign(
+                        {},
+                        ...workoutSetsArray
+                    )
+
                     set({ workoutSets: workoutSetsMap })
                 } catch (error) {
                     console.error('Error fetching workout sets:', error)
@@ -122,18 +134,18 @@ const useWorkoutStore = create(
                     const allSets = setsData.results || []
 
                     if (workoutData && !workoutData.id) {
-                        set({ 
+                        set({
                             workout: null,
-                            error: 'Workout not found.'
+                            error: 'Workout not found.',
                         })
                     } else {
-                        set({ 
+                        set({
                             workout: workoutData,
                             sets: allSets,
                             workoutSets: {
                                 ...get().workoutSets,
-                                [workoutId]: allSets
-                            }
+                                [workoutId]: allSets,
+                            },
                         })
                     }
                 } catch (error) {
@@ -177,13 +189,20 @@ const useWorkoutStore = create(
             deleteWorkout: async (workoutId) => {
                 try {
                     await apiDeleteWorkout(workoutId)
-                    set(state => ({
-                        workouts: state.workouts.filter(w => w.id !== workoutId),
-                        workout: state.workout?.id === workoutId ? null : state.workout,
+                    set((state) => ({
+                        workouts: state.workouts.filter(
+                            (w) => w.id !== workoutId
+                        ),
+                        workout:
+                            state.workout?.id === workoutId
+                                ? null
+                                : state.workout,
                         sets: state.workout?.id === workoutId ? [] : state.sets,
                         workoutSets: Object.fromEntries(
-                            Object.entries(state.workoutSets).filter(([id]) => id !== workoutId.toString())
-                        )
+                            Object.entries(state.workoutSets).filter(
+                                ([id]) => id !== workoutId.toString()
+                            )
+                        ),
                     }))
                     showToast('Workout deleted successfully!', 'success')
                 } catch (error) {
@@ -197,10 +216,12 @@ const useWorkoutStore = create(
                     const response = await apiDuplicateWorkout(workoutId)
                     const newWorkout = response.workout
                     if (!newWorkout || !newWorkout.id) {
-                        throw new Error('Invalid response: Workout data missing.')
+                        throw new Error(
+                            'Invalid response: Workout data missing.'
+                        )
                     }
-                    set(state => ({
-                        workouts: [...state.workouts, newWorkout]
+                    set((state) => ({
+                        workouts: [...state.workouts, newWorkout],
                     }))
                     showToast('Workout duplicated successfully!', 'success')
                     return newWorkout
@@ -240,21 +261,27 @@ const useWorkoutStore = create(
 
             createSets: async (workoutId, setData, numberOfSets = 1) => {
                 try {
-                    const promises = Array.from({ length: numberOfSets }, () => {
-                        const newSetData = {
-                            ...setData,
-                            workout: workoutId,
-                            complete: false,
-                            set_duration: null,
-                            set_start_time: null,
-                            is_active_set: false
+                    const promises = Array.from(
+                        { length: numberOfSets },
+                        () => {
+                            const newSetData = {
+                                ...setData,
+                                workout: workoutId,
+                                complete: false,
+                                set_duration: null,
+                                set_start_time: null,
+                                is_active_set: false,
+                            }
+                            return createSet(newSetData)
                         }
-                        return createSet(newSetData)
-                    })
-                    
+                    )
+
                     await Promise.all(promises)
                     await get().fetchWorkoutDetails(workoutId)
-                    showToast(`Added ${numberOfSets} set(s) successfully!`, 'success')
+                    showToast(
+                        `Added ${numberOfSets} set(s) successfully!`,
+                        'success'
+                    )
                 } catch (error) {
                     showToast('Failed to create sets.', 'error')
                     throw error
@@ -263,7 +290,10 @@ const useWorkoutStore = create(
 
             duplicateSet: async (workoutId, setData) => {
                 if (!workoutId || !setData?.id) {
-                    showToast('Cannot duplicate set: Missing required data', 'error')
+                    showToast(
+                        'Cannot duplicate set: Missing required data',
+                        'error'
+                    )
                     throw new Error('Missing required data for set duplication')
                 }
                 try {
@@ -315,12 +345,12 @@ const useWorkoutStore = create(
                 if (!workoutId) return
                 try {
                     const setsData = await getSetsByWorkoutId(workoutId)
-                    set(state => ({
+                    set((state) => ({
                         sets: setsData.results || [],
                         workoutSets: {
                             ...state.workoutSets,
-                            [workoutId]: setsData.results || []
-                        }
+                            [workoutId]: setsData.results || [],
+                        },
                     }))
                 } catch (err) {
                     showToast('Failed to update sets.', 'error')
@@ -345,7 +375,7 @@ const useWorkoutStore = create(
                     const newWorkout = await apiUpdateWorkout(null, workoutData)
                     set((state) => ({
                         workouts: [...state.workouts, newWorkout],
-                        isLoading: false
+                        isLoading: false,
                     }))
                     showToast('Workout created successfully', 'success')
                 } catch (error) {
@@ -357,13 +387,13 @@ const useWorkoutStore = create(
 
             clearWorkouts: () => {
                 set({ workouts: [], isLoading: false, error: null })
-            }
+            },
         }),
         {
             name: 'workout-store',
-            enabled: process.env.NODE_ENV === 'development'
+            enabled: process.env.NODE_ENV === 'development',
         }
     )
 )
 
-export default useWorkoutStore 
+export default useWorkoutStore

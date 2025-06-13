@@ -8,7 +8,7 @@ const PasswordResetConfirm = () => {
     const navigate = useNavigate()
     const [formData, setFormData] = useState({
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
     })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -24,7 +24,7 @@ const PasswordResetConfirm = () => {
     const handleChange = (e) => {
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
         })
         setError('')
         setPasswordErrors([])
@@ -69,13 +69,21 @@ const PasswordResetConfirm = () => {
         }
 
         try {
-            await confirmPasswordReset(token, formData.newPassword, formData.confirmPassword)
+            await confirmPasswordReset(
+                token,
+                formData.newPassword,
+                formData.confirmPassword
+            )
             setSuccess(true)
             setTimeout(() => {
                 navigate('/login')
             }, 3000)
         } catch (err) {
-            setError(err.response?.data?.error || err.response?.data?.new_password?.[0] || 'Failed to reset password')
+            setError(
+                err.response?.data?.error ||
+                    err.response?.data?.new_password?.[0] ||
+                    'Failed to reset password'
+            )
         } finally {
             setLoading(false)
         }
@@ -87,7 +95,10 @@ const PasswordResetConfirm = () => {
                 <div className="reset-container">
                     <h2>Password Reset Successful!</h2>
                     <p>Your password has been reset successfully.</p>
-                    <p>You will be redirected to the login page in a few seconds...</p>
+                    <p>
+                        You will be redirected to the login page in a few
+                        seconds...
+                    </p>
                     <div className="reset-links">
                         <Link to="/login">Go to Login</Link>
                     </div>
@@ -118,7 +129,9 @@ const PasswordResetConfirm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="confirmPassword">Confirm New Password</label>
+                        <label htmlFor="confirmPassword">
+                            Confirm New Password
+                        </label>
                         <input
                             type="password"
                             id="confirmPassword"
@@ -143,9 +156,13 @@ const PasswordResetConfirm = () => {
 
                     {error && <div className="error-message">{error}</div>}
 
-                    <button 
-                        type="submit" 
-                        disabled={loading || !formData.newPassword || !formData.confirmPassword}
+                    <button
+                        type="submit"
+                        disabled={
+                            loading ||
+                            !formData.newPassword ||
+                            !formData.confirmPassword
+                        }
                         className="reset-btn"
                     >
                         {loading ? 'Resetting...' : 'Reset Password'}
@@ -160,4 +177,4 @@ const PasswordResetConfirm = () => {
     )
 }
 
-export default PasswordResetConfirm 
+export default PasswordResetConfirm

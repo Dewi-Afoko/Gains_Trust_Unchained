@@ -53,38 +53,36 @@ const WorkoutOverview = () => {
 
                 {/* Exercise Stats */}
                 <div className="space-y-4">
-                    {Object.entries(exerciseStats).map(
-                        ([exercise, stats]) => (
-                            <div
-                                key={exercise}
-                                className="bg-[#600000] p-3 rounded-lg border border-yellow-400"
-                            >
-                                <h5 className="text-yellow-300 font-bold mb-2">
-                                    {exercise}
-                                </h5>
-                                <div className="grid grid-cols-2 gap-2 text-sm">
-                                    <p>
-                                        Sets: {stats.completedSets}/
-                                        {stats.totalSets}
-                                    </p>
-                                    <p>Total Reps: {stats.totalReps}</p>
-                                    <p>
-                                        Total Weight:{' '}
-                                        {formatLoading(stats.totalWeight)}
-                                    </p>
-                                    <p>
-                                        Progress:{' '}
-                                        {Math.round(
-                                            (stats.completedSets /
-                                                stats.totalSets) *
-                                                100
-                                        )}
-                                        %
-                                    </p>
-                                </div>
+                    {Object.entries(exerciseStats).map(([exercise, stats]) => (
+                        <div
+                            key={exercise}
+                            className="bg-[#600000] p-3 rounded-lg border border-yellow-400"
+                        >
+                            <h5 className="text-yellow-300 font-bold mb-2">
+                                {exercise}
+                            </h5>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                                <p>
+                                    Sets: {stats.completedSets}/
+                                    {stats.totalSets}
+                                </p>
+                                <p>Total Reps: {stats.totalReps}</p>
+                                <p>
+                                    Total Weight:{' '}
+                                    {formatLoading(stats.totalWeight)}
+                                </p>
+                                <p>
+                                    Progress:{' '}
+                                    {Math.round(
+                                        (stats.completedSets /
+                                            stats.totalSets) *
+                                            100
+                                    )}
+                                    %
+                                </p>
                             </div>
-                        )
-                    )}
+                        </div>
+                    ))}
                 </div>
 
                 {/* Overall Progress */}
@@ -95,7 +93,8 @@ const WorkoutOverview = () => {
                     <div className="bg-[#600000] p-3 rounded-lg border border-yellow-400">
                         <p>
                             Total Sets Completed:{' '}
-                            {sets.filter((s) => s.complete).length}/{sets.length}
+                            {sets.filter((s) => s.complete).length}/
+                            {sets.length}
                         </p>
                         <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
                             <div

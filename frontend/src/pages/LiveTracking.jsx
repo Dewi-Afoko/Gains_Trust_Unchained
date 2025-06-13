@@ -2,13 +2,13 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { 
+import {
     Play,
     Pause,
     CheckCircle2,
     Clock,
     Activity,
-    AlertCircle
+    AlertCircle,
 } from 'lucide-react'
 import useWorkoutStore from '../stores/workoutStore'
 import useTimerStore from '../stores/timerStore'
@@ -30,15 +30,15 @@ export default function LiveTracking() {
     const [leftPanelExpanded, setLeftPanelExpanded] = useState(true)
     const [rightPanelExpanded, setRightPanelExpanded] = useState(true)
 
-    const { 
-        workout, 
-        sets, 
-        fetchWorkoutDetails, 
-        startWorkout, 
+    const {
+        workout,
+        sets,
+        fetchWorkoutDetails,
+        startWorkout,
         toggleComplete,
         toggleSetComplete,
         startTimer,
-        stopTimer
+        stopTimer,
     } = useWorkoutStore()
 
     const {
@@ -50,14 +50,18 @@ export default function LiveTracking() {
         stopRestTimer,
         hydrateRestTimer,
         cleanupTimers,
-        formatTime
+        formatTime,
     } = useTimerStore()
 
     // Use React Query for the workout data
-    const { data: workoutData, isLoading, error } = useQuery({
+    const {
+        data: workoutData,
+        isLoading,
+        error,
+    } = useQuery({
         queryKey: ['workout', id],
         queryFn: () => getWorkoutById(id),
-        enabled: !!id
+        enabled: !!id,
     })
 
     // Initialize workout when data loads
@@ -87,7 +91,7 @@ export default function LiveTracking() {
             isInitialMount.current = false
             return // Don't set up cleanup on initial mount
         }
-        
+
         return () => {
             // Only cleanup when truly unmounting (navigating away)
             if (id) {
@@ -97,10 +101,10 @@ export default function LiveTracking() {
     }, [id]) // Only when id changes (navigation to different workout)
 
     // Get next incomplete set
-    const nextSet = sets?.find(set => !set.complete)
-    
+    const nextSet = sets?.find((set) => !set.complete)
+
     // Calculate workout progress
-    const completedSets = sets?.filter(set => set.complete).length || 0
+    const completedSets = sets?.filter((set) => set.complete).length || 0
     const totalSets = sets?.length || 0
     const progress = totalSets > 0 ? (completedSets / totalSets) * 100 : 0
 
@@ -133,9 +137,10 @@ export default function LiveTracking() {
         // On desktop, check panel expansion states
         return {
             mobile: 'mt-8 mb-16',
-            desktop: (!leftPanelExpanded && !rightPanelExpanded) 
-                ? 'lg:mt-8 lg:mb-16' // Both collapsed - normal position
-                : 'lg:mt-36 lg:mb-16' // At least one expanded - proper spacing (9rem = 144px)
+            desktop:
+                !leftPanelExpanded && !rightPanelExpanded
+                    ? 'lg:mt-8 lg:mb-16' // Both collapsed - normal position
+                    : 'lg:mt-36 lg:mb-16', // At least one expanded - proper spacing (9rem = 144px)
         }
     }
 
@@ -151,14 +156,19 @@ export default function LiveTracking() {
                 />
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-brand-dark-2/90 to-black/95 opacity-90 z-10"></div>
-                
+
                 {/* Content */}
                 <div className="relative z-20 max-w-7xl mx-auto px-6 py-12">
                     <div className="text-center py-12">
                         <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-                        <h1 className="text-3xl font-bold text-red-400 mb-4">Workout Not Found</h1>
-                        <p className="text-gray-400 mb-6">The workout you&apos;re trying to track doesn&apos;t exist or has been deleted.</p>
-                        <PanelButton 
+                        <h1 className="text-3xl font-bold text-red-400 mb-4">
+                            Workout Not Found
+                        </h1>
+                        <p className="text-gray-400 mb-6">
+                            The workout you&apos;re trying to track doesn&apos;t
+                            exist or has been deleted.
+                        </p>
+                        <PanelButton
                             onClick={() => navigate('/workouts')}
                             variant="danger"
                         >
@@ -180,7 +190,7 @@ export default function LiveTracking() {
                 />
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-brand-dark-2/90 to-black/95 opacity-90 z-10"></div>
-                
+
                 {/* Content */}
                 <div className="relative z-20 max-w-7xl mx-auto px-6 py-12">
                     <div className="flex justify-center items-center h-64">
@@ -200,7 +210,7 @@ export default function LiveTracking() {
             />
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-brand-dark-2/90 to-black/95 opacity-90 z-10"></div>
-            
+
             {/* Absolute positioned side panels - Outside main container */}
             {/* Left - Next 3 Sets - Absolute to viewport left edge, scrolls with page */}
             <div className="hidden lg:block absolute left-4 top-20 w-80 z-30 pb-8">
@@ -209,8 +219,8 @@ export default function LiveTracking() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
                 >
-                    <SetTrackerLive 
-                        showNextOnly={true} 
+                    <SetTrackerLive
+                        showNextOnly={true}
                         onExpandChange={setLeftPanelExpanded}
                     />
                 </motion.div>
@@ -223,19 +233,19 @@ export default function LiveTracking() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
                 >
-                    <SetTrackerLive 
-                        showCompletedOnly={true} 
+                    <SetTrackerLive
+                        showCompletedOnly={true}
                         onExpandChange={setRightPanelExpanded}
                     />
                 </motion.div>
             </div>
-            
+
             {/* Content */}
             <div className="relative z-20 max-w-7xl mx-auto px-6 py-8">
                 {/* Header */}
                 <div className="mb-8">
                     {/* Title with flanking set columns */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center mb-6 relative"
@@ -247,21 +257,30 @@ export default function LiveTracking() {
                                 <h1 className="text-4xl lg:text-5xl font-bold gains-font bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] mb-6">
                                     {workout?.workout_name || 'Live Tracking'}
                                 </h1>
-                                
+
                                 {/* Timer Display and Progress - above the timer */}
                                 <div className="mb-8">
-                                    <WorkoutTimerDisplay timeElapsed={timeElapsed} workout={workout} />
-                                    
+                                    <WorkoutTimerDisplay
+                                        timeElapsed={timeElapsed}
+                                        workout={workout}
+                                    />
+
                                     {/* Progress Bar */}
                                     <div className="max-w-md mx-auto mt-6">
                                         <div className="flex justify-between text-sm text-gray-300 mb-2">
-                                            <span className="font-medium">Progress</span>
-                                            <span className="font-medium">{completedSets}/{totalSets} sets</span>
+                                            <span className="font-medium">
+                                                Progress
+                                            </span>
+                                            <span className="font-medium">
+                                                {completedSets}/{totalSets} sets
+                                            </span>
                                         </div>
                                         <div className="w-full bg-brand-dark-2 border border-brand-gold/30 rounded-full h-3 relative overflow-hidden">
                                             <motion.div
                                                 initial={{ width: 0 }}
-                                                animate={{ width: `${progress}%` }}
+                                                animate={{
+                                                    width: `${progress}%`,
+                                                }}
                                                 transition={{ duration: 0.5 }}
                                                 className="bg-gradient-to-r from-yellow-400 via-yellow-600 to-orange-700 h-full rounded-full"
                                             />
@@ -275,10 +294,12 @@ export default function LiveTracking() {
                                 {/* Connected Timer and Current Set Info */}
                                 <div className="relative">
                                     {/* Current Set Header - connected to main card */}
-                                    <div className="bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e] border border-brand-gold/80 rounded-t-2xl p-4 mb-0"
+                                    <div
+                                        className="bg-gradient-to-b from-yellow-700/60 via-[#1a1a1a] to-[#0e0e0e] border border-brand-gold/80 rounded-t-2xl p-4 mb-0"
                                         style={{
                                             backgroundImage: `linear-gradient(to bottom, rgba(234,179,8,0.18) 0%, #1a1a1a 40%, #0e0e0e 100%), url(${texture2})`,
-                                            backgroundBlendMode: 'overlay, multiply',
+                                            backgroundBlendMode:
+                                                'overlay, multiply',
                                             backgroundSize: 'cover',
                                             backgroundPosition: 'center',
                                         }}
@@ -286,7 +307,11 @@ export default function LiveTracking() {
                                         <div className="flex items-center justify-center gap-3">
                                             <span className="w-2 h-2 bg-yellow-700 rounded-full shadow-inner opacity-70" />
                                             <span className="font-extrabold uppercase tracking-wider text-lg bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]">
-                                                {isResting ? 'Next Set' : (workout?.start_time ? 'Current Set' : 'Ready to Start')}
+                                                {isResting
+                                                    ? 'Next Set'
+                                                    : workout?.start_time
+                                                      ? 'Current Set'
+                                                      : 'Ready to Start'}
                                             </span>
                                             <span className="w-2 h-2 bg-yellow-700 rounded-full shadow-inner opacity-70" />
                                         </div>
@@ -299,9 +324,11 @@ export default function LiveTracking() {
                                         transition={{ delay: 0.2 }}
                                         className="border-t-0"
                                     >
-                                        <TimerLive 
-                                            nextSet={nextSet} 
-                                            workoutStarted={!!workout?.start_time}
+                                        <TimerLive
+                                            nextSet={nextSet}
+                                            workoutStarted={
+                                                !!workout?.start_time
+                                            }
                                             onStartWorkout={handleStartWorkout}
                                             hideHeader={true}
                                         />
@@ -330,16 +357,23 @@ export default function LiveTracking() {
                             <h1 className="text-4xl font-bold gains-font bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] mb-6">
                                 {workout?.workout_name || 'Live Tracking'}
                             </h1>
-                            
+
                             {/* Timer Display and Progress */}
                             <div className="mb-6">
-                                <WorkoutTimerDisplay timeElapsed={timeElapsed} workout={workout} />
-                                
+                                <WorkoutTimerDisplay
+                                    timeElapsed={timeElapsed}
+                                    workout={workout}
+                                />
+
                                 {/* Progress Bar */}
                                 <div className="max-w-md mx-auto mt-4">
                                     <div className="flex justify-between text-sm text-gray-300 mb-2">
-                                        <span className="font-medium">Progress</span>
-                                        <span className="font-medium">{completedSets}/{totalSets} sets</span>
+                                        <span className="font-medium">
+                                            Progress
+                                        </span>
+                                        <span className="font-medium">
+                                            {completedSets}/{totalSets} sets
+                                        </span>
                                     </div>
                                     <div className="w-full bg-brand-dark-2 border border-brand-gold/30 rounded-full h-3 relative overflow-hidden">
                                         <motion.div
@@ -362,8 +396,8 @@ export default function LiveTracking() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
                                 >
-                                    <TimerLive 
-                                        nextSet={nextSet} 
+                                    <TimerLive
+                                        nextSet={nextSet}
                                         workoutStarted={!!workout?.start_time}
                                         onStartWorkout={handleStartWorkout}
                                     />
@@ -401,7 +435,9 @@ export default function LiveTracking() {
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
                                     >
-                                        <SetTrackerLive showCompletedOnly={true} />
+                                        <SetTrackerLive
+                                            showCompletedOnly={true}
+                                        />
                                     </motion.div>
                                 </div>
                             </div>
@@ -419,8 +455,13 @@ export default function LiveTracking() {
                         <div className="flex items-center gap-3">
                             <Activity className="w-5 h-5 text-yellow-400" />
                             <div>
-                                <p className="text-yellow-400 font-semibold">Next Up:</p>
-                                <p className="text-gray-300">{nextSet.exercise_name} - Set {nextSet.set_order}</p>
+                                <p className="text-yellow-400 font-semibold">
+                                    Next Up:
+                                </p>
+                                <p className="text-gray-300">
+                                    {nextSet.exercise_name} - Set{' '}
+                                    {nextSet.set_order}
+                                </p>
                             </div>
                         </div>
                     </motion.div>
@@ -440,4 +481,4 @@ export default function LiveTracking() {
             </motion.div>
         </main>
     )
-} 
+}

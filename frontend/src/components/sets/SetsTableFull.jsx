@@ -18,20 +18,16 @@ const TableHeader = ({ children }) => (
     </th>
 )
 
-const TableCell = ({ children, className = "" }) => (
-    <td className={`border-b border-r border-brand-gold/30 p-3 first:border-l text-center ${className}`}>
-        <span className="text-gray-300 font-medium">
-            {children}
-        </span>
+const TableCell = ({ children, className = '' }) => (
+    <td
+        className={`border-b border-r border-brand-gold/30 p-3 first:border-l text-center ${className}`}
+    >
+        <span className="text-gray-300 font-medium">{children}</span>
     </td>
 )
 
 const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
-    const {
-        sets: storeSets,
-        toggleSetComplete,
-        moveSet,
-    } = useWorkoutStore()
+    const { sets: storeSets, toggleSetComplete, moveSet } = useWorkoutStore()
     const [tableData, setTableData] = useState(propSets || storeSets)
     const [editingSetId, setEditingSetId] = useState(null)
     const [activeSetId, setActiveSetId] = useState(null)
@@ -55,20 +51,23 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                 {/* Background Texture */}
                 <div
                     className="absolute inset-0 opacity-40 pointer-events-none z-0 rounded-xl"
-                    style={{ 
+                    style={{
                         backgroundImage: `url(${texture2})`,
                         backgroundSize: '500px 500px',
                         backgroundRepeat: 'repeat',
                         backgroundAttachment: 'scroll',
-                        backgroundPosition: 'center center'
+                        backgroundPosition: 'center center',
                     }}
                 />
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 rounded-xl z-10"></div>
-                
+
                 {/* Content */}
                 <div className="relative z-20 text-center py-8 text-gray-400 flex items-center justify-center h-full">
-                    <span className="font-medium uppercase tracking-wider">No sets added yet. Click &quot;Add Set&quot; to get started!</span>
+                    <span className="font-medium uppercase tracking-wider">
+                        No sets added yet. Click &quot;Add Set&quot; to get
+                        started!
+                    </span>
                 </div>
             </div>
         )
@@ -79,17 +78,17 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
             {/* Background Texture */}
             <div
                 className="absolute inset-0 opacity-40 pointer-events-none z-0"
-                style={{ 
+                style={{
                     backgroundImage: `url(${texture2})`,
                     backgroundSize: '500px 500px',
                     backgroundRepeat: 'repeat',
                     backgroundAttachment: 'scroll',
-                    backgroundPosition: 'center center'
+                    backgroundPosition: 'center center',
                 }}
             />
             {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 z-10"></div>
-            
+
             {/* Content */}
             <div className="relative z-20">
                 {/* Responsive table container */}
@@ -111,9 +110,9 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                         </thead>
                         <tbody>
                             {tableData.map((set, index) => (
-                                <Popover.Root 
-                                    key={set.id} 
-                                    open={activeSetId === set.id} 
+                                <Popover.Root
+                                    key={set.id}
+                                    open={activeSetId === set.id}
                                     onOpenChange={(open) => {
                                         if (!open) setActiveSetId(null)
                                     }}
@@ -128,56 +127,97 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                                                 ${index % 2 === 0 ? 'bg-black/20' : 'bg-black/10'}
                                             `}
                                             style={{ height: '48px' }}
-                                            onClick={() => setActiveSetId(set.id)}
+                                            onClick={() =>
+                                                setActiveSetId(set.id)
+                                            }
                                         >
-                                            <TableCell>{set.exercise_name}</TableCell>
+                                            <TableCell>
+                                                {set.exercise_name}
+                                            </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1 justify-center">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation()
-                                                            moveSet(set.id, set.set_order - 1)
+                                                            moveSet(
+                                                                set.id,
+                                                                set.set_order -
+                                                                    1
+                                                            )
                                                         }}
-                                                        disabled={set.set_order === 1}
+                                                        disabled={
+                                                            set.set_order === 1
+                                                        }
                                                         className="bg-gray-700/80 hover:bg-gray-600/80 disabled:opacity-50 w-6 h-6 p-0 flex items-center justify-center rounded border border-brand-gold/30 transition-colors"
                                                     >
                                                         <ChevronUp className="w-3 h-3 text-brand-gold" />
                                                     </button>
-                                                    <span className="mx-2 min-w-[20px] text-center font-bold text-brand-gold">{set.set_order}</span>
+                                                    <span className="mx-2 min-w-[20px] text-center font-bold text-brand-gold">
+                                                        {set.set_order}
+                                                    </span>
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation()
-                                                            moveSet(set.id, set.set_order + 1)
+                                                            moveSet(
+                                                                set.id,
+                                                                set.set_order +
+                                                                    1
+                                                            )
                                                         }}
-                                                        disabled={set.set_order === storeSets.length}
+                                                        disabled={
+                                                            set.set_order ===
+                                                            storeSets.length
+                                                        }
                                                         className="bg-gray-700/80 hover:bg-gray-600/80 disabled:opacity-50 w-6 h-6 p-0 flex items-center justify-center rounded border border-brand-gold/30 transition-colors"
                                                     >
                                                         <ChevronDown className="w-3 h-3 text-brand-gold" />
                                                     </button>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{set.set_number}</TableCell>
-                                            <TableCell>{set.set_type || 'N/A'}</TableCell>
-                                            <TableCell>{formatLoading(set.loading)}</TableCell>
-                                            <TableCell>{set.reps || 'N/A'}</TableCell>
-                                            <TableCell>{set.rest ? `${set.rest}s` : 'N/A'}</TableCell>
-                                            <TableCell>{set.focus || 'N/A'}</TableCell>
+                                            <TableCell>
+                                                {set.set_number}
+                                            </TableCell>
+                                            <TableCell>
+                                                {set.set_type || 'N/A'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatLoading(set.loading)}
+                                            </TableCell>
+                                            <TableCell>
+                                                {set.reps || 'N/A'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {set.rest
+                                                    ? `${set.rest}s`
+                                                    : 'N/A'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {set.focus || 'N/A'}
+                                            </TableCell>
                                             <TableCell>
                                                 {set.notes ? (
-                                                    <span className="truncate block max-w-[120px]" title={set.notes}>
+                                                    <span
+                                                        className="truncate block max-w-[120px]"
+                                                        title={set.notes}
+                                                    >
                                                         {set.notes}
                                                     </span>
-                                                ) : 'N/A'}
+                                                ) : (
+                                                    'N/A'
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation()
-                                                        toggleSetComplete(set.id, set.complete)
+                                                        toggleSetComplete(
+                                                            set.id,
+                                                            set.complete
+                                                        )
                                                     }}
                                                     className={`px-3 py-1 text-xs rounded border transition-colors flex items-center justify-center gap-1 ${
-                                                        set.complete 
-                                                            ? 'bg-green-600/80 hover:bg-green-700/80 text-white border-green-500/50' 
+                                                        set.complete
+                                                            ? 'bg-green-600/80 hover:bg-green-700/80 text-white border-green-500/50'
                                                             : 'bg-gray-600/80 hover:bg-gray-700/80 text-white border-gray-500/50'
                                                     }`}
                                                 >
@@ -200,7 +240,9 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
                                         <RadialMenuPopover
                                             setId={set.id}
                                             workoutId={set.workout}
-                                            closeMenu={() => setActiveSetId(null)}
+                                            closeMenu={() =>
+                                                setActiveSetId(null)
+                                            }
                                             onEdit={handleEdit}
                                         />
                                     )}
@@ -212,14 +254,18 @@ const SetsTableFull = ({ sets: propSets, hideCompleteButton = true }) => {
             </div>
 
             {/* Edit Modal using portal */}
-            {editingSetId !== null && createPortal(
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-                    <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
-                        <SetEditForm setId={editingSetId} onClose={closeEditModal} />
-                    </div>
-                </div>,
-                document.body
-            )}
+            {editingSetId !== null &&
+                createPortal(
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                        <div className="bg-brand-dark-2/90 backdrop-blur-sm p-6 rounded-xl border border-brand-gold/30 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-lg">
+                            <SetEditForm
+                                setId={editingSetId}
+                                onClose={closeEditModal}
+                            />
+                        </div>
+                    </div>,
+                    document.body
+                )}
         </div>
     )
 }

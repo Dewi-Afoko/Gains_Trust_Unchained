@@ -18,7 +18,9 @@ const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-brand-dark-2 border border-brand-gold/50 p-3 rounded-lg shadow-xl backdrop-blur-sm">
-                <p className="text-brand-gold font-medium uppercase tracking-wider text-sm">{label}</p>
+                <p className="text-brand-gold font-medium uppercase tracking-wider text-sm">
+                    {label}
+                </p>
                 <p className="text-white font-bold text-lg mt-1">
                     {payload[0].value} kg
                 </p>
@@ -31,22 +33,31 @@ const CustomTooltip = ({ active, payload, label }) => {
 const UserWeightCard = ({ weights, onWeightUpdate }) => {
     const [isLogWeightModalOpen, setIsLogWeightModalOpen] = useState(false)
 
-    const formattedWeights = [...weights]
-        .reverse()
-        .map((w) => ({
-            date: new Date(w.date_recorded).toLocaleDateString(),
-            weight: parseFloat(w.weight),
-        }))
+    const formattedWeights = [...weights].reverse().map((w) => ({
+        date: new Date(w.date_recorded).toLocaleDateString(),
+        weight: parseFloat(w.weight),
+    }))
 
     // Calculate min and max for better visualization
-    const minWeight = formattedWeights.length > 0 ? Math.min(...formattedWeights.map(w => w.weight)) : 0
-    const maxWeight = formattedWeights.length > 0 ? Math.max(...formattedWeights.map(w => w.weight)) : 0
-    const padding = formattedWeights.length > 0 ? (maxWeight - minWeight) * 0.1 : 0
-    
+    const minWeight =
+        formattedWeights.length > 0
+            ? Math.min(...formattedWeights.map((w) => w.weight))
+            : 0
+    const maxWeight =
+        formattedWeights.length > 0
+            ? Math.max(...formattedWeights.map((w) => w.weight))
+            : 0
+    const padding =
+        formattedWeights.length > 0 ? (maxWeight - minWeight) * 0.1 : 0
+
     // Calculate weight change
-    const weightChange = formattedWeights.length >= 2 
-        ? (formattedWeights[formattedWeights.length - 1].weight - formattedWeights[0].weight).toFixed(1)
-        : 0
+    const weightChange =
+        formattedWeights.length >= 2
+            ? (
+                  formattedWeights[formattedWeights.length - 1].weight -
+                  formattedWeights[0].weight
+              ).toFixed(1)
+            : 0
 
     const getWeightChangeColor = (change) => {
         if (change > 0) return 'text-brand-green'
@@ -74,22 +85,44 @@ const UserWeightCard = ({ weights, onWeightUpdate }) => {
                         <div className="absolute right-1 top-1 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
                         <div className="absolute left-1 bottom-1 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
                         <div className="absolute right-1 bottom-1 w-1.5 h-1.5 bg-yellow-700 rounded-full shadow-inner opacity-70" />
-                        
+
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart
                                 data={formattedWeights}
-                                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                                margin={{
+                                    top: 20,
+                                    right: 20,
+                                    bottom: 20,
+                                    left: 20,
+                                }}
                             >
                                 <defs>
-                                    <linearGradient id="weightLine" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#FFD700" stopOpacity={0.9}/>
-                                        <stop offset="95%" stopColor="#D35400" stopOpacity={0.4}/>
+                                    <linearGradient
+                                        id="weightLine"
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1"
+                                    >
+                                        <stop
+                                            offset="5%"
+                                            stopColor="#FFD700"
+                                            stopOpacity={0.9}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor="#D35400"
+                                            stopOpacity={0.4}
+                                        />
                                     </linearGradient>
                                     <filter id="glow">
-                                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                        <feGaussianBlur
+                                            stdDeviation="2"
+                                            result="coloredBlur"
+                                        />
                                         <feMerge>
-                                            <feMergeNode in="coloredBlur"/>
-                                            <feMergeNode in="SourceGraphic"/>
+                                            <feMergeNode in="coloredBlur" />
+                                            <feMergeNode in="SourceGraphic" />
                                         </feMerge>
                                     </filter>
                                 </defs>
@@ -101,7 +134,10 @@ const UserWeightCard = ({ weights, onWeightUpdate }) => {
                                     style={{ filter: 'url(#glow)' }}
                                 />
                                 <YAxis
-                                    domain={[minWeight - padding, maxWeight + padding]}
+                                    domain={[
+                                        minWeight - padding,
+                                        maxWeight + padding,
+                                    ]}
                                     stroke="#FFD700"
                                     tick={{ fill: '#FFD700', fontSize: 12 }}
                                     tickLine={{ stroke: '#FFD700' }}
@@ -124,14 +160,14 @@ const UserWeightCard = ({ weights, onWeightUpdate }) => {
                                         strokeWidth: 2,
                                         r: 4,
                                         fill: '#2d0000',
-                                        filter: 'url(#glow)'
+                                        filter: 'url(#glow)',
                                     }}
                                     activeDot={{
                                         stroke: '#FFD700',
                                         strokeWidth: 2,
                                         r: 6,
                                         fill: '#D35400',
-                                        filter: 'url(#glow)'
+                                        filter: 'url(#glow)',
                                     }}
                                 />
                             </LineChart>
@@ -146,15 +182,23 @@ const UserWeightCard = ({ weights, onWeightUpdate }) => {
                                     Latest Weight
                                 </h3>
                                 <div className="text-white text-xl font-bold mt-1">
-                                    {formattedWeights[formattedWeights.length - 1].weight} kg
+                                    {
+                                        formattedWeights[
+                                            formattedWeights.length - 1
+                                        ].weight
+                                    }{' '}
+                                    kg
                                 </div>
                             </div>
                             <div className="text-right">
                                 <h3 className="text-brand-gold/70 text-sm font-semibold uppercase tracking-wider">
                                     Total Change
                                 </h3>
-                                <div className={`text-xl font-bold mt-1 ${getWeightChangeColor(weightChange)}`}>
-                                    {weightChange > 0 ? '+' : ''}{weightChange} kg
+                                <div
+                                    className={`text-xl font-bold mt-1 ${getWeightChangeColor(weightChange)}`}
+                                >
+                                    {weightChange > 0 ? '+' : ''}
+                                    {weightChange} kg
                                 </div>
                             </div>
                         </div>
@@ -166,24 +210,28 @@ const UserWeightCard = ({ weights, onWeightUpdate }) => {
                         No weight records found.
                     </p>
                     <p className="text-gray-400 text-sm text-center">
-                        Start tracking your weight progress by logging your first entry!
+                        Start tracking your weight progress by logging your
+                        first entry!
                     </p>
                 </div>
             )}
 
             {/* Log Weight Button */}
             <div className="mt-auto pt-4">
-                <Dialog open={isLogWeightModalOpen} onOpenChange={setIsLogWeightModalOpen}>
+                <Dialog
+                    open={isLogWeightModalOpen}
+                    onOpenChange={setIsLogWeightModalOpen}
+                >
                     <DialogTrigger asChild>
-                        <PanelButton 
-                            variant="gold" 
+                        <PanelButton
+                            variant="gold"
                             className="w-full hover:scale-[1.02] active:scale-[0.98] transition-transform"
                         >
                             <Plus className="w-4 h-4 mr-2" />
                             Log Weight
                         </PanelButton>
                     </DialogTrigger>
-                    <DialogContent 
+                    <DialogContent
                         className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4"
                         onInteractOutside={() => setIsLogWeightModalOpen(false)}
                     >

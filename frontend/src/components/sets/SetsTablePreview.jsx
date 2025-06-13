@@ -15,9 +15,7 @@ const TableHeader = ({ children }) => (
 
 const TableCell = ({ children }) => (
     <td className="border-b border-r border-brand-gold/30 p-3 first:border-l text-center">
-        <span className="text-gray-300 font-medium">
-            {children}
-        </span>
+        <span className="text-gray-300 font-medium">{children}</span>
     </td>
 )
 
@@ -28,7 +26,9 @@ const SetsTablePreview = ({ sets, workoutId }) => {
     if (!sets || sets.length === 0) {
         return (
             <div className="flex justify-center items-center p-6 bg-black/20 rounded-lg border border-brand-gold/30">
-                <span className="text-gray-400 font-medium uppercase tracking-wider">No sets available.</span>
+                <span className="text-gray-400 font-medium uppercase tracking-wider">
+                    No sets available.
+                </span>
             </div>
         )
     }
@@ -36,7 +36,7 @@ const SetsTablePreview = ({ sets, workoutId }) => {
     return (
         <div className="rounded-lg border border-brand-gold/30 relative">
             {/* Background texture layer */}
-            <div 
+            <div
                 className="absolute inset-0 rounded-lg opacity-40"
                 style={{
                     backgroundImage: `url(${texture2})`,
@@ -48,7 +48,7 @@ const SetsTablePreview = ({ sets, workoutId }) => {
             />
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-yellow-900/20 via-black/80 to-black/90 rounded-lg" />
-            
+
             {/* Table content */}
             <div className="relative">
                 <table className="w-full border-collapse">
@@ -66,11 +66,15 @@ const SetsTablePreview = ({ sets, workoutId }) => {
                     </thead>
                     <tbody>
                         {sets.map((set, index) => (
-                            <Popover.Root key={set.id} open={activeSetId === set.id} onOpenChange={(open) => {
-                                if (!open) setActiveSetId(null)
-                            }}>
+                            <Popover.Root
+                                key={set.id}
+                                open={activeSetId === set.id}
+                                onOpenChange={(open) => {
+                                    if (!open) setActiveSetId(null)
+                                }}
+                            >
                                 <Popover.Trigger asChild>
-                                    <tr 
+                                    <tr
                                         className={`
                                             relative
                                             transition-colors duration-150
@@ -79,26 +83,40 @@ const SetsTablePreview = ({ sets, workoutId }) => {
                                             ${index % 2 === 0 ? 'bg-black/20' : 'bg-black/10'}
                                         `}
                                         style={{
-                                            height: '48px' // Ensure consistent row height
+                                            height: '48px', // Ensure consistent row height
                                         }}
                                         onClick={() => setActiveSetId(set.id)}
                                     >
-                                        <TableCell>{set.exercise_name}</TableCell>
+                                        <TableCell>
+                                            {set.exercise_name}
+                                        </TableCell>
                                         <TableCell>{set.set_number}</TableCell>
-                                        <TableCell>{set.set_type || 'N/A'}</TableCell>
-                                        <TableCell>{formatLoading(set.loading)}</TableCell>
-                                        <TableCell>{set.reps || 'N/A'}</TableCell>
-                                        <TableCell>{set.rest || 'N/A'}</TableCell>
-                                        <TableCell>{set.focus || 'N/A'}</TableCell>
-                                        <TableCell>{set.notes || 'N/A'}</TableCell>
+                                        <TableCell>
+                                            {set.set_type || 'N/A'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {formatLoading(set.loading)}
+                                        </TableCell>
+                                        <TableCell>
+                                            {set.reps || 'N/A'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {set.rest || 'N/A'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {set.focus || 'N/A'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {set.notes || 'N/A'}
+                                        </TableCell>
                                     </tr>
                                 </Popover.Trigger>
                                 {activeSetId === set.id && (
-                                    <RadialMenuPopover 
-                                        setId={set.id} 
-                                        workoutId={workoutId} 
+                                    <RadialMenuPopover
+                                        setId={set.id}
+                                        workoutId={workoutId}
                                         closeMenu={() => setActiveSetId(null)}
-                                        onEdit={id => {
+                                        onEdit={(id) => {
                                             setEditingSetId(id)
                                             setActiveSetId(null)
                                         }}
@@ -110,7 +128,11 @@ const SetsTablePreview = ({ sets, workoutId }) => {
                 </table>
             </div>
             {/* SetEditModal for editing */}
-            <SetEditModal setId={editingSetId} open={!!editingSetId} onClose={() => setEditingSetId(null)} />
+            <SetEditModal
+                setId={editingSetId}
+                open={!!editingSetId}
+                onClose={() => setEditingSetId(null)}
+            />
         </div>
     )
 }

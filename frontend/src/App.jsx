@@ -41,8 +41,14 @@ function App() {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/forgot-password" element={<PasswordResetRequest />} />
-                    <Route path="/reset-password/:token" element={<PasswordResetConfirm />} />
+                    <Route
+                        path="/forgot-password"
+                        element={<PasswordResetRequest />}
+                    />
+                    <Route
+                        path="/reset-password/:token"
+                        element={<PasswordResetConfirm />}
+                    />
                     <Route
                         path="/dashboard"
                         element={
