@@ -8,7 +8,7 @@ import { register as registerApi } from '../../api/authApi'
 import { checkAvailability } from '../../api/usersApi'
 import PanelButton from '../ui/PanelButton'
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api'
 
 const RegisterForm = () => {
     const navigate = useNavigate()
