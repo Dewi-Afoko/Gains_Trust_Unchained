@@ -5,7 +5,7 @@ import { showToast } from '../../utils/toast'
 import { login as loginApi } from '../../api/authApi'
 import PanelButton from '../ui/PanelButton'
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api'
 
 const LoginForm = () => {
     const {
