@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, serializers
 from .models import Workout, SetDict
 from .serializers import SetDictSerializer, WorkoutSerializer
 from datetime import timedelta
@@ -221,6 +221,22 @@ class SetDictViewSet(ModelViewSet):
             queryset = queryset.filter(workout_id=workout_id)
 
         return queryset
+
+    def perform_create(self, serializer):
+        """Handle set creation by getting workout instance from the request data"""
+        workout_id = self.request.data.get('workout')
+        if workout_id:
+            try:
+                workout = Workout.objects.get(id=workout_id, user=self.request.user)
+                serializer.save(workout=workout)
+            except Workout.DoesNotExist:
+                raise serializers.ValidationError(
+                    {"workout": "Workout not found or you don't have permission to access it."}
+                )
+        else:
+            raise serializers.ValidationError(
+                {"workout": "Workout ID is required."}
+            )
 
     @action(detail=True, methods=["POST"])
     def duplicate(self, request, pk=None):
