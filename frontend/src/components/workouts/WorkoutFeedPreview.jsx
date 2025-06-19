@@ -1,12 +1,26 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import useWorkoutStore from '../../stores/workoutStore'
 import PanelHeader from '../ui/PanelHeader'
-import { Dumbbell, Calendar, Timer } from 'lucide-react'
+import PanelButton from '../ui/PanelButton'
+import WorkoutCreationForm from './WorkoutCreationForm'
+import { Dumbbell, Calendar, Timer, Plus } from 'lucide-react'
 
 const WorkoutItem = ({ workout, onClick }) => {
-    const duration = workout.duration
-        ? new Date(workout.duration * 1000).toISOString().substr(11, 8)
-        : 'In Progress'
+    const getWorkoutStatus = () => {
+        if (workout.duration) {
+            // Workout is completed - show duration
+            return new Date(workout.duration * 1000).toISOString().substr(11, 8)
+        } else if (workout.start_time) {
+            // Workout has been started but not completed
+            return 'In Progress'
+        } else {
+            // Workout hasn't been started yet
+            return 'Not Started'
+        }
+    }
+    
+    const duration = getWorkoutStatus()
 
     return (
         <li
@@ -46,10 +60,17 @@ const WorkoutItem = ({ workout, onClick }) => {
 
 const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
     const { workouts, loading, error, fetchAllWorkouts } = useWorkoutStore()
+    const navigate = useNavigate()
+    const [showCreateForm, setShowCreateForm] = useState(false)
 
     useEffect(() => {
         fetchAllWorkouts()
     }, [])
+
+    const handleWorkoutCreated = () => {
+        setShowCreateForm(false)
+        fetchAllWorkouts() // Refresh the workouts list
+    }
 
     return (
         <div className="flex flex-col h-full w-full">
@@ -64,6 +85,16 @@ const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
                     </div>
                 ) : workouts.length > 0 ? (
                     <ul>
+                        {/* Create Workout Button */}
+                        <li className="mb-3">
+                            <PanelButton
+                                onClick={() => setShowCreateForm(true)}
+                                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 py-3"
+                            >
+                                <Plus className="w-5 h-5" />
+                                Create New Workout
+                            </PanelButton>
+                        </li>
                         {workouts.map((workout) => (
                             <WorkoutItem
                                 key={workout.id}
@@ -73,10 +104,17 @@ const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
                         ))}
                     </ul>
                 ) : (
-                    <div className="flex items-center justify-center h-full">
+                    <div className="flex flex-col items-center justify-center h-full space-y-4">
                         <p className="text-brand-gold/70 uppercase tracking-wider font-medium">
                             No workouts found.
                         </p>
+                        <PanelButton
+                            onClick={() => setShowCreateForm(true)}
+                            className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Create Your First Workout
+                        </PanelButton>
                     </div>
                 )}
                 {error && (
@@ -95,6 +133,17 @@ const WorkoutFeedPreview = ({ setWorkoutId, maxHeight = '320px' }) => {
                     </p>
                 )}
             </div>
+
+            {/* Workout Creation Form Modal */}
+            {showCreateForm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-brand-dark-2 rounded-xl border border-brand-gold max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                        <WorkoutCreationForm 
+                            onClose={handleWorkoutCreated}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

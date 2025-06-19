@@ -149,18 +149,18 @@ export default function WorkoutDetails() {
                     </div>
 
                     {/* Title and Quick Actions */}
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-6">
                         <motion.h1
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="text-4xl lg:text-5xl font-bold gains-font bg-gradient-to-r from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]"
+                            className="text-4xl lg:text-5xl font-bold gains-font bg-gradient-to-r from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)] text-center"
                         >
                             {workout?.workout_name || 'Loading...'}
                         </motion.h1>
 
                         {/* Quick Actions - Only Live Tracking */}
                         {workout && (
-                            <div className="flex justify-center lg:justify-end gap-3 mb-8">
+                            <div className="flex justify-center gap-3 mb-8">
                                 <PanelButton
                                     onClick={() =>
                                         navigate(`/livetracking/${id}`)

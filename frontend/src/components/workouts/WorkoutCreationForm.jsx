@@ -22,7 +22,12 @@ const WorkoutCreationForm = ({ onClose }) => {
             showToast('Workout created successfully!', 'success')
             onClose()
         } catch (error) {
-            showToast('Failed to create workout.', 'error')
+            console.error('Workout creation error:', error)
+            const errorMessage = error.response?.data?.error || 
+                                error.response?.data?.detail || 
+                                error.message || 
+                                'Failed to create workout.'
+            showToast(errorMessage, 'error')
         } finally {
             setIsSubmitting(false)
         }

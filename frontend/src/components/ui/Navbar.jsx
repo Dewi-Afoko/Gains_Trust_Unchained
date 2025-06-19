@@ -125,16 +125,15 @@ const Navbar = () => {
                                                                 workout.workout_name
                                                             }
                                                         </div>
-                                                        {workout.start_time && (
-                                                            <div className="text-xs text-green-400 mt-1">
-                                                                ● In Progress
-                                                            </div>
-                                                        )}
-                                                        {workout.complete && (
+                                                        {workout.duration ? (
                                                             <div className="text-xs text-yellow-400 mt-1">
                                                                 ✓ Completed
                                                             </div>
-                                                        )}
+                                                        ) : workout.start_time ? (
+                                                            <div className="text-xs text-green-400 mt-1">
+                                                                ● In Progress
+                                                            </div>
+                                                        ) : null}
                                                     </button>
                                                 ))}
                                             </>
