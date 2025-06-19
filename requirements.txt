@@ -38,3 +38,4 @@ rpds-py==0.23.1
 sqlparse==0.5.3
 typing_extensions==4.12.2
 uritemplate==4.1.1
+whitenoise==6.9.0

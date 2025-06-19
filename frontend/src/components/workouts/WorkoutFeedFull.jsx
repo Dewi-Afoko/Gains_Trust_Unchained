@@ -206,23 +206,23 @@ const WorkoutFeedFull = ({ workouts, onDelete, onDuplicate }) => {
                                         </div>
                                         {Object.keys(exerciseCounts).length >
                                         0 ? (
-                                            <ul className="text-brand-gold ml-6 space-y-1">
-                                                {Object.entries(
-                                                    exerciseCounts
-                                                ).map(([exercise, count]) => (
-                                                    <li
-                                                        key={exercise}
-                                                        className="text-sm font-medium"
-                                                    >
-                                                        {count}x {exercise}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p className="text-gray-500 ml-6 text-sm font-medium">
+                                                <ul className="text-brand-gold ml-6 space-y-1">
+                                                    {Object.entries(
+                                                        exerciseCounts
+                                                    ).map(([exercise, count]) => (
+                                                        <li
+                                                            key={exercise}
+                                                            className="text-sm font-medium"
+                                                        >
+                                                            {count}x {exercise}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <p className="text-gray-500 ml-6 text-sm font-medium">
                                                 No exercises yet
-                                            </p>
-                                        )}
+                                                </p>
+                                            )}
                                     </div>
 
                                     {/* Total Sets */}

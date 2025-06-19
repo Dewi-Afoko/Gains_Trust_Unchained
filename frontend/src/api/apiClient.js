@@ -61,7 +61,7 @@ apiClient.interceptors.response.use(
             }
             try {
                 const response = await axios.post(
-                    `${process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000'}/token/refresh/`,
+                    `${process.env.REACT_APP_API_BASE_URL || '/api'}/token/refresh/`,
                     { refresh: refreshToken }
                 )
                 const newAccessToken = response.data.access

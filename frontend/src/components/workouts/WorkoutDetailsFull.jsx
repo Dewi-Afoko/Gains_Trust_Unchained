@@ -169,8 +169,8 @@ const WorkoutDetailsFull = () => {
                                     <span className="text-gray-300 font-medium">
                                         {workout?.date
                                             ? new Date(
-                                                  workout.date
-                                              ).toLocaleDateString()
+                                                workout.date
+                                            ).toLocaleDateString()
                                             : 'No date set'}
                                     </span>
                                 </div>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 // import { Button } from '../ui/Button' // Old import removed
 import PanelButton from '../ui/PanelButton' // New import added
 
@@ -33,9 +34,11 @@ export function FinalCTA() {
                     transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
                     className="mt-6"
                 >
-                    <PanelButton className="mx-auto max-w-xs">
-                        Get Started
-                    </PanelButton>
+                    <Link to="/register">
+                        <PanelButton className="mx-auto max-w-xs">
+                            Get Started
+                        </PanelButton>
+                    </Link>
                 </motion.div>
             </div>
         </section>

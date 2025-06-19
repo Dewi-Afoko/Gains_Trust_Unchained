@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import PanelButton from '../ui/PanelButton'
 import { LucideArrowDown } from 'lucide-react'
 import logo from '../../assets/gains-trust-logo-final.png'
@@ -138,18 +139,18 @@ export function Hero() {
                             {line}
                             {idx === typedLines.length - 1 &&
                                 !isTypingComplete && (
-                                    <motion.span
-                                        className="text-yellow-400"
-                                        animate={{ opacity: [0, 1, 0] }}
-                                        transition={{
-                                            duration: 0.8,
-                                            repeat: Infinity,
-                                            ease: 'easeInOut',
-                                        }}
-                                    >
+                                <motion.span
+                                    className="text-yellow-400"
+                                    animate={{ opacity: [0, 1, 0] }}
+                                    transition={{
+                                        duration: 0.8,
+                                        repeat: Infinity,
+                                        ease: 'easeInOut',
+                                    }}
+                                >
                                         █
-                                    </motion.span>
-                                )}
+                                </motion.span>
+                            )}
                         </motion.p>
                     ))}
                 </Terminal>
@@ -162,9 +163,11 @@ export function Hero() {
                 transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
                 className="mt-6 relative z-20" //  Ensure it's above everything else
             >
-                <PanelButton className="relative z-30 mx-auto max-w-xs">
-                    Get Started
-                </PanelButton>
+                <Link to="/register">
+                    <PanelButton className="relative z-30 mx-auto max-w-xs">
+                        Get Started
+                    </PanelButton>
+                </Link>
             </motion.div>
 
             {/* Scroll Indicator */}

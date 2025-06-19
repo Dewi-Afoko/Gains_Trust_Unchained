@@ -243,9 +243,7 @@ else:
     # Production CORS settings - update with your domain
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
-        # Add your production frontend URLs here
-        # "https://yourdomain.com",
-        # "https://www.yourdomain.com",
+        "https://gains-trust-unchained-ece4a.ondigitalocean.app",
     ]
     
 # Allow credentials for CORS

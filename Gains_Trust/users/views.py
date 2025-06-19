@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
 from .serializers import UserSerializer, WeightSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 from .models import Weight, PasswordResetToken
-from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth import get_user_model, authenticate, login as django_login
 from rest_framework.viewsets import ModelViewSet
 from django.utils.timezone import now
 from django.core.mail import send_mail
@@ -156,7 +156,7 @@ class UserViewSet(ModelViewSet):
         user = authenticate(request, username=username, password=password)
 
         if user:
-            login(request, user)
+            django_login(request, user)
             user.login_history.append(str(now()))
             user.login_history = user.login_history[-2:]  # Keep last 2 logins
             user.save()

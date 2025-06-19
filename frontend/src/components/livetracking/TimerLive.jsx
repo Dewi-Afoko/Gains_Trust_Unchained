@@ -367,8 +367,8 @@ const TimerLive = ({
                     isResting && restIntensity === 'urgent'
                         ? 'border-red-500 shadow-red-500/30'
                         : isResting && restIntensity === 'warning'
-                          ? 'border-yellow-500 shadow-yellow-500/20'
-                          : 'border-brand-gold shadow-brand-gold/10'
+                            ? 'border-yellow-500 shadow-yellow-500/20'
+                            : 'border-brand-gold shadow-brand-gold/10'
                 }`}
                 style={{
                     minHeight: '400px',
@@ -376,10 +376,10 @@ const TimerLive = ({
                         isResting && restIntensity === 'critical'
                             ? '0 0 30px rgba(239, 68, 68, 0.5), 0 0 60px rgba(239, 68, 68, 0.3)'
                             : isResting && restIntensity === 'urgent'
-                              ? '0 0 20px rgba(239, 68, 68, 0.4), 0 0 40px rgba(239, 68, 68, 0.2)'
-                              : isResting && restIntensity === 'warning'
-                                ? '0 0 15px rgba(234, 179, 8, 0.3), 0 0 30px rgba(234, 179, 8, 0.2)'
-                                : undefined,
+                                ? '0 0 20px rgba(239, 68, 68, 0.4), 0 0 40px rgba(239, 68, 68, 0.2)'
+                                : isResting && restIntensity === 'warning'
+                                    ? '0 0 15px rgba(234, 179, 8, 0.3), 0 0 30px rgba(234, 179, 8, 0.2)'
+                                    : undefined,
                 }}
             >
                 {/* Background Texture */}
@@ -400,15 +400,15 @@ const TimerLive = ({
                                 isResting
                                     ? 'Next Set'
                                     : workoutStarted
-                                      ? 'Current Set'
-                                      : 'Ready to Start'
+                                        ? 'Current Set'
+                                        : 'Ready to Start'
                             }
                             icon={
                                 isResting
                                     ? Timer
                                     : workoutStarted
-                                      ? Dumbbell
-                                      : Play
+                                        ? Dumbbell
+                                        : Play
                             }
                             size="large"
                         />
@@ -428,28 +428,28 @@ const TimerLive = ({
                                     restIntensity === 'critical'
                                         ? 'border-2 border-red-500 shadow-red-500/50 bg-brand-dark-2'
                                         : restIntensity === 'urgent'
-                                          ? 'border-2 border-red-500 shadow-red-500/30 bg-brand-dark-2'
-                                          : restIntensity === 'warning'
-                                            ? 'border-2 border-yellow-500 shadow-yellow-500/20 bg-brand-dark-2'
-                                            : 'border border-brand-gold/30 bg-brand-dark-2 shadow-brand-gold/10'
+                                            ? 'border-2 border-red-500 shadow-red-500/30 bg-brand-dark-2'
+                                            : restIntensity === 'warning'
+                                                ? 'border-2 border-yellow-500 shadow-yellow-500/20 bg-brand-dark-2'
+                                                : 'border border-brand-gold/30 bg-brand-dark-2 shadow-brand-gold/10'
                                 }`}
                                 style={{
                                     boxShadow:
                                         restIntensity === 'critical'
                                             ? '0 0 30px rgba(239, 68, 68, 0.5), 0 0 60px rgba(239, 68, 68, 0.3)'
                                             : restIntensity === 'urgent'
-                                              ? '0 0 20px rgba(239, 68, 68, 0.4), 0 0 40px rgba(239, 68, 68, 0.2)'
-                                              : restIntensity === 'warning'
-                                                ? '0 0 15px rgba(234, 179, 8, 0.3), 0 0 30px rgba(234, 179, 8, 0.2)'
-                                                : undefined,
+                                                ? '0 0 20px rgba(239, 68, 68, 0.4), 0 0 40px rgba(239, 68, 68, 0.2)'
+                                                : restIntensity === 'warning'
+                                                    ? '0 0 15px rgba(234, 179, 8, 0.3), 0 0 30px rgba(234, 179, 8, 0.2)'
+                                                    : undefined,
                                     animation:
                                         restIntensity === 'critical'
                                             ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                                             : restIntensity === 'urgent'
-                                              ? 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                              : restIntensity === 'warning'
-                                                ? 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                                : undefined,
+                                                ? 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                : restIntensity === 'warning'
+                                                    ? 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                    : undefined,
                                 }}
                             >
                                 {/* Clean background for rest timer */}
@@ -478,11 +478,11 @@ const TimerLive = ({
                                                         ? 'w-24 h-24 text-white'
                                                         : restIntensity ===
                                                             'urgent'
-                                                          ? 'w-16 h-16 text-white'
-                                                          : restIntensity ===
-                                                              'warning'
-                                                            ? 'w-12 h-12 text-black'
-                                                            : 'w-10 h-10 text-black'
+                                                            ? 'w-16 h-16 text-white'
+                                                            : restIntensity ===
+                                                            'warning'
+                                                                ? 'w-12 h-12 text-black'
+                                                                : 'w-10 h-10 text-black'
                                                 }`}
                                                 style={{
                                                     animation:
@@ -491,8 +491,8 @@ const TimerLive = ({
                                                             ? 'bounce 2s infinite'
                                                             : restIntensity ===
                                                                 'urgent'
-                                                              ? 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                                              : undefined,
+                                                                ? 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                                : undefined,
                                                 }}
                                             />
                                         </div>
@@ -505,11 +505,11 @@ const TimerLive = ({
                                                 restIntensity === 'critical'
                                                     ? 'text-7xl text-red-300'
                                                     : restIntensity === 'urgent'
-                                                      ? 'text-4xl text-red-500'
-                                                      : restIntensity ===
+                                                        ? 'text-4xl text-red-500'
+                                                        : restIntensity ===
                                                           'warning'
-                                                        ? 'text-3xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
-                                                        : 'text-2xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                                            ? 'text-3xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                                            : 'text-2xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
                                             }`}
                                             style={{
                                                 animation:
@@ -526,10 +526,10 @@ const TimerLive = ({
                                             restIntensity === 'critical'
                                                 ? 'text-[12rem] text-red-200 leading-none'
                                                 : restIntensity === 'urgent'
-                                                  ? 'text-8xl text-red-500 leading-none'
-                                                  : restIntensity === 'warning'
-                                                    ? 'text-6xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
-                                                    : 'text-5xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                                    ? 'text-8xl text-red-500 leading-none'
+                                                    : restIntensity === 'warning'
+                                                        ? 'text-6xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                                        : 'text-5xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
                                         }`}
                                         style={{
                                             animation:
@@ -545,29 +545,29 @@ const TimerLive = ({
                                             restIntensity === 'critical'
                                                 ? 'text-4xl text-red-300'
                                                 : restIntensity === 'urgent'
-                                                  ? 'text-2xl text-red-500'
-                                                  : restIntensity === 'warning'
-                                                    ? 'text-xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
-                                                    : 'text-lg bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                                    ? 'text-2xl text-red-500'
+                                                    : restIntensity === 'warning'
+                                                        ? 'text-xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                                        : 'text-lg bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
                                         }`}
                                         style={{
                                             animation:
                                                 restIntensity === 'critical'
                                                     ? 'bounce 2s infinite'
                                                     : restIntensity === 'urgent'
-                                                      ? 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                                      : undefined,
+                                                        ? 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                                        : undefined,
                                         }}
                                     >
                                         {restIntensity === 'critical'
                                             ? 'GET READY NOW!'
                                             : restIntensity === 'urgent'
-                                              ? 'Almost time!'
-                                              : restIntensity === 'warning'
-                                                ? 'Prepare for next set'
-                                                : autoStartNextSet
-                                                  ? 'Next set starts automatically when rest ends'
-                                                  : 'Click "Start Set" when ready'}
+                                                ? 'Almost time!'
+                                                : restIntensity === 'warning'
+                                                    ? 'Prepare for next set'
+                                                    : autoStartNextSet
+                                                        ? 'Next set starts automatically when rest ends'
+                                                        : 'Click "Start Set" when ready'}
                                     </p>
                                 </div>
                             </div>
@@ -584,12 +584,12 @@ const TimerLive = ({
                                                 ? 'text-6xl text-red-300'
                                                 : isResting &&
                                                     restIntensity === 'urgent'
-                                                  ? 'text-4xl text-red-500'
-                                                  : isResting &&
-                                                      restIntensity ===
-                                                          'warning'
-                                                    ? 'text-3xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
-                                                    : 'text-3xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                                    ? 'text-4xl text-red-500'
+                                                    : isResting &&
+                                                    restIntensity ===
+                                                        'warning'
+                                                        ? 'text-3xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
+                                                        : 'text-3xl bg-gradient-to-b from-yellow-400 via-yellow-600 to-orange-700 text-transparent bg-clip-text drop-shadow-[2px_2px_2px_rgba(0,0,0,0.8)]'
                                         }`}
                                     >
                                         {nextSet.exercise_name}
@@ -631,30 +631,30 @@ const TimerLive = ({
 
                                         {workoutStarted &&
                                             shouldSetTimerRun() && (
-                                                <div className="text-center p-6 mb-6 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20 relative overflow-hidden">
-                                                    {/* Set Duration background texture */}
-                                                    <div
-                                                        className="absolute inset-0 opacity-30 pointer-events-none z-0 rounded-xl"
-                                                        style={{
-                                                            backgroundImage: `url(${texture2})`,
-                                                            backgroundSize:
+                                            <div className="text-center p-6 mb-6 bg-black/30 rounded-xl border border-brand-gold/50 shadow-lg shadow-brand-gold/20 relative overflow-hidden">
+                                                {/* Set Duration background texture */}
+                                                <div
+                                                    className="absolute inset-0 opacity-30 pointer-events-none z-0 rounded-xl"
+                                                    style={{
+                                                        backgroundImage: `url(${texture2})`,
+                                                        backgroundSize:
                                                                 '200px 200px',
-                                                            backgroundRepeat:
+                                                        backgroundRepeat:
                                                                 'repeat',
-                                                        }}
-                                                    />
-                                                    <div className="relative z-10">
-                                                        <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-3">
+                                                    }}
+                                                />
+                                                <div className="relative z-10">
+                                                    <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-3">
                                                             Set Duration
-                                                        </p>
-                                                        <p className="text-4xl font-mono font-black text-white">
-                                                            {formatTime(
-                                                                setTimer
-                                                            )}
-                                                        </p>
-                                                    </div>
+                                                    </p>
+                                                    <p className="text-4xl font-mono font-black text-white">
+                                                        {formatTime(
+                                                            setTimer
+                                                        )}
+                                                    </p>
                                                 </div>
-                                            )}
+                                            </div>
+                                        )}
 
                                         {/* Action Buttons */}
                                         <div className="flex gap-6 justify-center">

@@ -310,8 +310,8 @@ export default function LiveTracking() {
                                                 {isResting
                                                     ? 'Next Set'
                                                     : workout?.start_time
-                                                      ? 'Current Set'
-                                                      : 'Ready to Start'}
+                                                        ? 'Current Set'
+                                                        : 'Ready to Start'}
                                             </span>
                                             <span className="w-2 h-2 bg-yellow-700 rounded-full shadow-inner opacity-70" />
                                         </div>

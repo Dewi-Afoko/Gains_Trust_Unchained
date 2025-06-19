@@ -158,7 +158,7 @@ const WorkoutControlsLive = () => {
                 {/* Completed Sets Section */}
                 <div className="mb-4">
                     <PanelHeader
-                        title={`Completed Sets (${completedCount})`}
+                        title={`Complete Sets (${completedCount})`}
                         icon={CheckCircle}
                         size="normal"
                         collapsible={true}

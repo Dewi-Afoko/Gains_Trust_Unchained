@@ -48,8 +48,8 @@ const SetTrackerLive = ({
     const title = showNextOnly
         ? 'Next 3 Sets'
         : showCompletedOnly
-          ? 'Last 3 Sets'
-          : 'All Sets'
+            ? 'Last 3 Sets'
+            : 'All Sets'
 
     const handleToggleExpanded = () => {
         setIsExpanded(!isExpanded)
