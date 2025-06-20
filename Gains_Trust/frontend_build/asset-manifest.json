@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.25c3251e.css",
-    "main.js": "/static/js/main.26344cee.js",
+    "main.css": "/static/css/main.fbbe1a04.css",
+    "main.js": "/static/js/main.a8762fc2.js",
     "static/js/488.7213179a.chunk.js": "/static/js/488.7213179a.chunk.js",
     "static/media/texture2.png": "/static/media/texture2.c0d119663f1d7fc55712.png",
     "static/media/gains-trust-logo-final.png": "/static/media/gains-trust-logo-final.db30c6e0ea91fea4c281.png",
@@ -9,12 +9,12 @@
     "static/media/industrial-texture.png": "/static/media/industrial-texture.488cc9aac6b92ca3824d.png",
     "static/media/kraftundstil.TTF": "/static/media/kraftundstil.52da6365609f47fb5f1c.TTF",
     "index.html": "/index.html",
-    "main.25c3251e.css.map": "/static/css/main.25c3251e.css.map",
-    "main.26344cee.js.map": "/static/js/main.26344cee.js.map",
+    "main.fbbe1a04.css.map": "/static/css/main.fbbe1a04.css.map",
+    "main.a8762fc2.js.map": "/static/js/main.a8762fc2.js.map",
     "488.7213179a.chunk.js.map": "/static/js/488.7213179a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.25c3251e.css",
-    "static/js/main.26344cee.js"
+    "static/css/main.fbbe1a04.css",
+    "static/js/main.a8762fc2.js"
   ]
 }
