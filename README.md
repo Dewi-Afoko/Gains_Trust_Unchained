@@ -26,6 +26,7 @@ This isn't just another CRUD app with a fitness theme. Gains Trust showcases **r
 
 ## 🎬 See It In Action
 
+
 ### 📹 Complete User Guide
 **[Watch the Full App Walkthrough](https://drive.google.com/file/d/1A_c6WzNd_6LPm8LMijXLZ5cW4mAVVla2/view?usp=drive_link)**  
 *Complete demonstration of all features — from registration to live workout tracking*
