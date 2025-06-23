@@ -96,6 +96,10 @@ class WorkoutViewSet(ModelViewSet):
         IsAuthenticated
     ]  # Ensures only authenticated users can access
 
+    def get_queryset(self):
+        """Ensure users only see their own workouts."""
+        return Workout.objects.filter(user=self.request.user).order_by("-date")
+
     def perform_create(self, serializer):
         """Ensures the logged-in user is assigned to the created workout,
         logic moved from serializer."""
