@@ -127,27 +127,26 @@ def test_get_sets_filtered_by_workout(authenticated_client, create_workout, crea
 
 @pytest.mark.django_db
 def test_create_set(authenticated_client, create_workout):
-    """Test creating a set entry via SetDictSerializer by first creating a workout."""
+    """Test creating a set entry via the API endpoint."""
 
-    # ✅ Step 1: Create a workout instance directly
-    workout = Workout.objects.create(user=create_workout.user, workout_name="Test Workout")
-
-    # ✅ Step 2: Create a SetDict instance using the serializer and passing workout in context
+    # ✅ Create a set via the actual API endpoint
     set_data = {
         "exercise_name": "Bench Press",
         "reps": 10,
         "loading": 80.0,
+        "workout": create_workout.id,  # Pass workout ID as the ViewSet expects
     }
 
-    serializer = SetDictSerializer(data=set_data, context={"workout": workout})
-    assert serializer.is_valid(), serializer.errors
-
-    set_dict = serializer.save()
-
-    assert set_dict.workout == workout  # ✅ Ensure SetDict is linked to the created workout
-    assert set_dict.exercise_name == "Bench Press"
-    assert set_dict.reps == 10
-    assert set_dict.loading == 80.0
+    response = authenticated_client.post(reverse("sets-list"), set_data)
+    
+    assert response.status_code == 201
+    assert response.data["exercise_name"] == "Bench Press"
+    assert response.data["reps"] == 10
+    assert response.data["loading"] == 80.0
+    
+    # Verify the set was created in the database
+    set_dict = SetDict.objects.get(id=response.data["id"])
+    assert set_dict.workout == create_workout
 
 
 @pytest.mark.django_db
