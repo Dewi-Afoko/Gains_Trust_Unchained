@@ -20,6 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
             "height",
             "dob",
             "date_joined",
+            "last_login",
+            "login_history",
             "password",
         ]
         extra_kwargs = {"password": {"write_only": True}}
