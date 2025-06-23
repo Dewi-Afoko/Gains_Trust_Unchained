@@ -133,7 +133,7 @@ npm start
 - ✅ SMTP password recovery with time-limited tokens
 - ✅ Production deployment on DigitalOcean
 
-## 🤝 Technical Discussion
+## 🤝🏽 Technical Discussion
 
 Want to dive deeper into the technical implementation? Check out the **[Technical Walkthrough](TechWalkthrough.md)** for detailed code examples, architecture decisions, and lessons learned.
 
