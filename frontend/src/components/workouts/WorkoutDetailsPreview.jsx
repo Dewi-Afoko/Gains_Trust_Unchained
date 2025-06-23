@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { useNavigate } from 'react-router-dom'
 import useWorkoutStore from '../../stores/workoutStore'
 import WorkoutEditForm from '../workouts/WorkoutEditForm'
 import SetsTablePreview from '../sets/SetsTablePreview'
@@ -7,6 +8,7 @@ import SetCreationForm from '../sets/SetCreationForm'
 import PanelButton from '../ui/PanelButton'
 import PanelHeader from '../ui/PanelHeader'
 import { Calendar, Clock, ClipboardList, Dumbbell } from 'lucide-react'
+import { formatDuration } from '../../utils/formatters'
 
 const Spinner = () => (
     <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
@@ -22,6 +24,7 @@ const GradientIcon = ({ icon: Icon, className = '' }) => (
 )
 
 const WorkoutDetailsPreview = ({ workoutId }) => {
+    const navigate = useNavigate()
     const {
         workout,
         sets,
@@ -71,12 +74,17 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
             {loading && <Spinner />}
             {workout && (
                 <>
-                    <PanelHeader
-                        title={workout?.workout_name || 'Loading Workout...'}
-                        icon={Dumbbell}
-                        useGainsFont={false}
-                        size="large"
-                    />
+                    <div 
+                        onClick={() => navigate(`/workouts/${workoutId}`)}
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                    >
+                        <PanelHeader
+                            title={workout?.workout_name || 'Loading Workout...'}
+                            icon={Dumbbell}
+                            useGainsFont={false}
+                            size="large"
+                        />
+                    </div>
 
                     <div className="flex flex-col h-full overflow-y-auto">
                         {/* Info Cards */}
@@ -94,7 +102,7 @@ const WorkoutDetailsPreview = ({ workoutId }) => {
                                 <GradientIcon icon={Clock} />
                                 <span className="text-gray-300 font-medium">
                                     Duration:{' '}
-                                    {workout?.duration || 'In Progress'}
+                                    {workout?.duration ? formatDuration(workout.duration) : 'In Progress'}
                                 </span>
                             </div>
 

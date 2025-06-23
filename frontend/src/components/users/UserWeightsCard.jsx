@@ -135,13 +135,15 @@ const UserWeightCard = ({ weights, onWeightUpdate }) => {
                                 />
                                 <YAxis
                                     domain={[
-                                        minWeight - padding,
-                                        maxWeight + padding,
+                                        Math.floor(minWeight - padding),
+                                        Math.ceil(maxWeight + padding),
                                     ]}
                                     stroke="#FFD700"
                                     tick={{ fill: '#FFD700', fontSize: 12 }}
                                     tickLine={{ stroke: '#FFD700' }}
                                     style={{ filter: 'url(#glow)' }}
+                                    tickFormatter={(value) => `${Math.round(value)}kg`}
+                                    interval="preserveStartEnd"
                                 />
                                 <Tooltip content={<CustomTooltip />} />
                                 <ReferenceLine

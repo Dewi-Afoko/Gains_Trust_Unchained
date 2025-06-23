@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
@@ -134,13 +135,18 @@ export default function LiveTracking() {
     // Calculate intelligent positioning for Workout Overview
     const getWorkoutOverviewPosition = () => {
         // On mobile, always use normal positioning (panels are stacked below)
-        // On desktop, check panel expansion states
+        // On desktop, check panel expansion states more granularly
         return {
             mobile: 'mt-8 mb-16',
-            desktop:
-                !leftPanelExpanded && !rightPanelExpanded
-                    ? 'lg:mt-8 lg:mb-16' // Both collapsed - normal position
-                    : 'lg:mt-36 lg:mb-16', // At least one expanded - proper spacing (9rem = 144px)
+            desktop: (() => {
+                if (!leftPanelExpanded && !rightPanelExpanded) {
+                    return 'lg:mt-8 lg:mb-16' // Both collapsed - normal position
+                } else if (leftPanelExpanded && rightPanelExpanded) {
+                    return 'lg:mt-[28rem] lg:mb-16' // Both expanded - maximum spacing
+                } else {
+                    return 'lg:mt-[20rem] lg:mb-16' // One expanded - medium spacing
+                }
+            })(),
         }
     }
 
@@ -446,11 +452,11 @@ export default function LiveTracking() {
                 </div>
 
                 {/* Status Messages */}
-                {nextSet && (
+                {nextSet && createPortal(
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="fixed bottom-6 right-6 bg-brand-dark-2 border border-brand-gold/40 backdrop-blur-sm p-4 rounded-xl shadow-2xl"
+                        className="fixed bottom-6 right-6 bg-brand-dark-2 border border-brand-gold/40 backdrop-blur-sm p-4 rounded-xl shadow-2xl z-[9999]"
                     >
                         <div className="flex items-center gap-3">
                             <Activity className="w-5 h-5 text-yellow-400" />
@@ -464,7 +470,8 @@ export default function LiveTracking() {
                                 </p>
                             </div>
                         </div>
-                    </motion.div>
+                    </motion.div>,
+                    document.body
                 )}
             </div>
 
@@ -473,7 +480,7 @@ export default function LiveTracking() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className={`relative z-20 ${positionClasses.mobile} ${positionClasses.desktop} px-4 lg:px-[21rem]`}
+                className={`relative z-20 ${positionClasses.mobile} ${positionClasses.desktop} w-full`}
             >
                 <div className="w-full">
                     <WorkoutControlsLive />
