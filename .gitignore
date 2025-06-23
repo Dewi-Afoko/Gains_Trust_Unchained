@@ -54,3 +54,4 @@ __pycache__/
 htmlcov/
 coverage.xml
 .coverage
+# Status refresh
