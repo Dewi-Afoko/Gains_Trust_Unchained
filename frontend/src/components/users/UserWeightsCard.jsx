@@ -54,9 +54,9 @@ const UserWeightCard = ({ weights, onWeightUpdate }) => {
     const weightChange =
         formattedWeights.length >= 2
             ? (
-                  formattedWeights[formattedWeights.length - 1].weight -
-                  formattedWeights[0].weight
-              ).toFixed(1)
+                formattedWeights[formattedWeights.length - 1].weight -
+                formattedWeights[0].weight
+            ).toFixed(1)
             : 0
 
     const getWeightChangeColor = (change) => {
