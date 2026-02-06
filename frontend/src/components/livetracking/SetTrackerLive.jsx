@@ -158,7 +158,10 @@ const SetTrackerLive = ({
                                                 <div className="flex items-center gap-2">
                                                     <Dumbbell className="w-3 h-3 text-gray-400" />
                                                     <p className="text-sm text-gray-300 font-medium">
-                                                        Reps: {set.reps}
+                                                        {set.is_isometric
+                                                            ? `Hold Time: ${set.reps}s`
+                                                            : `Reps: ${set.reps}`
+                                                        }
                                                     </p>
                                                 </div>
                                             )}

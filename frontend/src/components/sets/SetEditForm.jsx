@@ -6,8 +6,9 @@ import { createPortal } from 'react-dom'
 
 const SetEditForm = ({ setId, onClose }) => {
     const { sets, updateSet } = useWorkoutStore()
-    const { register, handleSubmit, reset } = useForm()
+    const { register, handleSubmit, reset, watch } = useForm()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const isIsometric = watch('is_isometric')
 
     // Find the set data from the store
     const setData = sets.find((set) => set.id === setId)
@@ -19,6 +20,7 @@ const SetEditForm = ({ setId, onClose }) => {
                 set_type: setData.set_type || '',
                 loading: setData.loading || '',
                 reps: setData.reps || '',
+                is_isometric: setData.is_isometric || false,
                 rest: setData.rest || '',
                 focus: setData.focus || '',
                 notes: setData.notes || '',
@@ -34,6 +36,7 @@ const SetEditForm = ({ setId, onClose }) => {
                 set_type: data.set_type || '',
                 loading: data.loading ? parseFloat(data.loading) : null,
                 reps: data.reps ? parseInt(data.reps) : null,
+                is_isometric: data.is_isometric || false,
                 rest: data.rest ? parseInt(data.rest) : null,
                 focus: data.focus || '',
                 notes: data.notes || '',
@@ -116,7 +119,7 @@ const SetEditForm = ({ setId, onClose }) => {
                         />
                     </label>
                     <label className="block text-brand-gold font-semibold mb-1">
-                        Reps:
+                        {isIsometric ? 'Hold Time (seconds):' : 'Reps:'}
                         <input
                             type="number"
                             {...register('reps')}
@@ -133,6 +136,16 @@ const SetEditForm = ({ setId, onClose }) => {
                         className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
                         rows="2"
                     />
+                </label>
+
+                {/* Isometric Exercise Checkbox */}
+                <label className="flex items-center space-x-2 text-brand-gold font-semibold">
+                    <input
+                        type="checkbox"
+                        {...register('is_isometric')}
+                        className="text-yellow-400 border-yellow-400 rounded focus:ring-2 focus:ring-yellow-400"
+                    />
+                    <span>Isometric Exercise (hold time instead of reps)?</span>
                 </label>
 
                 <div className="flex gap-4 justify-center mt-6 sticky bottom-0 bg-brand-dark-2 py-2 -mx-2 px-2">

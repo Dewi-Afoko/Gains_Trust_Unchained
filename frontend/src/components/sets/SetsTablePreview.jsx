@@ -98,7 +98,10 @@ const SetsTablePreview = ({ sets, workoutId }) => {
                                             {formatLoading(set.loading)}
                                         </TableCell>
                                         <TableCell>
-                                            {set.reps || 'N/A'}
+                                            {set.is_isometric
+                                                ? (set.reps ? `${set.reps}s` : 'N/A')
+                                                : (set.reps || 'N/A')
+                                            }
                                         </TableCell>
                                         <TableCell>
                                             {set.rest || 'N/A'}

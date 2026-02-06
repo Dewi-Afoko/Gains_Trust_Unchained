@@ -16,6 +16,7 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const addMultipleSets = watch('addMultipleSets')
+    const isIsometric = watch('is_isometric')
 
     const onSubmit = async (data) => {
         if (!workoutId) {
@@ -31,6 +32,7 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                 set_type: data.set_type || '',
                 loading: data.loading ? parseFloat(data.loading) : null,
                 reps: data.reps ? parseInt(data.reps) : null,
+                is_isometric: data.is_isometric || false,
                 rest: data.rest ? parseInt(data.rest) : null,
                 focus: data.focus || '',
                 notes: data.notes || '',
@@ -130,13 +132,13 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                         />
                     </label>
                     <label className="block text-brand-gold font-semibold mb-1">
-                        Reps:
+                        {isIsometric ? 'Hold Time (seconds):' : 'Reps:'}
                         <input
                             type="number"
                             min="0"
                             {...register('reps')}
                             className="w-full p-2 mt-2 rounded bg-[#1a1a1a] border border-yellow-400 text-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition"
-                            placeholder="0"
+                            placeholder={isIsometric ? "30" : "0"}
                         />
                     </label>
                 </div>
@@ -150,6 +152,16 @@ const SetCreationForm = ({ workoutId, onClose, onSetCreated }) => {
                         placeholder="Any additional notes..."
                         rows="2"
                     />
+                </label>
+
+                {/* Isometric Exercise Checkbox */}
+                <label className="flex items-center space-x-2 text-brand-gold font-semibold">
+                    <input
+                        type="checkbox"
+                        {...register('is_isometric')}
+                        className="text-yellow-400 border-yellow-400 rounded focus:ring-2 focus:ring-yellow-400"
+                    />
+                    <span>Isometric Exercise (hold time instead of reps)?</span>
                 </label>
 
                 {/* Multiple Sets Option */}

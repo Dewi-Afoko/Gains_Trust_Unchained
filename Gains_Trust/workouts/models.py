@@ -35,6 +35,7 @@ class SetDict(models.Model):
     set_type = models.CharField(max_length=100, blank=True)
     loading = models.FloatField(null=True, blank=True)
     reps = models.IntegerField(null=True, blank=True)
+    is_isometric = models.BooleanField(default=False)
     focus = models.CharField(max_length=150, blank=True)
     rest = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
