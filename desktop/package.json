@@ -1,0 +1,78 @@
+{
+  "name": "gains-trust-desktop",
+  "version": "1.0.0",
+  "description": "Gains Trust Unchained Desktop App",
+  "main": "main.js",
+  "author": "dewi",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:electron\"",
+    "dev:backend": "cd ../Gains_Trust && source ../gains_trust_venv/bin/activate && python manage.py runserver",
+    "dev:frontend": "cd ../frontend && BROWSER=none npm start",
+    "dev:electron": "wait-on http://localhost:3000 && NODE_ENV=development electron .",
+    "build": "npm run build:prepare && npm run build:app",
+    "build:prepare": "node scripts/build-backend.js && node scripts/build-frontend.js",
+    "build:app": "electron-builder --mac",
+    "dist": "npm run build"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "find-free-port": "^2.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0",
+    "fs-extra": "^11.2.0",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.gainstrust.desktop",
+    "productName": "Gains Trust",
+    "mac": {
+      "category": "public.app-category.healthcare-fitness",
+      "icon": "assets/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "backend/**/*",
+      "resources/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!**/*.pyc",
+          "!**/__pycache__"
+        ]
+      },
+      {
+        "from": "resources/frontend",
+        "to": "frontend"
+      }
+    ],
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}
